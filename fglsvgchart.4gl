@@ -283,7 +283,7 @@ PUBLIC FUNCTION setGridLabelsFromStepsX(id,skip,format)
     IF format IS NULL THEN
        LET format = "----&.&&"
     END IF
-    FOR n=1 TO charts[id].grid_np STEP skip
+    FOR n=1 TO charts[id].grid_np+1 STEP skip
         LET v = charts[id].minpos + (dy * (n-1))
         LET charts[id].grid_lx[n] = (v USING format)
     END FOR
@@ -310,7 +310,7 @@ PUBLIC FUNCTION setGridLabelsFromStepsY(id,skip,format)
     IF format IS NULL THEN
        LET format = "----&.&&"
     END IF
-    FOR n=1 TO charts[id].grid_nv STEP skip
+    FOR n=1 TO charts[id].grid_nv+1 STEP skip
         LET v = charts[id].minval + (dx * (n-1))
         LET charts[id].grid_ly[n] = (v USING format)
     END FOR
