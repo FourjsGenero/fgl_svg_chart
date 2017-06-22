@@ -463,26 +463,35 @@ FUNCTION create_styles(root_svg)
            buf base.StringBuffer,
            defs om.DomNode
 
+    -- WARNING: Must adapt font sizes to the viewBox boundaries, % does not work...
+
     LET attr = om.SaxAttributes.create()
     LET buf = base.StringBuffer.create()
 
     CALL attr.clear()
-    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    CALL attr.addAttribute(SVGATT_FILL,           "navy" )
+    --CALL attr.addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid",attr) )
 
     CALL attr.clear()
-    CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "3em" )
     CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.02em" )
-    CALL attr.addAttribute(SVGATT_FILL,           "blue" )
-    CALL buf.append( fglsvgcanvas.styleDefinition(".main_title",attr) )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".grid_x_line",attr) )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".grid_y_line",attr) )
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_STROKE,         "red" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "3px" )
-    CALL buf.append( fglsvgcanvas.styleDefinition(".x_axis",attr) )
-    CALL buf.append( fglsvgcanvas.styleDefinition(".y_axis",attr) )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.2%" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".grid_x_axis",attr) )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".grid_y_axis",attr) )
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "5em" )
+    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.2%" )
+    CALL attr.addAttribute(SVGATT_FILL,           "blue" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".main_title",attr) )
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
@@ -492,26 +501,26 @@ FUNCTION create_styles(root_svg)
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.2%" )
     CALL attr.addAttribute(SVGATT_FILL,           "lightYellow" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".legend_box",attr) )
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "2em" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "2.5em" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".legend_label",attr) )
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FILL,           "red" )
     CALL attr.addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
     CALL attr.addAttribute(SVGATT_STROKE,         "black" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.05%" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".points",attr) )
 
     -- Dataset colors
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
 
     CALL attr.addAttribute(SVGATT_FILL,   "cyan" )
     CALL attr.addAttribute(SVGATT_STROKE, "blue" )

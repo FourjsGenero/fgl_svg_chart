@@ -244,8 +244,8 @@ END FUNCTION
 #+ Set the number of horizontal and vertical grid lines to display.
 #+
 #+ The style of the grid can be defined with "grid", the line styles
-#+ can be defined with "grid_line_x" and "grid_line_y", the style
-#+ for X/Y axises can be defined with "x_axis" and "y_axis".
+#+ can be defined with "grid_x_line_x" and "grid_y_line", the style
+#+ for X/Y axises can be defined with "grid_x_axis" and "grid_y_axis".
 #+
 #+ @code
 #+ CALL fglsvgchart.defineGrid(id, 12, 40)
@@ -562,6 +562,7 @@ PRIVATE FUNCTION _create_legend_box(id, h)
         CALL r.setAttribute(fglsvgcanvas.SVGATT_CLASS,charts[id].datasets[l].style)
         CALL n.appendChild(r)
         LET t = fglsvgcanvas.text( 100, (ch*0.60), charts[id].datasets[l].label, "legend_label")
+        CALL t.setAttribute("text-anchor","left")
         CALL n.appendChild(t)
     END FOR
 
@@ -634,7 +635,7 @@ PRIVATE FUNCTION add_debug_rect(x,y,w,h)
     CALL n.setAttribute(fglsvgcanvas.SVGATT_FILL,"yellow")
     CALL n.setAttribute(fglsvgcanvas.SVGATT_FILL_OPACITY,"0.2")
     CALL n.setAttribute(fglsvgcanvas.SVGATT_STROKE,"red")
-    CALL n.setAttribute(fglsvgcanvas.SVGATT_STROKE_WIDTH,"0.4em")
+    CALL n.setAttribute(fglsvgcanvas.SVGATT_STROKE_WIDTH,"0.4%")
     RETURN n
 END FUNCTION
 
@@ -677,7 +678,7 @@ PRIVATE FUNCTION _render_grid_1(id, base)
        LET ix = charts[id].minpos
        FOR i=1 TO charts[id].grid_np+1
            LET n = fglsvgcanvas.line(ix, charts[id].minval, ix, charts[id].maxval)
-           CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_line_x")
+           CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_x_line")
            CALL g.appendChild(n)
            IF charts[id].grid_pl AND charts[id].grid_lx[i] IS NOT NULL THEN
               LET t = fglsvgcanvas.text( ix, ly, charts[id].grid_lx[i], "grid_x_label" )
@@ -697,7 +698,7 @@ PRIVATE FUNCTION _render_grid_1(id, base)
        LET iy = charts[id].minval
        FOR i=1 TO charts[id].grid_nv+1
            LET n = fglsvgcanvas.line(charts[id].minpos, iy, charts[id].maxpos, iy)
-           CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_line_y")
+           CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_y_line")
            CALL g.appendChild(n)
            IF charts[id].grid_vl AND charts[id].grid_ly[i] IS NOT NULL THEN
               LET t = fglsvgcanvas.text( lx, iy, charts[id].grid_ly[i], "grid_y_label" )
@@ -712,10 +713,10 @@ PRIVATE FUNCTION _render_grid_1(id, base)
 
     IF charts[id].origin THEN
        LET n = fglsvgcanvas.line(charts[id].minpos, 0, charts[id].maxpos, 0)
-       CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"x_axis")
+       CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_x_axis")
        CALL g.appendChild(n)
        LET n = fglsvgcanvas.line(0, charts[id].minval, 0, charts[id].maxval)
-       CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"y_axis")
+       CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_y_axis")
        CALL g.appendChild(n)
     END IF
 
