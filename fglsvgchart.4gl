@@ -734,35 +734,38 @@ PRIVATE FUNCTION _render_data_bars(id, base)
            base om.DomNode
     DEFINE n, g om.DomNode,
            i, m INTEGER,
+           l, ml INTEGER,
            s STRING,
-           dx DECIMAL,
+           dx, sdx DECIMAL,
            x,y,w,h DECIMAL
 
     LET g = fglsvgcanvas.g("data_bars")
     CALL base.appendChild(g)
 
     LET m = charts[id].items.getLength()
-    LET dx = (charts[id].width / m) * 0.4
+    LET dx = (charts[id].width / m) * 0.8
+    LET ml = _max_value_count(id)
+    LET sdx = dx / ml
 
-    -- TODO: Render all datasets...
-
-    FOR i=1 TO m
-        LET h = charts[id].items[i].values[1].value
-        IF h IS NULL THEN CONTINUE FOR END IF
-        IF h<0 THEN
-           LET y = h
-           LET h = -h
-        ELSE
-           LET y = 0
-        END IF
-        LET x = charts[id].items[i].position - (dx/2)
-        LET w = dx
-        LET n = fglsvgcanvas.rect(x, y, w, h, NULL, NULL)
-        LET s = charts[id].datasets[1].style
-        IF s IS NOT NULL THEN
-           CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
-        END IF
-        CALL g.appendChild(n)
+    FOR l=1 TO ml
+        LET s = charts[id].datasets[l].style
+        FOR i=1 TO m
+            LET h = charts[id].items[i].values[l].value
+            IF h IS NULL THEN CONTINUE FOR END IF
+            IF h<0 THEN
+               LET y = h
+               LET h = -h
+            ELSE
+               LET y = 0
+            END IF
+            LET x = charts[id].items[i].position - (dx/2) + (sdx*(l-1))
+            LET w = (sdx * 0.95)
+            LET n = fglsvgcanvas.rect(x, y, w, h, NULL, NULL)
+            IF s IS NOT NULL THEN
+               CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
+            END IF
+            CALL g.appendChild(n)
+        END FOR
     END FOR
 
 END FUNCTION
