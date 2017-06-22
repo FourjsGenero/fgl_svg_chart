@@ -1,25 +1,24 @@
-LAYOUT
+LAYOUT (WINDOWSTYLE="dialog4")
 GRID
 {
 Chart type: [ct                 ]  Datasets: [ds       ]
 Min/Max pos:[minpos   :maxpos   ]  Grid steps X:[gsx   ]
 Min/Max val:[minval   :maxval   ]  Grid steps Y:[gsy   ]
                            Skip grid labels: [sgl      ]
-            [s_pts:s_pst:s_leg:s_org]
 <GROUP g1                                              >
  Dataset: [c_d      ] Item: [c_i     ] [cl     ]
  Position:[c_p      ] Value:[c_v     ] [sv     ]
  Label:   [c_l                       ] [rd     ]
 <                                                      >
-[cv                                                    ]
-[                                                      ]
-[                                                      ]
-[                                                      ]
-[                                                      ]
-[                                                      ]
-[                                                      ]
-[                                                      ]
-Selected:[es                                           ]
+[cv                                         ]<GROUP g2 >
+[                                           ][s_pts    ]
+[                                           ][s_pst    ]
+[                                           ][s_leg    ]
+[                                           ][s_org    ]
+[                                           ][s_plb    ]
+[                                           ][s_vlb    ]
+[                                           ]
+Selected:[es                                ]<         >
 }
 END
 END
@@ -54,17 +53,7 @@ SPINEDIT gsy=FORMONLY.grid_sy,
 SPINEDIT sgl=FORMONLY.skip_gl,
    VALUEMIN=1, VALUEMAX=10;
 
-CHECKBOX s_pts = FORMONLY.show_points, NOT NULL,
-   TEXT="Show points";
-CHECKBOX s_pst = FORMONLY.points_style, NOT NULL,
-   TEXT="Pts style";
-CHECKBOX s_leg = FORMONLY.show_legend, NOT NULL,
-   TEXT="Show legend";
-CHECKBOX s_org = FORMONLY.show_origin, NOT NULL,
-   TEXT="Show origin";
-
 GROUP g1: group1, TEXT="Values";
-
 SPINEDIT c_d= FORMONLY.curr_dataset, NOT NULL;
 SPINEDIT c_i= FORMONLY.curr_item, NOT NULL;
 EDIT c_p= FORMONLY.curr_position, NOT NULL;
@@ -73,6 +62,21 @@ EDIT c_l= FORMONLY.curr_label, NOT NULL;
 BUTTON sv: set_value, TEXT="Set";
 BUTTON cl: clear, TEXT="Clear";
 BUTTON rd: random, TEXT="Random";
+
+GROUP g2: group2, TEXT="Options";
+CHECKBOX s_pts = FORMONLY.show_points, NOT NULL,
+   TEXT="Show points";
+CHECKBOX s_pst = FORMONLY.points_style, NOT NULL,
+   TEXT="Pts style";
+CHECKBOX s_leg = FORMONLY.show_legend, NOT NULL,
+   TEXT="Show legend";
+CHECKBOX s_org = FORMONLY.show_origin, NOT NULL,
+   TEXT="Show origin";
+CHECKBOX s_plb = FORMONLY.show_plab, NOT NULL,
+   TEXT="Show Pos Lab";
+CHECKBOX s_vlb = FORMONLY.show_vlab, NOT NULL,
+   TEXT="Show Val Lab";
+
 
 WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",

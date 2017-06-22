@@ -33,8 +33,10 @@ PRIVATE TYPE t_chart RECORD
                maxval DECIMAL,
                height DECIMAL,
                grid_np DECIMAL,
+               grid_pl BOOLEAN,
                grid_lx DYNAMIC ARRAY OF STRING,
                grid_nv DECIMAL,
+               grid_vl BOOLEAN,
                grid_ly DYNAMIC ARRAY OF STRING,
                datasets DYNAMIC ARRAY OF t_dataset,
                items DYNAMIC ARRAY OF t_data_item
@@ -171,6 +173,30 @@ PUBLIC FUNCTION showDataSetLegend(id,enable)
            enable STRING
     CALL _check_id(id)
     LET charts[id].legend = enable
+END FUNCTION
+
+#+ Display value-axis labels
+#+
+#+ @param id      The chart id
+#+ @param enable  TRUE to display the labels
+#+
+PUBLIC FUNCTION showGridValueLabels(id,enable)
+    DEFINE id SMALLINT,
+           enable STRING
+    CALL _check_id(id)
+    LET charts[id].grid_vl = enable
+END FUNCTION
+
+#+ Display position-axis labels
+#+
+#+ @param id      The chart id
+#+ @param enable  TRUE to display the labels
+#+
+PUBLIC FUNCTION showGridPositionLabels(id,enable)
+    DEFINE id SMALLINT,
+           enable STRING
+    CALL _check_id(id)
+    LET charts[id].grid_pl = enable
 END FUNCTION
 
 #+ Display X/Y axis
@@ -555,8 +581,8 @@ PRIVATE FUNCTION _render_base_svg(id, parent, x, y, width, height)
            vb STRING,
            ml SMALLINT
 
-    LET bdx = (charts[id].width * 0.10)  -- FIXME: adapt to Y label axis existence
-    LET bdy = (charts[id].height * 0.05) -- FIXME: adapt to X label axis existence
+    LET bdx = (charts[id].width  * IIF(charts[id].grid_vl,0.10,0.02) )
+    LET bdy = (charts[id].height * IIF(charts[id].grid_pl,0.05,0.02) )
 
     IF charts[id].title IS NOT NULL THEN
        LET tdy = (charts[id].height * 0.10)
@@ -653,7 +679,7 @@ PRIVATE FUNCTION _render_grid_1(id, base)
            LET n = fglsvgcanvas.line(ix, charts[id].minval, ix, charts[id].maxval)
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_line_x")
            CALL g.appendChild(n)
-           IF charts[id].grid_lx[i] IS NOT NULL THEN
+           IF charts[id].grid_pl AND charts[id].grid_lx[i] IS NOT NULL THEN
               LET t = fglsvgcanvas.text( ix, ly, charts[id].grid_lx[i], "grid_x_label" )
               CALL t.setAttribute("text-anchor","middle")
               CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
@@ -673,7 +699,7 @@ PRIVATE FUNCTION _render_grid_1(id, base)
            LET n = fglsvgcanvas.line(charts[id].minpos, iy, charts[id].maxpos, iy)
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_line_y")
            CALL g.appendChild(n)
-           IF charts[id].grid_ly[i] IS NOT NULL THEN
+           IF charts[id].grid_vl AND charts[id].grid_ly[i] IS NOT NULL THEN
               LET t = fglsvgcanvas.text( lx, iy, charts[id].grid_ly[i], "grid_y_label" )
               CALL t.setAttribute("text-anchor","end")
               CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,

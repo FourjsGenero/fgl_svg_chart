@@ -17,6 +17,8 @@ DEFINE rec RECORD
                points_style BOOLEAN,
                show_legend BOOLEAN,
                show_origin BOOLEAN,
+               show_plab BOOLEAN,
+               show_vlab BOOLEAN,
                curr_dataset SMALLINT,
                curr_item SMALLINT,
                curr_position DECIMAL,
@@ -75,10 +77,16 @@ MAIN
     CALL fglsvgchart.showPoints(cid, rec.show_points, IIF(rec.points_style,"points",NULL))
 
     LET rec.show_legend = TRUE
-    CALL fglsvgchart.showDataSetLegend(cid, TRUE)
+    CALL fglsvgchart.showDataSetLegend(cid, rec.show_legend)
 
     LET rec.show_origin = TRUE
-    CALL fglsvgchart.showOrigin(cid, TRUE)
+    CALL fglsvgchart.showOrigin(cid, rec.show_origin)
+
+    LET rec.show_plab = TRUE
+    CALL fglsvgchart.showGridPositionLabels(cid, rec.show_plab)
+
+    LET rec.show_vlab = TRUE
+    CALL fglsvgchart.showGridValueLabels(cid, rec.show_vlab)
 
                                   
     -- Must define a different width/height for the root svg viewBox to 
@@ -118,6 +126,14 @@ MAIN
 
         ON CHANGE show_origin
            CALL fglsvgchart.showOrigin(cid, rec.show_origin)
+           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+
+        ON CHANGE show_plab
+           CALL fglsvgchart.showGridPositionLabels(cid, rec.show_plab)
+           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+
+        ON CHANGE show_vlab
+           CALL fglsvgchart.showGridValueLabels(cid, rec.show_vlab)
            CALL draw_graph(rid,cid,root_svg,rec.chart_type)
 
         ON CHANGE minpos
