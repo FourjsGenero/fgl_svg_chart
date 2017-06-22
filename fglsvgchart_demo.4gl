@@ -89,8 +89,8 @@ MAIN
     CALL fglsvgchart.showGridValueLabels(cid, rec.show_vlab)
 
                                   
-    -- Must define a different width/height for the root svg viewBox to 
-    CALL root_svg.setAttribute("viewBox","0 0 6000 4000")
+    -- Must define a different width/height for the root svg viewBox ...
+    CALL root_svg.setAttribute("viewBox","0 0 2 1")
 
     LET rec.chart_type = fglsvgchart.CHART_TYPE_LINES
     LET rec.ds_count = 2
@@ -457,13 +457,34 @@ FUNCTION random_chart_data(cid,ds,minpos,maxpos,minval,maxval,avgval)
 
 END FUNCTION
 
+-- Since font-size="x%" does not work, must adapt to the viewBox boundaries...
+FUNCTION compute_font_size_ratio()
+    DEFINE br, tpos, tval DECIMAL
+    LET br = 0.025  -- 2.5% of the max viewbox edge
+    LET tpos = (rec.maxpos-rec.minpos)
+    LET tpos = IIF(tpos<0,-tpos,tpos)
+    LET tval = (rec.maxval-rec.minval)
+    LET tval = IIF(tval<0,-tval,tval)
+    IF tpos > tval THEN
+       RETURN (tpos * br)
+    ELSE
+       RETURN (tval * br)
+    END IF
+END FUNCTION
+
 FUNCTION create_styles(root_svg)
     DEFINE root_svg, n om.DomNode
     DEFINE attr om.SaxAttributes,
            buf base.StringBuffer,
-           defs om.DomNode
+           defs om.DomNode,
+           fr DECIMAL,
+           fs1, fs2, fs3 STRING
 
-    -- WARNING: Must adapt font sizes to the viewBox boundaries, % does not work...
+    -- It is in the hands of the caller to use the font size of its choice.
+    LET fr = compute_font_size_ratio()
+    LET fs1 = (2*fr) ||"%"
+    LET fs2 = (5*fr) ||"%"
+    LET fs3 = (8*fr) ||"%"
 
     LET attr = om.SaxAttributes.create()
     LET buf = base.StringBuffer.create()
@@ -487,15 +508,17 @@ FUNCTION create_styles(root_svg)
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "5em" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs3 )
     CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.2%" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
     CALL attr.addAttribute(SVGATT_FILL,           "blue" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".main_title",attr) )
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "3em" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs2 )
+    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid_x_label",attr) )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid_y_label",attr) )
 
@@ -507,7 +530,9 @@ FUNCTION create_styles(root_svg)
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "2.5em" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs2 )
+    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".legend_label",attr) )
 
     CALL attr.clear()
