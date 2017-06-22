@@ -385,107 +385,93 @@ FUNCTION random_chart_data(cid,ds,minpos,maxpos,minval,maxval,avgval)
 
 END FUNCTION
 
+FUNCTION create_styles(root_svg)
+    DEFINE root_svg, n om.DomNode
+    DEFINE attr om.SaxAttributes,
+           buf base.StringBuffer,
+           defs om.DomNode
+
+    LET attr = om.SaxAttributes.create()
+    LET buf = base.StringBuffer.create()
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".grid",attr) )
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "3em" )
+    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.02em" )
+    CALL attr.addAttribute(SVGATT_FILL,           "blue" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".main_title",attr) )
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_STROKE,         "red" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "3px" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".x_axis",attr) )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".y_axis",attr) )
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "3em" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".grid_x_label",attr) )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".grid_y_label",attr) )
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
+    CALL attr.addAttribute(SVGATT_FILL,           "lightYellow" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".legend_box",attr) )
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "2em" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".legend_label",attr) )
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_FILL,           "red" )
+    CALL attr.addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
+    CALL attr.addAttribute(SVGATT_STROKE,         "black" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".points",attr) )
+
+    -- Dataset colors
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
+
+    CALL attr.addAttribute(SVGATT_FILL,   "cyan" )
+    CALL attr.addAttribute(SVGATT_STROKE, "blue" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".my_data_style_1",attr) )
+
+    CALL attr.addAttribute(SVGATT_FILL,   "yellow" )
+    CALL attr.addAttribute(SVGATT_STROKE, "orange" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".my_data_style_2",attr) )
+
+    CALL attr.addAttribute(SVGATT_FILL,   "green" )
+    CALL attr.addAttribute(SVGATT_STROKE, "darkGreen" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".my_data_style_3",attr) )
+
+    CALL attr.addAttribute(SVGATT_FILL,   "orange" )
+    CALL attr.addAttribute(SVGATT_STROKE, "red" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".my_data_style_4",attr) )
+
+    LET defs = fglsvgcanvas.defs( NULL )
+    CALL defs.appendChild( fglsvgcanvas.styleList(buf.toString()) )
+    CALL root_svg.appendChild( defs )
+
+END FUNCTION
+
 FUNCTION draw_graph(rid,cid,root_svg,ct)
     DEFINE rid, cid SMALLINT,
            root_svg, n om.DomNode,
            ct SMALLINT
-    DEFINE attr DYNAMIC ARRAY OF om.SaxAttributes,
-           defs om.DomNode
 
     CALL fglsvgcanvas.clean(rid)
-
-    LET attr[1] = om.SaxAttributes.create()
-    CALL attr[1].addAttribute(SVGATT_STROKE,         "gray" )
-
-    LET attr[2] = om.SaxAttributes.create()
-    CALL attr[2].addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr[2].addAttribute(SVGATT_FONT_SIZE,      "3em" )
-    CALL attr[2].addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr[2].addAttribute(SVGATT_STROKE_WIDTH,   "0.02em" )
-    CALL attr[2].addAttribute(SVGATT_FILL,           "blue" )
-
-    LET attr[3] = om.SaxAttributes.create()
-    CALL attr[3].addAttribute(SVGATT_STROKE,         "red" )
-    CALL attr[3].addAttribute(SVGATT_STROKE_WIDTH,   "3px" )
-
-    LET attr[4] = om.SaxAttributes.create()
-    CALL attr[4].addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr[4].addAttribute(SVGATT_FONT_SIZE,      "3em" )
-
-    LET attr[5] = om.SaxAttributes.create()
-    CALL attr[5].addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr[5].addAttribute(SVGATT_FONT_SIZE,      "3em" )
-
-    LET attr[6] = om.SaxAttributes.create()
-    CALL attr[6].addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr[6].addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
-    CALL attr[6].addAttribute(SVGATT_FILL,           "lightYellow" )
-
-    LET attr[7] = om.SaxAttributes.create()
-    CALL attr[7].addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr[7].addAttribute(SVGATT_FONT_SIZE,      "2em" )
-
-    LET attr[8] = om.SaxAttributes.create()
-    CALL attr[8].addAttribute(SVGATT_FILL,           "red" )
-    CALL attr[8].addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
-    CALL attr[8].addAttribute(SVGATT_STROKE,         "black" )
-    CALL attr[8].addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
-
-    -- Dataset colors
-
-    LET attr[11] = om.SaxAttributes.create()
-    CALL attr[11].addAttribute(SVGATT_FILL,           "cyan" )
-    CALL attr[11].addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
-    CALL attr[11].addAttribute(SVGATT_STROKE,         "blue" )
-    CALL attr[11].addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
-    --CALL attr[11].addAttribute(SVGATT_STROKE_OPACITY, "0.7" )
-
-    LET attr[12] = om.SaxAttributes.create()
-    CALL attr[12].addAttribute(SVGATT_FILL,           "yellow" )
-    CALL attr[12].addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
-    CALL attr[12].addAttribute(SVGATT_STROKE,         "orange" )
-    CALL attr[12].addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
-    --CALL attr[12].addAttribute(SVGATT_STROKE_OPACITY, "0.7" )
-
-    LET attr[13] = om.SaxAttributes.create()
-    CALL attr[13].addAttribute(SVGATT_FILL,           "green" )
-    CALL attr[13].addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
-    CALL attr[13].addAttribute(SVGATT_STROKE,         "darkGreen" )
-    CALL attr[13].addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
-    --CALL attr[13].addAttribute(SVGATT_STROKE_OPACITY, "0.7" )
-
-    LET attr[14] = om.SaxAttributes.create()
-    CALL attr[14].addAttribute(SVGATT_FILL,           "orange" )
-    CALL attr[14].addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
-    CALL attr[14].addAttribute(SVGATT_STROKE,         "red" )
-    CALL attr[14].addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
-    --CALL attr[14].addAttribute(SVGATT_STROKE_OPACITY, "0.7" )
-
-
-    LET defs = fglsvgcanvas.defs( NULL )
-    CALL defs.appendChild( fglsvgcanvas.styleList(
-                              fglsvgcanvas.styleDefinition(".grid",              attr[1])
-                           || fglsvgcanvas.styleDefinition(".main_title",        attr[2])
-                           || fglsvgcanvas.styleDefinition(".x_axis",            attr[3])
-                           || fglsvgcanvas.styleDefinition(".y_axis",            attr[3])
-                           || fglsvgcanvas.styleDefinition(".grid_x_label",      attr[4])
-                           || fglsvgcanvas.styleDefinition(".grid_y_label",      attr[5])
-                           || fglsvgcanvas.styleDefinition(".legend_box",        attr[6])
-                           || fglsvgcanvas.styleDefinition(".legend_label",      attr[7])
-                           || fglsvgcanvas.styleDefinition(".points",            attr[8])
-
-                           || fglsvgcanvas.styleDefinition(".my_data_style_1",   attr[11])
-                           || fglsvgcanvas.styleDefinition(".my_data_style_2",   attr[12])
-                           || fglsvgcanvas.styleDefinition(".my_data_style_3",   attr[13])
-                           || fglsvgcanvas.styleDefinition(".my_data_style_4",   attr[14])
-                           )
-                         )
-    CALL root_svg.appendChild( defs )
-
+    CALL create_styles(root_svg)
     CALL fglsvgchart.render( cid, ct, root_svg, NULL,NULL,NULL,NULL )
-
 --display root_svg.toString()
-
     CALL fglsvgcanvas.display(rid)
 
 END FUNCTION
