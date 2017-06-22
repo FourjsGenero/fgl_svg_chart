@@ -21,6 +21,7 @@ PRIVATE TYPE t_chart RECORD
                name STRING,
                title STRING,
                points BOOLEAN,
+               points_style STRING,
                legend BOOLEAN,
                origin BOOLEAN,
                minpos DECIMAL,
@@ -104,6 +105,7 @@ PUBLIC FUNCTION create(name,title)
     LET charts[id].name = name
     LET charts[id].title = title
     LET charts[id].points = FALSE
+    LET charts[id].points_style = NULL
     LET charts[id].legend = FALSE
     LET charts[id].grid_np = NULL
     LET charts[id].grid_nv = NULL
@@ -146,12 +148,15 @@ END FUNCTION
 #+
 #+ @param id      The chart id
 #+ @param enable  TRUE to display points
+#+ @param style   SVG style for points, NULL= use dataset style.
 #+
-PUBLIC FUNCTION showPoints(id,enable)
+PUBLIC FUNCTION showPoints(id,enable,style)
     DEFINE id SMALLINT,
-           enable STRING
+           enable STRING,
+           style STRING
     CALL _check_id(id)
     LET charts[id].points = enable
+    LET charts[id].points_style = style
 END FUNCTION
 
 #+ Display dataset legend
@@ -722,19 +727,18 @@ PRIVATE FUNCTION _render_data_points(id, base)
     LET ml = _max_value_count(id)
 
     FOR l=1 TO ml
-        CALL _create_data_points(id, g, l, NULL)
+        CALL _create_data_points(id, g, l, charts[id].datasets[l].style)
     END FOR
 
 END FUNCTION
 
-PRIVATE FUNCTION _create_data_points(id, g, l, ps)
+PRIVATE FUNCTION _create_data_points(id, g, l, s)
     DEFINE id SMALLINT,
            g om.DomNode,
            l SMALLINT,
-           ps STRING
+           s STRING
     DEFINE n om.DomNode,
            i, m INTEGER,
-           s STRING,
            dx DECIMAL,
            x,y DECIMAL
 
@@ -746,11 +750,6 @@ PRIVATE FUNCTION _create_data_points(id, g, l, ps)
         IF y IS NULL THEN CONTINUE FOR END IF
         LET x = charts[id].items[i].position
         LET n = fglsvgcanvas.circle(x, y, dx)
-        IF ps IS NULL THEN
-           LET s = charts[id].datasets[l].style
-        ELSE
-           LET s = ps
-        END IF
         IF s IS NOT NULL THEN
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
         END IF
@@ -802,7 +801,7 @@ PRIVATE FUNCTION _render_data_lines(id, base)
         END IF
         CALL g.appendChild(n)
         IF charts[id].points THEN
-           CALL _create_data_points(id, g, l, s)
+           CALL _create_data_points(id, g, l, NVL(charts[id].points_style,s))
         END IF
     END FOR
 
@@ -852,7 +851,7 @@ PRIVATE FUNCTION _render_data_splines(id, base)
         END IF
         CALL g.appendChild(n)
         IF charts[id].points THEN
-           CALL _create_data_points(id, g, l, s)
+           CALL _create_data_points(id, g, l, NVL(charts[id].points_style,s))
         END IF
     END FOR
 

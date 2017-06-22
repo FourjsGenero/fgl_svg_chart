@@ -14,6 +14,7 @@ DEFINE rec RECORD
                grid_sy SMALLINT,
                skip_gl SMALLINT,
                show_points BOOLEAN,
+               points_style BOOLEAN,
                show_legend BOOLEAN,
                show_origin BOOLEAN,
                curr_dataset SMALLINT,
@@ -70,7 +71,8 @@ MAIN
     CALL fglsvgchart.setGridLabelsFromStepsY(cid,rec.skip_gl,NULL)
 
     LET rec.show_points = TRUE
-    CALL fglsvgchart.showPoints(cid, TRUE)
+    LET rec.points_style = TRUE
+    CALL fglsvgchart.showPoints(cid, rec.show_points, IIF(rec.points_style,"points",NULL))
 
     LET rec.show_legend = TRUE
     CALL fglsvgchart.showDataSetLegend(cid, TRUE)
@@ -100,7 +102,14 @@ MAIN
            CALL draw_graph(rid,cid,root_svg,rec.chart_type)
 
         ON CHANGE show_points
-           CALL fglsvgchart.showPoints(cid, rec.show_points)
+           CALL fglsvgchart.showPoints(cid, rec.show_points, IIF(rec.points_style,"points",NULL))
+           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+
+        ON CHANGE points_style
+           IF rec.points_style AND NOT rec.show_points THEN
+              LET rec.show_points = TRUE
+           END IF
+           CALL fglsvgchart.showPoints(cid, rec.show_points, IIF(rec.points_style,"points",NULL))
            CALL draw_graph(rid,cid,root_svg,rec.chart_type)
 
         ON CHANGE show_legend
@@ -416,6 +425,12 @@ FUNCTION draw_graph(rid,cid,root_svg,ct)
     CALL attr[7].addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
     CALL attr[7].addAttribute(SVGATT_FONT_SIZE,      "2em" )
 
+    LET attr[8] = om.SaxAttributes.create()
+    CALL attr[8].addAttribute(SVGATT_FILL,           "red" )
+    CALL attr[8].addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
+    CALL attr[8].addAttribute(SVGATT_STROKE,         "black" )
+    CALL attr[8].addAttribute(SVGATT_STROKE_WIDTH,   "1px" )
+
     -- Dataset colors
 
     LET attr[11] = om.SaxAttributes.create()
@@ -457,6 +472,7 @@ FUNCTION draw_graph(rid,cid,root_svg,ct)
                            || fglsvgcanvas.styleDefinition(".grid_y_label",      attr[5])
                            || fglsvgcanvas.styleDefinition(".legend_box",        attr[6])
                            || fglsvgcanvas.styleDefinition(".legend_label",      attr[7])
+                           || fglsvgcanvas.styleDefinition(".points",            attr[8])
 
                            || fglsvgcanvas.styleDefinition(".my_data_style_1",   attr[11])
                            || fglsvgcanvas.styleDefinition(".my_data_style_2",   attr[12])

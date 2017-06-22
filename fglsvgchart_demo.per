@@ -5,7 +5,7 @@ Chart type: [ct                 ]  Datasets: [ds       ]
 Min/Max pos:[minpos   :maxpos   ]  Grid steps X:[gsx   ]
 Min/Max val:[minval   :maxval   ]  Grid steps Y:[gsy   ]
                            Skip grid labels: [sgl      ]
-            [s_pts    ] [s_leg    ] [s_org    ]
+            [s_pts:s_pst:s_leg:s_org]
 <GROUP g1                                              >
  Dataset: [c_d      ] Item: [c_i     ] [cl     ]
  Position:[c_p      ] Value:[c_v     ] [sv     ]
@@ -56,10 +56,10 @@ SPINEDIT sgl=FORMONLY.skip_gl,
 
 CHECKBOX s_pts = FORMONLY.show_points, NOT NULL,
    TEXT="Show points";
-
+CHECKBOX s_pst = FORMONLY.points_style, NOT NULL,
+   TEXT="Pts style";
 CHECKBOX s_leg = FORMONLY.show_legend, NOT NULL,
    TEXT="Show legend";
-
 CHECKBOX s_org = FORMONLY.show_origin, NOT NULL,
    TEXT="Show origin";
 
