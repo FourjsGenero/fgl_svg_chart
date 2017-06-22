@@ -199,7 +199,7 @@ END FUNCTION
 PRIVATE FUNCTION _check_id(id)
     DEFINE id SMALLINT
     IF id>=1 AND id<=charts.getLength() THEN
-       IF charts[id].title IS NOT NULL THEN
+       IF charts[id].name IS NOT NULL THEN
           RETURN
        END IF
     END IF
