@@ -794,7 +794,6 @@ PRIVATE FUNCTION _render_data_lines(id, base)
             LET p = p||" L"||isodec(x)||","||isodec(y)
         END FOR
         LET p = p||" L"||isodec(x)||","||isodec(0)
-        --LET p = p||" L"||isodec(charts[id].items[1].position)||","||isodec(0)
         LET p = p||" Z"
         LET n = fglsvgcanvas.path(p)
         LET s = charts[id].datasets[l].style
@@ -893,8 +892,8 @@ PRIVATE FUNCTION _spline_path(id, l)
     CALL _spline_control_points(y, py)
 
     LET path = base.StringBuffer.create()
-    CALL path.append(SFMT(" M%1,%2", x[1], y[1]))
-    FOR i=1 TO n
+    CALL path.append(SFMT(" M%1,%2", x[2], y[2]))
+    FOR i=2 TO n-1
         CALL path.append(
                   SFMT(" C%1,%2 %3,%4 %5,%6",
                        px[i].p1, py[i].p1,
@@ -903,7 +902,8 @@ PRIVATE FUNCTION _spline_path(id, l)
                       )
              )
     END FOR
-    CALL path.append(SFMT(" L%1,%2", x[n+1], y[1]))
+    CALL path.append(SFMT(" L%1,%2", x[n], 0))
+    CALL path.append(SFMT(" L%1,%2", x[2], 0))
     CALL path.append(" Z")
 
     RETURN path.toString()

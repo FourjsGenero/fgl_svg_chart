@@ -365,7 +365,7 @@ FUNCTION random_chart_data(cid,ds,minpos,maxpos,minval,maxval,avgval)
 
     LET pos = minpos
     LET dpos =  (maxpos - minpos) / totpos
-    FOR i=1 TO totpos
+    FOR i=1 TO totpos+1
         CALL fglsvgchart.defineDataItem(cid, i, pos, NULL)
         FOR d=1 TO ds
             LET val = min_max_rand(minval,maxval)
