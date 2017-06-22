@@ -3,7 +3,9 @@ IMPORT FGL fglsvgcanvas
 
 PUBLIC TYPE t_value RECORD
                  value DECIMAL,
-                 label STRING
+                 label STRING,
+                 value2 DECIMAL,
+                 label2 STRING
              END RECORD
 
 PUBLIC TYPE t_data_item RECORD
@@ -416,6 +418,38 @@ PUBLIC FUNCTION setDataItemValue(id,itemidx,dataidx,value,label)
 
 END FUNCTION
 
+#+ Set the secondary value to an existing data item.
+#+
+#+ The data item must have been created with the defineDataItem() function.
+#+
+#+ @code
+#+ DEFINE x SMALLINT
+#+ LET x = 0
+#+ CALL fglsvgchart.defineDataItem(id, x:=x+1, 15.34, "January")
+#+ CALL fglsvgchart.setDataItemValue2(id, x, 1, 30.15, "Jan1")
+#+ CALL fglsvgchart.setDataItemValue2(id, x, 2, 45.25, "Jan2")
+#+ CALL fglsvgchart.setDataItemValue2(id, x, 3, 15.57, "Jan3")
+#+ CALL fglsvgchart.setDataItemValue2(id, x, 4, 40.15, "Jan4")
+#+
+#+ @param id         The chart id
+#+ @param itemidx    The index of the item.
+#+ @param dataidx    The index of the data set.
+#+ @param value      The data value (Y-axis)
+#+ @param label      The test to display at the value / point
+#+
+PUBLIC FUNCTION setDataItemValue2(id,itemidx,dataidx,value,label)
+    DEFINE id SMALLINT,
+           itemidx SMALLINT,
+           dataidx SMALLINT,
+           value DECIMAL,
+           label STRING
+
+    CALL _check_data_item_index(id, itemidx)
+    LET charts[id].items[itemidx].values[dataidx].value2 = value
+    LET charts[id].items[itemidx].values[dataidx].label2 = label
+
+END FUNCTION
+
 #+ Returns the current number of data items in the chart.
 #+
 #+ @param id      The chart id
@@ -727,29 +761,80 @@ PRIVATE FUNCTION _render_data_points(id, base)
     LET ml = _max_value_count(id)
 
     FOR l=1 TO ml
-        CALL _create_data_points(id, g, l, charts[id].datasets[l].style)
+        CALL _create_data_points(id, g, l, TRUE, charts[id].datasets[l].style)
     END FOR
 
 END FUNCTION
 
-PRIVATE FUNCTION _create_data_points(id, g, l, s)
+PRIVATE FUNCTION _min_max_value2(id)
+    DEFINE id SMALLINT
+    DEFINE i, m SMALLINT,
+           l, ml SMALLINT,
+           minv2, maxv2 DECIMAL
+    LET m = charts[id].items.getLength()
+    LET ml = _max_value_count(id)
+    LET minv2 = NULL
+    LET maxv2 = NULL
+    FOR i=1 TO m
+        FOR l=1 TO ml
+           IF charts[id].items[i].values[l].value2 IS NOT NULL THEN
+              IF minv2 IS NULL
+              OR minv2 > charts[id].items[i].values[l].value2 THEN
+                 LET minv2 = charts[id].items[i].values[l].value2
+              END IF
+              IF maxv2 IS NULL
+              OR maxv2 < charts[id].items[i].values[l].value2 THEN
+                 LET maxv2 = charts[id].items[i].values[l].value2
+              END IF
+           END IF
+        END FOR
+    END FOR
+    RETURN minv2, maxv2
+END FUNCTION
+
+PRIVATE FUNCTION _abs_min_max(min,max)
+    DEFINE min, max DECIMAL
+    LET min = IIF(min<0,-min,min)
+    LET max = IIF(max<0,-max,max)
+    IF min>max THEN
+       RETURN max,min
+    ELSE
+       RETURN min,max
+    END IF
+END FUNCTION
+
+PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
     DEFINE id SMALLINT,
            g om.DomNode,
            l SMALLINT,
+           r BOOLEAN,
            s STRING
     DEFINE n om.DomNode,
            i, m INTEGER,
-           dx DECIMAL,
-           x,y DECIMAL
+           minv2, maxv2 DECIMAL,
+           br,rr,vr DECIMAL,
+           cx,cy,cr DECIMAL
 
-    LET dx = ( charts[id].width * 0.005 ) -- TODO: Customize size ratio
+    LET br = charts[id].width * 0.005
+    IF r THEN
+       CALL _min_max_value2(id) RETURNING minv2, maxv2
+       CALL _abs_min_max(minv2,maxv2) RETURNING minv2, maxv2
+       LET rr = 4 * br / (maxv2-minv2)
+    END IF
 
     LET m = charts[id].items.getLength()
     FOR i=1 TO m
-        LET y = charts[id].items[i].values[l].value
-        IF y IS NULL THEN CONTINUE FOR END IF
-        LET x = charts[id].items[i].position
-        LET n = fglsvgcanvas.circle(x, y, dx)
+        LET cy = charts[id].items[i].values[l].value
+        IF cy IS NULL THEN CONTINUE FOR END IF
+        LET cx = charts[id].items[i].position
+        LET vr = charts[id].items[i].values[l].value2
+        IF rr IS NOT NULL AND vr IS NOT NULL THEN
+           LET vr = IIF(vr<0,-vr,vr)
+           LET cr = vr * rr
+        ELSE
+           LET cr = br
+        END IF
+        LET n = fglsvgcanvas.circle(cx, cy, cr)
         IF s IS NOT NULL THEN
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
         END IF
@@ -801,7 +886,7 @@ PRIVATE FUNCTION _render_data_lines(id, base)
         END IF
         CALL g.appendChild(n)
         IF charts[id].points THEN
-           CALL _create_data_points(id, g, l, NVL(charts[id].points_style,s))
+           CALL _create_data_points(id, g, l, FALSE, NVL(charts[id].points_style,s))
         END IF
     END FOR
 
@@ -851,7 +936,7 @@ PRIVATE FUNCTION _render_data_splines(id, base)
         END IF
         CALL g.appendChild(n)
         IF charts[id].points THEN
-           CALL _create_data_points(id, g, l, NVL(charts[id].points_style,s))
+           CALL _create_data_points(id, g, l, FALSE, NVL(charts[id].points_style,s))
         END IF
     END FOR
 
