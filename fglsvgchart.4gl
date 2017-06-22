@@ -786,7 +786,7 @@ PRIVATE FUNCTION _render_data_lines(id, base)
     LET ml = _max_value_count(id)
 
     FOR l=1 TO ml
-        LET p = "M0,0"
+        LET p = " M"||isodec(charts[id].items[1].position)||","||isodec(0)
         FOR i=1 TO m
             LET y = charts[id].items[i].values[l].value
             IF y IS NULL THEN CONTINUE FOR END IF
@@ -794,6 +794,7 @@ PRIVATE FUNCTION _render_data_lines(id, base)
             LET p = p||" L"||isodec(x)||","||isodec(y)
         END FOR
         LET p = p||" L"||isodec(x)||","||isodec(0)
+        --LET p = p||" L"||isodec(charts[id].items[1].position)||","||isodec(0)
         LET p = p||" Z"
         LET n = fglsvgcanvas.path(p)
         LET s = charts[id].datasets[l].style

@@ -27,7 +27,8 @@ DEFINE rec RECORD
 
 MAIN
     DEFINE rid, cid SMALLINT,
-           root_svg om.DomNode
+           root_svg om.DomNode,
+           newpos DECIMAL
 
     OPEN FORM f1 FROM "fglsvgchart_demo"
     DISPLAY FORM f1
@@ -157,18 +158,30 @@ MAIN
            CALL draw_graph(rid,cid,root_svg,rec.chart_type)
 
         ON CHANGE curr_item
-           IF rec.curr_item > fglsvgchart.getDataItemCount(cid) THEN
-              LET rec.curr_position = rec.curr_position + ((rec.maxpos-rec.minpos)*0.05)
+           IF rec.curr_item > fglsvgchart.getDataItemCount(cid) + 1 THEN
+              CALL mbox_ok(SFMT("Data item %1 must be created before adding further items",rec.curr_item-1))
+              LET rec.curr_item = rec.curr_item - 1
            END IF
 
         ON ACTION set_value
            IF rec.curr_dataset<=rec.ds_count THEN
               IF rec.curr_item > fglsvgchart.getDataItemCount(cid) THEN
-                 CALL mbox_ok("This will add a new data item")
-                 CALL fglsvgchart.defineDataItem(cid, rec.curr_item, rec.curr_position, NULL)
+                 PROMPT SFMT("This will add a new data item,\nEnter a position greater as %1",rec.curr_position) FOR newpos
+                 IF NOT int_flag THEN
+                    IF newpos > rec.curr_position THEN
+                       LET rec.curr_position = newpos
+                       CALL fglsvgchart.defineDataItem(cid, rec.curr_item, rec.curr_position, NULL)
+                       CALL fglsvgchart.setDataItemValue(cid, rec.curr_item, rec.curr_dataset, rec.curr_value, rec.curr_label)
+                    ELSE
+                       CALL mbox_ok("Invalid position, data item not created.")
+                    END IF
+                 END IF
               END IF
-              CALL fglsvgchart.setDataItemValue(cid, rec.curr_item, rec.curr_dataset, rec.curr_value, rec.curr_label)
            END IF
+           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+
+        ON ACTION random
+           CALL random_chart_data(cid,rec.ds_count,rec.minpos,rec.maxpos,rec.minval,rec.maxval,rec.curr_value)
            CALL draw_graph(rid,cid,root_svg,rec.chart_type)
 
         ON ACTION clear
@@ -320,6 +333,46 @@ FUNCTION default_chart_data(cid,ds)
     IF ds>1 THEN CALL fglsvgchart.setDataItemValue(cid, x, 2,   23.43, "Dec1.2") END IF
     IF ds>2 THEN CALL fglsvgchart.setDataItemValue(cid, x, 3,   33.45, "Dec1.3") END IF
     IF ds>3 THEN CALL fglsvgchart.setDataItemValue(cid, x, 4,   23.63, "Dec1.4") END IF
+
+END FUNCTION
+
+FUNCTION min_max_rand(min,max)
+    DEFINE min, max DECIMAL
+    DEFINE r DECIMAL
+    LET r = util.Math.rand(100) / 100 -- %
+    RETURN ( min + ((max-min) * r) )
+END FUNCTION
+
+FUNCTION random_chart_data(cid,ds,minpos,maxpos,minval,maxval,avgval)
+    DEFINE cid, ds SMALLINT,
+           minpos, maxpos, minval, maxval, avgval DECIMAL
+    DEFINE d, i, totpos SMALLINT,
+           pos, dpos, da, val DECIMAL
+
+    CALL clean_chart_data(cid,ds)
+
+    CALL util.Math.srand()
+
+    LET totpos = util.Math.rand(90) + 10
+
+    IF avgval IS NOT NULL THEN
+       LET da = IIF(avgval<0,-avgval,avgval) / 2
+       IF da/2 < maxval-minval THEN
+          LET minval = avgval - da
+          LET maxval = avgval + da
+       END IF
+    END IF
+
+    LET pos = minpos
+    LET dpos =  (maxpos - minpos) / totpos
+    FOR i=1 TO totpos
+        CALL fglsvgchart.defineDataItem(cid, i, pos, NULL)
+        FOR d=1 TO ds
+            LET val = min_max_rand(minval,maxval)
+            CALL fglsvgchart.setDataItemValue(cid, i, d, val, SFMT("R%1.%2",i,d))
+        END FOR
+        LET pos = pos + dpos
+    END FOR
 
 END FUNCTION
 

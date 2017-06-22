@@ -6,13 +6,11 @@ Min/Max pos:[minpos   :maxpos   ]  Grid steps X:[gsx   ]
 Min/Max val:[minval   :maxval   ]  Grid steps Y:[gsy   ]
                            Skip grid labels: [sgl      ]
             [s_pts    ] [s_leg    ] [s_org    ]
-Set value :
-            Dataset: [c_d            ] Item: [c_i      ]
-            Position:[c_p            ]
-            Value:   [c_v            ]
-            Label:   [c_l                              ]
-                     [sv                               ]
-                     [cl                               ]
+<GROUP g1                                              >
+ Dataset: [c_d      ] Item: [c_i     ] [cl     ]
+ Position:[c_p      ] Value:[c_v     ] [sv     ]
+ Label:   [c_l                       ] [rd     ]
+<                                                      >
 [cv                                                    ]
 [                                                      ]
 [                                                      ]
@@ -40,16 +38,16 @@ SPINEDIT ds=FORMONLY.ds_count,
    VALUEMIN=1, VALUEMAX=4;
 
 SPINEDIT minpos=FORMONLY.minpos,
-   VALUEMIN=-1000, VALUEMAX=40000, STEP=100;
+   VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
 SPINEDIT maxpos=FORMONLY.maxpos,
-   VALUEMIN=-1000, VALUEMAX=40000, STEP=100;
+   VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
 SPINEDIT gsx=FORMONLY.grid_sx,
    VALUEMIN=0, VALUEMAX=100;
 
 SPINEDIT minval=FORMONLY.minval,
-   VALUEMIN=-1000, VALUEMAX=3000, STEP=10;
+   VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
 SPINEDIT maxval=FORMONLY.maxval,
-   VALUEMIN=-1000, VALUEMAX=3000, STEP=10;
+   VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
 SPINEDIT gsy=FORMONLY.grid_sy,
    VALUEMIN=0, VALUEMAX=100;
 
@@ -65,15 +63,17 @@ CHECKBOX s_leg = FORMONLY.show_legend, NOT NULL,
 CHECKBOX s_org = FORMONLY.show_origin, NOT NULL,
    TEXT="Show origin";
 
+GROUP g1: group1, TEXT="Values";
+
 SPINEDIT c_d= FORMONLY.curr_dataset, NOT NULL;
 SPINEDIT c_i= FORMONLY.curr_item, NOT NULL;
 EDIT c_p= FORMONLY.curr_position, NOT NULL;
 EDIT c_v= FORMONLY.curr_value, NOT NULL;
 EDIT c_l= FORMONLY.curr_label, NOT NULL;
-
 BUTTON sv: set_value, TEXT="Set";
-
 BUTTON cl: clear, TEXT="Clear";
+BUTTON rd: random, TEXT="Random";
+
 WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",
    PROPERTIES=(selection="svg_selection"),
