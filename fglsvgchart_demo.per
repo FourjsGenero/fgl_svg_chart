@@ -1,10 +1,10 @@
 LAYOUT
 GRID
 {
-Chart type: [ct                 ]  Datasets: [ds       ]
-Min/Max pos:[minpos   :maxpos   ]  Grid steps X:[gsx   ]
-Min/Max val:[minval   :maxval   ]  Grid steps Y:[gsy   ]
-                           Skip grid labels: [sgl      ]
+Chart type: [ct                ]  Datasets: [ds        ]
+Min/Max pos:[minpos  ][maxpos  ]  Grid steps X:[gsx    ]
+Min/Max val:[minval  ][maxval  ]  Grid steps Y:[gsy    ]
+Rectangular ratio:    [rra     ]  Skip grid lb:[sgl    ]
 <GROUP g1                                              >
  Dataset: [c_d      ] Item: [c_i     ] [cl     ][rd2   ]
  Position:[c_p      ] Value:[c_v     ] [sv     ]
@@ -33,24 +33,27 @@ COMBOBOX ct=FORMONLY.chart_type, NOT NULL,
           (4, "Spline")
          );
 
-SPINEDIT ds=FORMONLY.ds_count,
+SPINEDIT ds=FORMONLY.ds_count, NOT NULL,
    VALUEMIN=1, VALUEMAX=4;
 
-SPINEDIT minpos=FORMONLY.minpos,
+SPINEDIT minpos=FORMONLY.minpos, NOT NULL,
    VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
-SPINEDIT maxpos=FORMONLY.maxpos,
+SPINEDIT maxpos=FORMONLY.maxpos, NOT NULL,
    VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
-SPINEDIT gsx=FORMONLY.grid_sx,
+SPINEDIT gsx=FORMONLY.grid_sx, NOT NULL,
    VALUEMIN=0, VALUEMAX=100;
 
-SPINEDIT minval=FORMONLY.minval,
+SPINEDIT minval=FORMONLY.minval, NOT NULL,
    VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
-SPINEDIT maxval=FORMONLY.maxval,
+SPINEDIT maxval=FORMONLY.maxval, NOT NULL,
    VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
-SPINEDIT gsy=FORMONLY.grid_sy,
+SPINEDIT gsy=FORMONLY.grid_sy, NOT NULL,
    VALUEMIN=0, VALUEMAX=100;
 
-SPINEDIT sgl=FORMONLY.skip_gl,
+BUTTONEDIT rra=FORMONLY.rect_ratio, NOT NULL,
+   IMAGE="fa-arrows", ACTION=set_rect_ratio;
+
+SPINEDIT sgl=FORMONLY.skip_gl, NOT NULL,
    VALUEMIN=1, VALUEMAX=10;
 
 GROUP g1: group1, TEXT="Values";
@@ -77,7 +80,6 @@ CHECKBOX s_plb = FORMONLY.show_plab, NOT NULL,
    TEXT="Show Pos Lab";
 CHECKBOX s_vlb = FORMONLY.show_vlab, NOT NULL,
    TEXT="Show Val Lab";
-
 
 WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",

@@ -3,7 +3,7 @@ IMPORT util
 IMPORT FGL fglsvgcanvas
 IMPORT FGL fglsvgchart
 
-DEFINE rec RECORD
+DEFINE params RECORD
                chart_type STRING,
                ds_count SMALLINT,
                minpos SMALLINT,
@@ -12,6 +12,7 @@ DEFINE rec RECORD
                minval SMALLINT,
                maxval SMALLINT,
                grid_sy SMALLINT,
+               rect_ratio DECIMAL,
                skip_gl SMALLINT,
                show_points BOOLEAN,
                points_style BOOLEAN,
@@ -49,193 +50,176 @@ MAIN
 
     CALL fglsvgchart.initialize()
 
-    LET rec.minpos =    0.0
-    LET rec.maxpos = 2400.0
-    LET rec.minval = -200.0
-    LET rec.maxval = 1200.0
+    LET params.minpos =    0.0
+    LET params.maxpos = 2400.0
+    LET params.minval = -200.0
+    LET params.maxval = 1200.0
 
     LET cid = fglsvgchart.create("mychart","Export rate (2017)")
-    CALL fglsvgchart.setBoundaries(cid, rec.minpos, rec.maxpos, rec.minval, rec.maxval)
-
-    LET rec.grid_sx = 12
-    LET rec.grid_sy = 14
-    CALL fglsvgchart.defineGrid(cid, rec.grid_sx, rec.grid_sy)
-
-    LET rec.skip_gl = 2
-
-    LET rec.curr_dataset = 1
-    LET rec.curr_item = 1
-    LET rec.curr_position = rec.minpos
-    LET rec.curr_value = 500.0
-    LET rec.curr_label = "Lab 1"
-
+    CALL fglsvgchart.setBoundaries(cid, params.minpos, params.maxpos, params.minval, params.maxval)
+    CALL fglsvgchart.defineGrid(cid, params.grid_sx:=12, params.grid_sy:=14)
+    CALL fglsvgchart.setRectangularRatio(cid, params.rect_ratio:=1.0 )
+    LET params.skip_gl = 2
+    LET params.curr_dataset = 1
+    LET params.curr_item = 1
+    LET params.curr_position = params.minpos
+    LET params.curr_value = 500.0
+    LET params.curr_label = "Lab 1"
     CALL init_month_names(cid)
-    CALL fglsvgchart.setGridLabelsFromStepsY(cid,rec.skip_gl,NULL)
-
-    LET rec.show_points = TRUE
-    LET rec.points_style = TRUE
-    CALL fglsvgchart.showPoints(cid, rec.show_points, IIF(rec.points_style,"points",NULL))
-
-    LET rec.show_legend = TRUE
-    CALL fglsvgchart.showDataSetLegend(cid, rec.show_legend)
-
-    LET rec.show_origin = TRUE
-    CALL fglsvgchart.showOrigin(cid, rec.show_origin)
-
-    LET rec.show_plab = TRUE
-    CALL fglsvgchart.showGridPositionLabels(cid, rec.show_plab)
-
-    LET rec.show_vlab = TRUE
-    CALL fglsvgchart.showGridValueLabels(cid, rec.show_vlab)
-
+    CALL fglsvgchart.setGridLabelsFromStepsY(cid,params.skip_gl,NULL)
+    CALL fglsvgchart.showPoints(cid, params.show_points:=TRUE, IIF(params.points_style:=TRUE,"points",NULL))
+    CALL fglsvgchart.showDataSetLegend(cid, params.show_legend:=TRUE)
+    CALL fglsvgchart.showOrigin(cid, params.show_origin:=TRUE)
+    CALL fglsvgchart.showGridPositionLabels(cid, params.show_plab:=TRUE)
+    CALL fglsvgchart.showGridValueLabels(cid, params.show_vlab:=TRUE)
                                   
     -- Must define a different width/height for the root svg viewBox ...
     CALL root_svg.setAttribute("viewBox","0 0 2 1")
 
-    LET rec.chart_type = fglsvgchart.CHART_TYPE_LINES
-    LET rec.ds_count = 2
+    LET params.chart_type = fglsvgchart.CHART_TYPE_LINES
+    LET params.ds_count = 2
 
-    INPUT BY NAME rec.*
+    INPUT BY NAME params.*
           ATTRIBUTES( WITHOUT DEFAULTS, UNBUFFERED )
 
         BEFORE INPUT
-           CALL default_chart_data(cid,rec.ds_count)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL default_chart_data(cid,params.ds_count)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE ds_count
-           CALL default_chart_data(cid,rec.ds_count)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL default_chart_data(cid,params.ds_count)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE chart_type
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE show_points
-           CALL fglsvgchart.showPoints(cid, rec.show_points, IIF(rec.points_style,"points",NULL))
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.showPoints(cid, params.show_points, IIF(params.points_style,"points",NULL))
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE points_style
-           IF rec.points_style AND NOT rec.show_points THEN
-              LET rec.show_points = TRUE
+           IF params.points_style AND NOT params.show_points THEN
+              LET params.show_points = TRUE
            END IF
-           CALL fglsvgchart.showPoints(cid, rec.show_points, IIF(rec.points_style,"points",NULL))
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.showPoints(cid, params.show_points, IIF(params.points_style,"points",NULL))
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE show_legend
-           CALL fglsvgchart.showDataSetLegend(cid, rec.show_legend)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.showDataSetLegend(cid, params.show_legend)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE show_origin
-           CALL fglsvgchart.showOrigin(cid, rec.show_origin)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.showOrigin(cid, params.show_origin)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE show_plab
-           CALL fglsvgchart.showGridPositionLabels(cid, rec.show_plab)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.showGridPositionLabels(cid, params.show_plab)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE show_vlab
-           CALL fglsvgchart.showGridValueLabels(cid, rec.show_vlab)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.showGridValueLabels(cid, params.show_vlab)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE minpos
-           IF rec.maxpos < rec.minpos THEN
-              LET rec.maxpos = rec.minpos + 100
+           IF params.maxpos < params.minpos THEN
+              LET params.maxpos = params.minpos + 100
            END IF
-           CALL fglsvgchart.setBoundaries(cid, rec.minpos, rec.maxpos, rec.minval, rec.maxval)
+           CALL fglsvgchart.setBoundaries(cid, params.minpos, params.maxpos, params.minval, params.maxval)
            --CALL fglsvgchart.setGridLabelsFromStepsX(cid,2,NULL)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE maxpos
-           IF rec.minpos > rec.maxpos THEN
-              LET rec.minpos = rec.maxpos - 100
+           IF params.minpos > params.maxpos THEN
+              LET params.minpos = params.maxpos - 100
            END IF
-           CALL fglsvgchart.setBoundaries(cid, rec.minpos, rec.maxpos, rec.minval, rec.maxval)
+           CALL fglsvgchart.setBoundaries(cid, params.minpos, params.maxpos, params.minval, params.maxval)
            --CALL fglsvgchart.setGridLabelsFromStepsX(cid,2,NULL)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE minval
-           IF rec.maxval < rec.minval THEN
-              LET rec.maxval = rec.minval + 100
+           IF params.maxval < params.minval THEN
+              LET params.maxval = params.minval + 100
            END IF
-           CALL fglsvgchart.setBoundaries(cid, rec.minpos, rec.maxpos, rec.minval, rec.maxval)
-           CALL fglsvgchart.setGridLabelsFromStepsY(cid,rec.skip_gl,NULL)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.setBoundaries(cid, params.minpos, params.maxpos, params.minval, params.maxval)
+           CALL fglsvgchart.setGridLabelsFromStepsY(cid,params.skip_gl,NULL)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE maxval
-           IF rec.minval > rec.maxval THEN
-              LET rec.minval = rec.maxval - 100
+           IF params.minval > params.maxval THEN
+              LET params.minval = params.maxval - 100
            END IF
-           CALL fglsvgchart.setBoundaries(cid, rec.minpos, rec.maxpos, rec.minval, rec.maxval)
-           CALL fglsvgchart.setGridLabelsFromStepsY(cid,rec.skip_gl,NULL)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.setBoundaries(cid, params.minpos, params.maxpos, params.minval, params.maxval)
+           CALL fglsvgchart.setGridLabelsFromStepsY(cid,params.skip_gl,NULL)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE grid_sx
-           CALL fglsvgchart.defineGrid(cid, rec.grid_sx, rec.grid_sy)
+           CALL fglsvgchart.defineGrid(cid, params.grid_sx, params.grid_sy)
            --CALL fglsvgchart.setGridLabelsFromStepsX(cid,2,NULL)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE grid_sy
-           CALL fglsvgchart.defineGrid(cid, rec.grid_sx, rec.grid_sy)
-           CALL fglsvgchart.setGridLabelsFromStepsY(cid,rec.skip_gl,NULL)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.defineGrid(cid, params.grid_sx, params.grid_sy)
+           CALL fglsvgchart.setGridLabelsFromStepsY(cid,params.skip_gl,NULL)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE skip_gl
-           CALL fglsvgchart.setGridLabelsFromStepsY(cid,rec.skip_gl,NULL)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL fglsvgchart.setGridLabelsFromStepsY(cid,params.skip_gl,NULL)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON CHANGE curr_item
-           IF rec.curr_item > fglsvgchart.getDataItemCount(cid) + 1 THEN
-              CALL mbox_ok(SFMT("Data item %1 must be created before adding further items",rec.curr_item-1))
-              LET rec.curr_item = rec.curr_item - 1
+           IF params.curr_item > fglsvgchart.getDataItemCount(cid) + 1 THEN
+              CALL mbox_ok(SFMT("Data item %1 must be created before adding further items",params.curr_item-1))
+              LET params.curr_item = params.curr_item - 1
            END IF
 
         ON ACTION set_value ATTRIBUTES(ACCELERATOR="CONTROL-S")
-           IF rec.curr_dataset<=rec.ds_count THEN
+           IF params.curr_dataset<=params.ds_count THEN
               LET pos = NULL
-              IF rec.curr_item > fglsvgchart.getDataItemCount(cid) THEN
-                 PROMPT SFMT("This will add a new data item,\nEnter a position greater as %1",rec.curr_position) FOR pos
+              IF params.curr_item > fglsvgchart.getDataItemCount(cid) THEN
+                 PROMPT SFMT("This will add a new data item,\nEnter a position greater as %1",params.curr_position) FOR pos
                  IF NOT int_flag THEN
-                    IF pos > rec.curr_position THEN
-                       LET rec.curr_position = pos
-                       CALL fglsvgchart.defineDataItem(cid, rec.curr_item, pos, NULL)
+                    IF pos > params.curr_position THEN
+                       LET params.curr_position = pos
+                       CALL fglsvgchart.defineDataItem(cid, params.curr_item, pos, NULL)
                     ELSE
                        CALL mbox_ok("Invalid position, data item not created.")
                        LET pos = NULL
                     END IF
                  END IF
               ELSE
-                 LET pos = rec.curr_position
+                 LET pos = params.curr_position
               END IF
               IF pos IS NOT NULL THEN
-                 CALL fglsvgchart.setDataItemValue(cid, rec.curr_item, rec.curr_dataset, rec.curr_value, rec.curr_label)
-                 CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+                 CALL fglsvgchart.setDataItemValue(cid, params.curr_item, params.curr_dataset, params.curr_value, params.curr_label)
+                 CALL draw_graph(rid,cid,root_svg,params.chart_type)
               END IF
            END IF
 
+        ON ACTION set_rect_ratio ATTRIBUTES(ACCELERATOR="CONTROL-W")
+           CALL fglsvgchart.setRectangularRatio(cid, params.rect_ratio)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
+
         ON ACTION random ATTRIBUTES(ACCELERATOR="CONTROL-R")
-           CALL random_chart_data(cid,rec.ds_count,rec.minpos,rec.maxpos,rec.minval,rec.maxval,rec.curr_value)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL random_chart_data(cid,params.ds_count,params.minpos,params.maxpos,params.minval,params.maxval,params.curr_value)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON ACTION random2
-           LET rec.minpos = -100
-           LET rec.maxpos =  100
-           LET rec.minval = -10
-           LET rec.maxval =  10
-           CALL fglsvgchart.setBoundaries(cid, rec.minpos, rec.maxpos, rec.minval, rec.maxval)
-           LET rec.grid_sx = 10
-           LET rec.grid_sy = 3
-           CALL fglsvgchart.defineGrid(cid, rec.grid_sx, rec.grid_sy)
-           LET rec.curr_value = 5
+           CALL fglsvgchart.setBoundaries(cid, params.minpos:=-100, params.maxpos:=+100,
+                                               params.minval:=   0, params.maxval:=  +3)
+           CALL fglsvgchart.setRectangularRatio(cid, params.rect_ratio:=35)
+           CALL fglsvgchart.defineGrid(cid, params.grid_sx:=10, params.grid_sy:=3)
            CALL fglsvgchart.setGridLabelsFromStepsY(cid,2,NULL)
            CALL fglsvgchart.setGridLabelsFromStepsX(cid,2,NULL)
-           CALL random_chart_data(cid,rec.ds_count,rec.minpos,rec.maxpos,rec.minval,rec.maxval,rec.curr_value)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           LET params.curr_value = NULL
+           CALL random_chart_data(cid,params.ds_count,params.minpos,params.maxpos,params.minval,params.maxval,params.curr_value)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON ACTION clear ATTRIBUTES(ACCELERATOR="CONTROL-C")
-           CALL clean_chart_data(cid,rec.ds_count)
-           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+           CALL clean_chart_data(cid,params.ds_count)
+           CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
         ON ACTION svg_selection ATTRIBUTES(DEFAULTVIEW = NO)
-           LET rec.elem_selected = rec.canvas
+           LET params.elem_selected = params.canvas
 
     END INPUT
 
@@ -476,9 +460,9 @@ END FUNCTION
 FUNCTION compute_font_size_ratio()
     DEFINE br, tpos, tval DECIMAL
     LET br = 0.025  -- 2.5% of the max viewbox edge
-    LET tpos = (rec.maxpos-rec.minpos)
+    LET tpos = (params.maxpos-params.minpos)
     LET tpos = IIF(tpos<0,-tpos,tpos)
-    LET tval = (rec.maxval-rec.minval)
+    LET tval = (params.maxval-params.minval)
     LET tval = IIF(tval<0,-tval,tval)
     IF tpos > tval THEN
        RETURN (tpos * br)

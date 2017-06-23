@@ -32,6 +32,7 @@ PRIVATE TYPE t_chart RECORD
                minval DECIMAL,
                maxval DECIMAL,
                height DECIMAL,
+               xyratio DECIMAL,
                grid_np DECIMAL,
                grid_pl BOOLEAN,
                grid_lx DYNAMIC ARRAY OF STRING,
@@ -106,13 +107,12 @@ PUBLIC FUNCTION create(name,title)
     IF id==0 THEN
        LET id = charts.getLength() + 1
     END IF
+    INITIALIZE charts[id].* TO NULL
     LET charts[id].name = name
     LET charts[id].title = title
     LET charts[id].points = FALSE
-    LET charts[id].points_style = NULL
     LET charts[id].legend = FALSE
-    LET charts[id].grid_np = NULL
-    LET charts[id].grid_nv = NULL
+    LET charts[id].xyratio = 1.0
     CALL setBoundaries(id, 0, 1000, 0, 1000)
     CALL charts[id].items.clear()
     RETURN id
@@ -132,10 +132,9 @@ END FUNCTION
 #+ @param maxval  The upper limit for values (Y-axis)
 #+
 PUBLIC FUNCTION setBoundaries(id,minpos,maxpos,minval,maxval)
-    DEFINE name,title STRING,
+    DEFINE id SMALLINT,
            minpos, maxpos DECIMAL,
            minval, maxval DECIMAL
-    DEFINE id, i SMALLINT
     CALL _check_id(id)
     IF minpos>=maxpos OR minval>=maxval THEN
        OPEN FORM _dummy_ FROM NULL
@@ -146,6 +145,41 @@ PUBLIC FUNCTION setBoundaries(id,minpos,maxpos,minval,maxval)
     LET charts[id].minval = minval
     LET charts[id].maxval = maxval
     LET charts[id].height = maxval - minval
+END FUNCTION
+
+#+ Defines the rectangular ratio of the chart
+#+
+#+ When the positions and values ranges differe too much, use this
+#+ funciton to apply an aspect ration, and produce a readable chart.
+#+ The ratio will be applied to values to determine the coordinate
+#+ of the value item in the chart grid.
+#+ For example, if the positions go from -100 to 100 and the values
+#+ fo from -1 to 1, you can apply a ratio of 20.0, so that value 0.5
+#+ will be displayed at 0.5*50.0 = 25.0 ...
+#+
+#+ @code
+#+ CALL fglsvgchart.setRectangularRatio(cid, 35.0)
+#+
+#+ @param id      The chart id
+#+ @param ratio   The ratio to apply for this chart
+#+
+PUBLIC FUNCTION setRectangularRatio(id,ratio)
+    DEFINE id SMALLINT,
+           ratio DECIMAL
+    CALL _check_id(id)
+    LET charts[id].xyratio = ratio
+END FUNCTION
+
+PRIVATE FUNCTION isodec(v)
+    DEFINE v DECIMAL(32,10) -- Warning: must not produce exponent notation!
+    -- FIXME: Need a utility function (FGL-4196)
+    RETURN util.JSON.stringify(v)
+END FUNCTION
+
+PRIVATE FUNCTION _get_y(id, value)
+    DEFINE id SMALLINT,
+           value DECIMAL
+    RETURN (charts[id].xyratio * value)
 END FUNCTION
 
 #+ Display points
@@ -485,16 +519,34 @@ END FUNCTION
 #+
 PUBLIC FUNCTION getDataItemCount(id)
     DEFINE id SMALLINT
-
     CALL _check_id(id)
     RETURN charts[id].items.getLength()
-
 END FUNCTION
 
-PRIVATE FUNCTION isodec(v)
-    DEFINE v DECIMAL(32,10) -- Warning: must not produce exponent notation!
-    -- FIXME: Need a utility function (FGL-4196)
-    RETURN util.JSON.stringify(v)
+PRIVATE FUNCTION _max_value_count(id)
+    DEFINE id SMALLINT
+    DEFINE i, m, ml SMALLINT
+    LET m = charts[id].items.getLength()
+    LET ml = 0
+    FOR i=1 TO m
+        IF ml < charts[id].items[i].values.getLength() THEN
+           LET ml = charts[id].items[i].values.getLength()
+        END IF
+    END FOR
+    RETURN ml
+END FUNCTION
+
+#+ Returns the current number of datasets in the chart.
+#+
+#+ @param id      The chart id
+#+
+#+ @returnType INTEGER
+#+ @return The number of datasets.
+#+
+PUBLIC FUNCTION getDataSetCount(id)
+    DEFINE id SMALLINT
+    CALL _check_id(id)
+    RETURN _max_value_count(id)
 END FUNCTION
 
 #+ Render the chart in your web component.
@@ -536,7 +588,7 @@ PRIVATE FUNCTION _create_legend_box(id, h)
            h DECIMAL
     DEFINE b, r, n, t om.DomNode,
            vb STRING,
-           cw,ch DECIMAL,
+           cw,ch INTEGER,
            w DECIMAL,
            l, ml SMALLINT
 
@@ -548,7 +600,7 @@ PRIVATE FUNCTION _create_legend_box(id, h)
     LET ch = 100
     LET vb = SFMT("0 0 %1 %2", (cw*ml), ch)
 
-    LET b = fglsvgcanvas.svg(SFMT("legend_%1",id), NULL,NULL,w,h, vb, "xMidYMid meet" )
+    LET b = fglsvgcanvas.svg(SFMT("legend_%1",id), NULL,NULL,w,h, vb, "xMidYMid meet")
 
     LET r = fglsvgcanvas.rect(3,3,(cw*ml)-6,ch-6,NULL,NULL)
     CALL r.setAttribute(fglsvgcanvas.SVGATT_CLASS,"legend_box")
@@ -556,12 +608,14 @@ PRIVATE FUNCTION _create_legend_box(id, h)
 
     FOR l=1 TO ml
         LET n = fglsvgcanvas.g(NULL)
-        CALL n.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM, SFMT("translate(%1,0)",(cw*(l-1))) )
+        CALL n.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
+                             SFMT("translate(%1,0)",isodec(cw*(l-1))) )
         CALL b.appendChild(n)
         LET r = fglsvgcanvas.rect(15,15,70,70,NULL,NULL)
         CALL r.setAttribute(fglsvgcanvas.SVGATT_CLASS,charts[id].datasets[l].style)
         CALL n.appendChild(r)
-        LET t = fglsvgcanvas.text( 100, (ch*0.60), charts[id].datasets[l].label, "legend_label")
+        LET t = fglsvgcanvas.text(100, (ch*0.60),
+                                  charts[id].datasets[l].label, "legend_label")
         CALL t.setAttribute("text-anchor","left")
         CALL n.appendChild(t)
     END FOR
@@ -582,33 +636,33 @@ PRIVATE FUNCTION _render_base_svg(id, parent, x, y, width, height)
            vb STRING,
            ml SMALLINT
 
-    LET bdx = (charts[id].width  * IIF(charts[id].grid_vl,0.10,0.02) )
-    LET bdy = (charts[id].height * IIF(charts[id].grid_pl,0.05,0.02) )
+    LET bdx = charts[id].width  * IIF(charts[id].grid_vl,0.10,0.02)
+    LET bdy = charts[id].height * IIF(charts[id].grid_pl,0.05,0.02)
 
     IF charts[id].title IS NOT NULL THEN
-       LET tdy = (charts[id].height * 0.10)
+       LET tdy = charts[id].height * 0.10
     ELSE
        LET tdy = 0.0
     END IF
 
     IF charts[id].legend THEN
-       LET ldy = (charts[id].height * 0.15)
+       LET ldy = charts[id].height * 0.15
     ELSE
        LET ldy = 0.0
     END IF
 
     LET x1 = charts[id].minpos - (bdx)
-    LET y1 = charts[id].minval - (bdy+tdy) 
+    LET y1 = charts[id].minval - (bdy+tdy)
     LET w1 = charts[id].width + (bdx*2)
     LET h1 = charts[id].height + tdy + ldy + (bdy*2)
-    LET vb = SFMT("%1 %2 %3 %4", x1, y1, w1, h1 )
+    LET vb = SFMT("%1 %2 %3 %4", isodec(x1), _get_y(id,y1), isodec(w1), _get_y(id,h1) )
 
     LET b = fglsvgcanvas.svg(SFMT("svgchart_%1",id), x,y,width,height, vb, "xMidYMid meet" )
     CALL parent.appendChild(b)
 
     IF charts[id].title IS NOT NULL THEN
        LET t = fglsvgcanvas.text( charts[id].minpos + (charts[id].width/2),
-                                  charts[id].minval + bdy - tdy,
+                                  _get_y(id, charts[id].minval + bdy - tdy),
                                   charts[id].title, "main_title" )
        CALL t.setAttribute("text-anchor","middle")
        CALL b.appendChild(t)
@@ -617,12 +671,12 @@ PRIVATE FUNCTION _render_base_svg(id, parent, x, y, width, height)
     IF charts[id].legend THEN
        LET ml = _max_value_count(id)
        LET n = _create_legend_box(id, ldy)
-       CALL n.setAttribute("x", charts[id].minpos + (charts[id].width/2) - (ldy*(ml-1)) )
-       CALL n.setAttribute("y", charts[id].maxval + (ldy * 0.4) )
+       CALL n.setAttribute("x", isodec(charts[id].minpos + (charts[id].width/2) - (ldy*(ml-1))) )
+       CALL n.setAttribute("y", isodec(_get_y(id, charts[id].maxval+(ldy*0.4))) )
        CALL b.appendChild(n)
     END IF
 
---CALL b.appendChild( add_debug_rect( x1, y1, w1, h1 ) )
+CALL b.appendChild( add_debug_rect( x1, _get_y(id,y1), w1, _get_y(id,h1) ) )
 
     RETURN b
 
@@ -647,7 +701,7 @@ PRIVATE FUNCTION _render_sheet_1(id, base)
     LET n = fglsvgcanvas.g("sheet_1")
     LET dy = charts[id].maxval + charts[id].minval
     CALL n.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
-                         SFMT("translate(0,%1) scale(1,-1)",dy) )
+                         SFMT("translate(0,%1) scale(1,-1)",isodec(_get_y(id,dy))) )
     CALL base.appendChild(n)
     IF charts[id].grid_np IS NOT NULL
     OR charts[id].grid_nv IS NOT NULL
@@ -662,7 +716,6 @@ PRIVATE FUNCTION _render_grid_1(id, base)
            base om.DomNode
     DEFINE n, t, g om.DomNode,
            dx, dy DECIMAL,
-           ldx, ldy DECIMAL,
            ix, iy DECIMAL,
            lx, ly DECIMAL,
            i SMALLINT
@@ -673,18 +726,20 @@ PRIVATE FUNCTION _render_grid_1(id, base)
 
     IF charts[id].grid_np > 0 THEN
        LET dx = charts[id].width / charts[id].grid_np
-       LET ldy = charts[id].height * 0.04
-       LET ly = charts[id].minval - ldy
+       LET ly = charts[id].minval - (charts[id].height * 0.04)
        LET ix = charts[id].minpos
        FOR i=1 TO charts[id].grid_np+1
-           LET n = fglsvgcanvas.line(ix, charts[id].minval, ix, charts[id].maxval)
+           LET n = fglsvgcanvas.line(ix, _get_y(id,charts[id].minval),
+                                     ix, _get_y(id,charts[id].maxval))
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_x_line")
            CALL g.appendChild(n)
            IF charts[id].grid_pl AND charts[id].grid_lx[i] IS NOT NULL THEN
-              LET t = fglsvgcanvas.text( ix, ly, charts[id].grid_lx[i], "grid_x_label" )
+              LET t = fglsvgcanvas.text( ix, _get_y(id,ly),
+                                         charts[id].grid_lx[i], "grid_x_label" )
               CALL t.setAttribute("text-anchor","middle")
               CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
-                                   SFMT("translate(0,%1) scale(1,-1)",ly*2) )
+                                   SFMT("translate(0,%1) scale(1,-1)",
+                                                     isodec(_get_y(id,ly*2))) )
               CALL g.appendChild(t)
            END IF
            LET ix = ix + dx
@@ -693,18 +748,20 @@ PRIVATE FUNCTION _render_grid_1(id, base)
 
     IF charts[id].grid_nv > 0 THEN
        LET dy = charts[id].height / charts[id].grid_nv
-       LET ldx = charts[id].width * 0.01
-       LET lx = charts[id].minpos - ldx
+       LET lx = charts[id].minpos - (charts[id].width * 0.01)
        LET iy = charts[id].minval
        FOR i=1 TO charts[id].grid_nv+1
-           LET n = fglsvgcanvas.line(charts[id].minpos, iy, charts[id].maxpos, iy)
+           LET n = fglsvgcanvas.line(charts[id].minpos, _get_y(id,iy),
+                                     charts[id].maxpos, _get_y(id,iy))
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_y_line")
            CALL g.appendChild(n)
            IF charts[id].grid_vl AND charts[id].grid_ly[i] IS NOT NULL THEN
-              LET t = fglsvgcanvas.text( lx, iy, charts[id].grid_ly[i], "grid_y_label" )
+              LET t = fglsvgcanvas.text( lx, _get_y(id,iy),
+                                         charts[id].grid_ly[i], "grid_y_label" )
               CALL t.setAttribute("text-anchor","end")
               CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
-                                   SFMT("translate(0,%1) scale(1,-1)",iy*2) )
+                                   SFMT("translate(0,%1) scale(1,-1)",
+                                                     isodec(_get_y(id,iy*2))) )
               CALL g.appendChild(t)
            END IF
            LET iy = iy + dy
@@ -712,10 +769,12 @@ PRIVATE FUNCTION _render_grid_1(id, base)
     END IF
 
     IF charts[id].origin THEN
-       LET n = fglsvgcanvas.line(charts[id].minpos, 0, charts[id].maxpos, 0)
+       LET n = fglsvgcanvas.line(charts[id].minpos, 0,
+                                 charts[id].maxpos, 0)
        CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_x_axis")
        CALL g.appendChild(n)
-       LET n = fglsvgcanvas.line(0, charts[id].minval, 0, charts[id].maxval)
+       LET n = fglsvgcanvas.line(0, _get_y(id,charts[id].minval),
+                                 0, _get_y(id,charts[id].maxval))
        CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_y_axis")
        CALL g.appendChild(n)
     END IF
@@ -761,7 +820,7 @@ PRIVATE FUNCTION _render_data_bars(id, base)
             END IF
             LET x = charts[id].items[i].position - (dx/2) + (sdx*(l-1))
             LET w = (sdx * 0.95)
-            LET n = fglsvgcanvas.rect(x, y, w, h, NULL, NULL)
+            LET n = fglsvgcanvas.rect(x, _get_y(id,y), w, _get_y(id,h), NULL, NULL)
             IF s IS NOT NULL THEN
                CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
             END IF
@@ -864,7 +923,7 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
         ELSE
            LET cr = br
         END IF
-        LET n = fglsvgcanvas.circle(cx, cy, cr)
+        LET n = fglsvgcanvas.circle(cx, _get_y(id,cy), cr)
         IF s IS NOT NULL THEN
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
         END IF
@@ -900,14 +959,14 @@ PRIVATE FUNCTION _render_data_lines(id, base)
     LET ml = _max_value_count(id)
 
     FOR l=1 TO ml
-        LET p = " M"||isodec(charts[id].items[1].position)||","||isodec(0)
+        LET p = " M"||isodec(charts[id].items[1].position)||",0"
         FOR i=1 TO m
             LET y = charts[id].items[i].values[l].value
             IF y IS NULL THEN CONTINUE FOR END IF
             LET x = charts[id].items[i].position
-            LET p = p||" L"||isodec(x)||","||isodec(y)
+            LET p = p||" L"||isodec(x)||","||isodec(_get_y(id,y))
         END FOR
-        LET p = p||" L"||isodec(x)||","||isodec(0)
+        LET p = p||" L"||isodec(x)||",0"
         LET p = p||" Z"
         LET n = fglsvgcanvas.path(p)
         LET s = charts[id].datasets[l].style
@@ -920,19 +979,6 @@ PRIVATE FUNCTION _render_data_lines(id, base)
         END IF
     END FOR
 
-END FUNCTION
-
-PRIVATE FUNCTION _max_value_count(id)
-    DEFINE id SMALLINT
-    DEFINE i, m, ml SMALLINT
-    LET m = charts[id].items.getLength()
-    LET ml = 0
-    FOR i=1 TO m
-        IF ml < charts[id].items[i].values.getLength() THEN
-           LET ml = charts[id].items[i].values.getLength()
-        END IF
-    END FOR
-    RETURN ml
 END FUNCTION
 
 PRIVATE FUNCTION _render_splines(id, base)
@@ -994,7 +1040,7 @@ PRIVATE FUNCTION _spline_path(id, l)
         IF charts[id].items[i].values[l].value IS NOT NULL THEN
            LET n = n+1
            LET x[n] = charts[id].items[i].position
-           LET y[n] = charts[id].items[i].values[l].value
+           LET y[n] = _get_y(id,charts[id].items[i].values[l].value)
         END IF
     END FOR
     LET x[1] = x[2] - (x[3]-x[2])
@@ -1006,18 +1052,18 @@ PRIVATE FUNCTION _spline_path(id, l)
     CALL _spline_control_points(y, py)
 
     LET path = base.StringBuffer.create()
-    CALL path.append(SFMT(" M%1,%2", x[2], y[2]))
+    CALL path.append(SFMT(" M%1,%2", isodec(x[2]), isodec(y[2])))
     FOR i=2 TO n-1
         CALL path.append(
                   SFMT(" C%1,%2 %3,%4 %5,%6",
-                       px[i].p1, py[i].p1,
-                       px[i].p2, py[i].p2,
-                       x[i+1],   y[i+1]
+                       isodec(px[i].p1), isodec(py[i].p1),
+                       isodec(px[i].p2), isodec(py[i].p2),
+                       isodec(x[i+1])  , isodec(  y[i+1])
                       )
              )
     END FOR
-    CALL path.append(SFMT(" L%1,%2", x[n], 0))
-    CALL path.append(SFMT(" L%1,%2", x[2], 0))
+    CALL path.append(SFMT(" L%1,%2", isodec(x[n]), 0))
+    CALL path.append(SFMT(" L%1,%2", isodec(x[2]), 0))
     CALL path.append(" Z")
 
     RETURN path.toString()
