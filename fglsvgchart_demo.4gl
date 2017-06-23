@@ -215,6 +215,21 @@ MAIN
            CALL random_chart_data(cid,rec.ds_count,rec.minpos,rec.maxpos,rec.minval,rec.maxval,rec.curr_value)
            CALL draw_graph(rid,cid,root_svg,rec.chart_type)
 
+        ON ACTION random2
+           LET rec.minpos = -100
+           LET rec.maxpos =  100
+           LET rec.minval = -10
+           LET rec.maxval =  10
+           CALL fglsvgchart.setBoundaries(cid, rec.minpos, rec.maxpos, rec.minval, rec.maxval)
+           LET rec.grid_sx = 10
+           LET rec.grid_sy = 3
+           CALL fglsvgchart.defineGrid(cid, rec.grid_sx, rec.grid_sy)
+           LET rec.curr_value = 5
+           CALL fglsvgchart.setGridLabelsFromStepsY(cid,2,NULL)
+           CALL fglsvgchart.setGridLabelsFromStepsX(cid,2,NULL)
+           CALL random_chart_data(cid,rec.ds_count,rec.minpos,rec.maxpos,rec.minval,rec.maxval,rec.curr_value)
+           CALL draw_graph(rid,cid,root_svg,rec.chart_type)
+
         ON ACTION clear ATTRIBUTES(ACCELERATOR="CONTROL-C")
            CALL clean_chart_data(cid,rec.ds_count)
            CALL draw_graph(rid,cid,root_svg,rec.chart_type)

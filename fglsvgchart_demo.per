@@ -6,7 +6,7 @@ Min/Max pos:[minpos   :maxpos   ]  Grid steps X:[gsx   ]
 Min/Max val:[minval   :maxval   ]  Grid steps Y:[gsy   ]
                            Skip grid labels: [sgl      ]
 <GROUP g1                                              >
- Dataset: [c_d      ] Item: [c_i     ] [cl     ]
+ Dataset: [c_d      ] Item: [c_i     ] [cl     ][rd2   ]
  Position:[c_p      ] Value:[c_v     ] [sv     ]
  Label:   [c_l                       ] [rd     ]
 <                                                      >
@@ -62,6 +62,7 @@ EDIT c_l= FORMONLY.curr_label, NOT NULL;
 BUTTON sv: set_value, TEXT="Set";
 BUTTON cl: clear, TEXT="Clear";
 BUTTON rd: random, TEXT="Random";
+BUTTON rd2: random2, TEXT="Random2";
 
 GROUP g2: group2, TEXT="Options";
 CHECKBOX s_pts = FORMONLY.show_points, NOT NULL,
