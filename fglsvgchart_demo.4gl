@@ -13,7 +13,7 @@ DEFINE params RECORD
                minval SMALLINT,
                maxval SMALLINT,
                grid_sy SMALLINT,
-               rect_ratio DECIMAL,
+               rect_ratio DECIMAL(10,3),
                skip_gl SMALLINT,
                show_points BOOLEAN,
                points_style BOOLEAN,
@@ -118,6 +118,24 @@ MAIN
         ON CHANGE grid_sy
            CALL set_params_and_render(rid,cid,root_svg,FALSE)
         ON CHANGE skip_gl
+           CALL set_params_and_render(rid,cid,root_svg,FALSE)
+        ON CHANGE rect_ratio
+           CALL set_params_and_render(rid,cid,root_svg,FALSE)
+
+        ON ACTION minpos_plus
+           LET params.minpos = params.minpos + (params.maxpos-params.minpos)*0.05
+           CALL set_params_and_render(rid,cid,root_svg,FALSE)
+        ON ACTION maxpos_plus
+           LET params.maxpos = params.maxpos + (params.maxpos-params.minpos)*0.05
+           CALL set_params_and_render(rid,cid,root_svg,FALSE)
+        ON ACTION minval_plus
+           LET params.minval = params.minval + (params.maxval-params.minval)*0.05
+           CALL set_params_and_render(rid,cid,root_svg,FALSE)
+        ON ACTION maxval_plus
+           LET params.maxval = params.maxval + (params.maxval-params.minval)*0.05
+           CALL set_params_and_render(rid,cid,root_svg,FALSE)
+        ON ACTION ratio_plus
+           LET params.rect_ratio = params.rect_ratio + params.rect_ratio*0.05
            CALL set_params_and_render(rid,cid,root_svg,FALSE)
 
         ON CHANGE curr_item
