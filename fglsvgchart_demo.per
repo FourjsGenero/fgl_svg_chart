@@ -1,15 +1,17 @@
 LAYOUT
 GRID
 {
-Chart type: [ct                ]  Datasets: [ds        ]
+Chart type: [ct                ]  Datasets:    [ds     ]
 Min/Max pos:[minpos  ][maxpos  ]  Grid steps X:[gsx    ]
 Min/Max val:[minval  ][maxval  ]  Grid steps Y:[gsy    ]
 Rectangular ratio:    [rra     ]  Skip grid lb:[sgl    ]
+Chart mode: [cm                                        ]
 <GROUP g1                                              >
- Dataset: [c_d      ] Item: [c_i     ] [cl     ][rd2   ]
+ Dataset: [c_d      ] Item: [c_i     ] [cl     ]
  Position:[c_p      ] Value:[c_v     ] [sv     ]
- Label:   [c_l                       ] [rd     ]
+ Label:   [c_l                       ]
 <                                                      >
+[rd                                                    ]
 [cv                                         ]<GROUP g2 >
 [                                           ][s_pts    ]
 [                                           ][s_pst    ]
@@ -36,25 +38,27 @@ COMBOBOX ct=FORMONLY.chart_type, NOT NULL,
 SPINEDIT ds=FORMONLY.ds_count, NOT NULL,
    VALUEMIN=1, VALUEMAX=4;
 
-SPINEDIT minpos=FORMONLY.minpos, NOT NULL,
-   VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
-SPINEDIT maxpos=FORMONLY.maxpos, NOT NULL,
-   VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
+SPINEDIT minpos=FORMONLY.minpos, NOT NULL, STEP=10;
+SPINEDIT maxpos=FORMONLY.maxpos, NOT NULL, STEP=10;
 SPINEDIT gsx=FORMONLY.grid_sx, NOT NULL,
    VALUEMIN=0, VALUEMAX=100;
 
-SPINEDIT minval=FORMONLY.minval, NOT NULL,
-   VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
-SPINEDIT maxval=FORMONLY.maxval, NOT NULL,
-   VALUEMIN=-5000, VALUEMAX=5000, STEP=10;
+SPINEDIT minval=FORMONLY.minval, NOT NULL, STEP=10;
+SPINEDIT maxval=FORMONLY.maxval, NOT NULL, STEP=10;
 SPINEDIT gsy=FORMONLY.grid_sy, NOT NULL,
    VALUEMIN=0, VALUEMAX=100;
 
-BUTTONEDIT rra=FORMONLY.rect_ratio, NOT NULL,
-   IMAGE="fa-arrows", ACTION=set_rect_ratio;
+EDIT rra=FORMONLY.rect_ratio, NOT NULL;
 
 SPINEDIT sgl=FORMONLY.skip_gl, NOT NULL,
    VALUEMIN=1, VALUEMAX=10;
+
+COMBOBOX cm=FORMONLY.chart_mode, NOT NULL,
+   ITEMS=(
+          (1, "Default sample data"),
+          (2, "Random data (A)"),
+          (3, "Random data (B)")
+         );
 
 GROUP g1: group1, TEXT="Values";
 SPINEDIT c_d= FORMONLY.curr_dataset, NOT NULL;
@@ -64,8 +68,8 @@ EDIT c_v= FORMONLY.curr_value, NOT NULL;
 EDIT c_l= FORMONLY.curr_label, NOT NULL;
 BUTTON sv: set_value, TEXT="Set";
 BUTTON cl: clear, TEXT="Clear";
-BUTTON rd: random, TEXT="Random";
-BUTTON rd2: random2, TEXT="Random2";
+BUTTON rd: render, TEXT="Render",
+  COMMENT="Render chart (CTRL-R)";
 
 GROUP g2: group2, TEXT="Options";
 CHECKBOX s_pts = FORMONLY.show_points, NOT NULL,

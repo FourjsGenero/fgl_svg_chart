@@ -53,6 +53,8 @@ PUBLIC CONSTANT
   CHART_TYPE_LINES = 3,
   CHART_TYPE_SPLINES = 4
 
+PRIVATE DEFINE debug_level SMALLINT
+
 #+ Library initialization function.
 #+
 #+ This function has to be called before using other functions of this module.
@@ -61,6 +63,7 @@ PUBLIC FUNCTION initialize()
     WHENEVER ERROR RAISE
     IF initCount == 0 THEN
        -- prepare resources
+       LET debug_level = fgl_getenv("FGLSVGCHART_DEBUG")
     END IF
     LET initCount = initCount + 1
 END FUNCTION
@@ -110,11 +113,7 @@ PUBLIC FUNCTION create(name,title)
     INITIALIZE charts[id].* TO NULL
     LET charts[id].name = name
     LET charts[id].title = title
-    LET charts[id].points = FALSE
-    LET charts[id].legend = FALSE
-    LET charts[id].xyratio = 1.0
-    CALL setBoundaries(id, 0, 1000, 0, 1000)
-    CALL charts[id].items.clear()
+    CALL reset(id)
     RETURN id
 END FUNCTION
 
@@ -383,7 +382,6 @@ PUBLIC FUNCTION setGridLabelsFromStepsY(id,skip,format)
     END FOR
 END FUNCTION
 
-
 #+ Remove all data items from the chart.
 #+
 #+ Call this function to clean the chart.
@@ -396,7 +394,31 @@ END FUNCTION
 PUBLIC FUNCTION clean(id)
     DEFINE id SMALLINT
     CALL _check_id(id)
+    CALL charts[id].datasets.clear()
     CALL charts[id].items.clear()
+END FUNCTION
+
+#+ Reset chart settings.
+#+
+#+ Call this function to reset all chart settings to the defaults.
+#+
+#+ @code
+#+ CALL fglsvgchart.reset(id)
+#+
+#+ @param id     The chart id
+#+
+PUBLIC FUNCTION reset(id)
+    DEFINE id SMALLINT
+    CALL _check_id(id)
+    CALL clean(id)
+    LET charts[id].points = FALSE
+    LET charts[id].legend = FALSE
+    LET charts[id].xyratio = 1.0
+    LET charts[id].points = FALSE
+    CALL setBoundaries(id, 0, 1000, 0, 1000)
+    CALL charts[id].grid_lx.clear()
+    CALL charts[id].grid_ly.clear()
+    CALL charts[id].datasets.clear()
 END FUNCTION
 
 #+ Define a new data set.
@@ -676,7 +698,9 @@ PRIVATE FUNCTION _render_base_svg(id, parent, x, y, width, height)
        CALL b.appendChild(n)
     END IF
 
-CALL b.appendChild( add_debug_rect( x1, _get_y(id,y1), w1, _get_y(id,h1) ) )
+    IF debug_level>0 THEN
+       CALL b.appendChild( add_debug_rect( x1, _get_y(id,y1), w1, _get_y(id,h1) ) )
+    END IF
 
     RETURN b
 
