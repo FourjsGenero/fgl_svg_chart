@@ -38,13 +38,13 @@ COMBOBOX ct=FORMONLY.chart_type, NOT NULL,
 SPINEDIT ds=FORMONLY.ds_count, NOT NULL,
    VALUEMIN=1, VALUEMAX=4;
 
-BUTTONEDIT minpos=FORMONLY.minpos, NOT NULL, IMAGE="fa-plus", ACTION=minpos_plus;
-BUTTONEDIT maxpos=FORMONLY.maxpos, NOT NULL, IMAGE="fa-plus", ACTION=maxpos_plus;
+BUTTONEDIT minpos=FORMONLY.minpos, NOT NULL, IMAGE="fa-minus", ACTION=minpos_minus;
+BUTTONEDIT maxpos=FORMONLY.maxpos, NOT NULL, IMAGE="fa-plus",  ACTION=maxpos_plus;
 SPINEDIT gsx=FORMONLY.grid_sx, NOT NULL,
    VALUEMIN=0, VALUEMAX=100;
 
-BUTTONEDIT minval=FORMONLY.minval, NOT NULL, IMAGE="fa-plus", ACTION=maxval_plus;
-BUTTONEDIT maxval=FORMONLY.maxval, NOT NULL, IMAGE="fa-plus", ACTION=maxval_plus;
+BUTTONEDIT minval=FORMONLY.minval, NOT NULL, IMAGE="fa-minus", ACTION=minval_minus;
+BUTTONEDIT maxval=FORMONLY.maxval, NOT NULL, IMAGE="fa-plus",  ACTION=maxval_plus;
 SPINEDIT gsy=FORMONLY.grid_sy, NOT NULL,
    VALUEMIN=0, VALUEMAX=100;
 
