@@ -16,7 +16,8 @@ PUBLIC TYPE t_data_item RECORD
 
 PUBLIC TYPE t_dataset RECORD
                  label STRING,
-                 style STRING
+                 style STRING,
+                 visible BOOLEAN
              END RECORD
 
 PRIVATE TYPE t_chart RECORD
@@ -269,7 +270,16 @@ END FUNCTION
 
 PRIVATE FUNCTION _check_data_item_index(id, index)
     DEFINE id, index SMALLINT
+    CALL _check_id(id)
     IF index<1 OR index>charts[id].items.getLength() THEN
+       OPEN FORM _dummy_ FROM NULL
+    END IF
+END FUNCTION
+
+PRIVATE FUNCTION _check_dataset_index(id, index)
+    DEFINE id, index SMALLINT
+    CALL _check_id(id)
+    IF index<1 OR index>charts[id].datasets.getLength() THEN
        OPEN FORM _dummy_ FROM NULL
     END IF
 END FUNCTION
@@ -384,7 +394,7 @@ END FUNCTION
 
 #+ Remove all data items from the chart.
 #+
-#+ Call this function to clean the chart.
+#+ Call this function to clean the data of the chart.
 #+
 #+ @code
 #+ CALL fglsvgchart.clean(id)
@@ -394,7 +404,6 @@ END FUNCTION
 PUBLIC FUNCTION clean(id)
     DEFINE id SMALLINT
     CALL _check_id(id)
-    CALL charts[id].datasets.clear()
     CALL charts[id].items.clear()
 END FUNCTION
 
@@ -429,20 +438,35 @@ END FUNCTION
 #+ CALL fglsvgchart.defineDataSet(id, 3, "North-West", "style_3")
 #+
 #+ @param id         The chart id
-#+ @param dsidx      The index of the data set
+#+ @param index      The index of the data set
 #+ @param label      The text to display at the base of the item
 #+ @param style      The general style to render data items
 #+
-PUBLIC FUNCTION defineDataSet(id,dsidx,label,style)
+PUBLIC FUNCTION defineDataSet(id,index,label,style)
     DEFINE id SMALLINT,
-           dsidx SMALLINT,
+           index SMALLINT,
            label STRING,
            style STRING
 
     CALL _check_id(id)
-    LET charts[id].datasets[dsidx].label = label
-    LET charts[id].datasets[dsidx].style = style
+    LET charts[id].datasets[index].label = label
+    LET charts[id].datasets[index].style = style
+    LET charts[id].datasets[index].visible = TRUE
 
+END FUNCTION
+
+#+ Display dataset
+#+
+#+ @param id      The chart id
+#+ @param index   The dataset index
+#+ @param enable  TRUE to display the dataset
+#+
+PUBLIC FUNCTION showDataSet(id,index,enable)
+    DEFINE id SMALLINT,
+           index SMALLINT,
+           enable STRING
+    CALL _check_dataset_index(id, index)
+    LET charts[id].datasets[index].visible = enable
 END FUNCTION
 
 #+ Define a new data item to the chart with a single value.
@@ -495,6 +519,7 @@ PUBLIC FUNCTION setDataItemValue(id,itemidx,dataidx,value,label)
            label STRING
 
     CALL _check_data_item_index(id, itemidx)
+    CALL _check_dataset_index(id, dataidx)
     LET charts[id].items[itemidx].values[dataidx].value = value
     LET charts[id].items[itemidx].values[dataidx].label = label
 
@@ -629,6 +654,7 @@ PRIVATE FUNCTION _create_legend_box(id, h)
     CALL b.appendChild(r)
 
     FOR l=1 TO ml
+        IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         LET n = fglsvgcanvas.g(NULL)
         CALL n.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
                              SFMT("translate(%1,0)",isodec(cw*(l-1))) )
@@ -691,7 +717,7 @@ PRIVATE FUNCTION _render_base_svg(id, parent, x, y, width, height)
     END IF
 
     IF charts[id].legend THEN
-       LET ml = _max_value_count(id)
+       LET ml = _max_value_count(id) -- FIXME: only visible datasets
        LET n = _create_legend_box(id, ldy)
        CALL n.setAttribute("x", isodec(charts[id].minpos + (charts[id].width/2) - (ldy*(ml-1))) )
        CALL n.setAttribute("y", isodec(_get_y(id, charts[id].maxval+(ldy*0.4))) )
@@ -832,6 +858,7 @@ PRIVATE FUNCTION _render_data_bars(id, base)
     LET sdx = dx / ml
 
     FOR l=1 TO ml
+        IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         LET s = charts[id].datasets[l].style
         FOR i=1 TO m
             LET h = charts[id].items[i].values[l].value
@@ -983,6 +1010,7 @@ PRIVATE FUNCTION _render_data_lines(id, base)
     LET ml = _max_value_count(id)
 
     FOR l=1 TO ml
+        IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         LET p = " M"||isodec(charts[id].items[1].position)||",0"
         FOR i=1 TO m
             LET y = charts[id].items[i].values[l].value
@@ -1028,6 +1056,7 @@ PRIVATE FUNCTION _render_data_splines(id, base)
     LET ml = _max_value_count(id)
 
     FOR l=1 TO ml
+        IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         LET p = _spline_path(id, l)
         LET n = fglsvgcanvas.path(p)
         LET s = charts[id].datasets[l].style
@@ -1041,7 +1070,6 @@ PRIVATE FUNCTION _render_data_splines(id, base)
     END FOR
 
 END FUNCTION
-
 
 PRIVATE FUNCTION _spline_path(id, l)
     DEFINE id, l SMALLINT
