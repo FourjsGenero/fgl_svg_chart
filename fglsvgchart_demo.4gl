@@ -7,11 +7,11 @@ DEFINE params RECORD
                chart_type SMALLINT,
                chart_mode SMALLINT,
                ds_count SMALLINT,
-               minpos SMALLINT,
-               maxpos SMALLINT,
+               minpos DECIMAL(10,4),
+               maxpos DECIMAL(10,4),
                grid_sx SMALLINT,
-               minval SMALLINT,
-               maxval SMALLINT,
+               minval DECIMAL(10,4),
+               maxval DECIMAL(10,4),
                grid_sy SMALLINT,
                rect_ratio DECIMAL(10,3),
                skip_gl SMALLINT,
@@ -76,12 +76,7 @@ MAIN
     LET params.curr_value = 500.0
     LET params.curr_label = "Lab 1"
 
-    LET cid = fglsvgchart.create("mychart","Export rate (2017)")
-
-    CALL fglsvgchart.defineDataSet(cid, 1, "North",      "my_data_style_1")
-    CALL fglsvgchart.defineDataSet(cid, 2, "North-East", "my_data_style_2")
-    CALL fglsvgchart.defineDataSet(cid, 3, "North-West", "my_data_style_3")
-    CALL fglsvgchart.defineDataSet(cid, 4, "East",       "my_data_style_4")
+    LET cid = fglsvgchart.create("mychart")
 
     -- Must define a different width/height for the root svg viewBox ...
     CALL root_svg.setAttribute("viewBox","0 0 2 1")
@@ -91,7 +86,7 @@ MAIN
           ATTRIBUTES( WITHOUT DEFAULTS, UNBUFFERED )
 
         BEFORE INPUT
-           CALL default_chart_data(cid)
+           CALL sample1_chart_data(cid)
            CALL set_params_and_render(rid,cid,root_svg,TRUE,TRUE)
 
         ON CHANGE chart_type
@@ -200,7 +195,8 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
            ms, rc BOOLEAN
 
     CASE params.chart_mode
-      WHEN 1
+      WHEN 1 -- sample 1
+           CALL fglsvgchart.setTitle(cid,"Export rates (2017)")
            IF ms THEN
               LET params.minpos =    0.0
               LET params.maxpos = 2400.0
@@ -211,9 +207,11 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
               LET params.grid_sy = 14
               LET params.skip_gl = 2
               LET params.curr_value = 500.0
+              LET params.show_points = TRUE
            END IF
-           CALL default_chart_data(cid)
-      WHEN 2
+           CALL sample1_chart_data(cid)
+      WHEN 2 -- random 1
+           CALL fglsvgchart.setTitle(cid,"Random values 1")
            IF rc THEN
               LET params.curr_value = NULL
               CALL random_chart_data(cid,
@@ -221,7 +219,8 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
                                      params.minval,params.maxval,
                                      params.curr_value)
            END IF
-      WHEN 3
+      WHEN 3 -- random 2
+           CALL fglsvgchart.setTitle(cid,"Random values 2")
            IF rc THEN
               IF ms THEN
                  LET params.minpos     = -100
@@ -232,11 +231,30 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
                  LET params.grid_sx    =   10
                  LET params.grid_sy    =    3
                  LET params.curr_value = NULL
+                 LET params.show_points = TRUE
               END IF
               CALL random_chart_data(cid,
                                      params.minpos,params.maxpos,
                                      params.minval,params.maxval,
                                      params.curr_value)
+           END IF
+      WHEN 4 -- Trigo
+           CALL fglsvgchart.setTitle(cid,"Trigo functions")
+           IF rc THEN
+              IF ms THEN
+                 LET params.minpos     = -5.0
+                 LET params.maxpos     = +5.0
+                 LET params.minval     = -2.5
+                 LET params.maxval     = +2.5
+                 LET params.rect_ratio = 2.0
+                 LET params.grid_sx    =   20
+                 LET params.grid_sy    =   10
+                 LET params.curr_value = NULL
+                 LET params.show_points = FALSE
+              END IF
+              CALL trigo_chart_data( cid,
+                                     params.minpos,params.maxpos,
+                                     params.minval,params.maxval)
            END IF
     END CASE
 
@@ -295,11 +313,16 @@ FUNCTION init_month_names(cid)
     END FOR
 END FUNCTION
 
-FUNCTION default_chart_data(cid)
+FUNCTION sample1_chart_data(cid)
     DEFINE cid SMALLINT
     DEFINE x SMALLINT
 
-    CALL fglsvgchart.clean(cid)
+    CALL fglsvgchart.reset(cid)
+
+    CALL fglsvgchart.defineDataSet(cid, 1, "North",      "my_data_style_1")
+    CALL fglsvgchart.defineDataSet(cid, 2, "North-East", "my_data_style_2")
+    CALL fglsvgchart.defineDataSet(cid, 3, "North-West", "my_data_style_3")
+    CALL fglsvgchart.defineDataSet(cid, 4, "East",       "my_data_style_4")
 
     CALL init_month_names(cid)
 
@@ -454,7 +477,12 @@ FUNCTION random_chart_data(cid,minpos,maxpos,minval,maxval,avgval)
     DEFINE d, i, totpos SMALLINT,
            pos, dpos, da, val DECIMAL
 
-    CALL fglsvgchart.clean(cid)
+    CALL fglsvgchart.reset(cid)
+
+    CALL fglsvgchart.defineDataSet(cid, 1, "DataSet 1", "my_data_style_1")
+    CALL fglsvgchart.defineDataSet(cid, 2, "DataSet 2", "my_data_style_2")
+    CALL fglsvgchart.defineDataSet(cid, 3, "DataSet 3", "my_data_style_3")
+    CALL fglsvgchart.defineDataSet(cid, 4, "DataSet 4", "my_data_style_4")
 
     CALL util.Math.srand()
 
@@ -482,6 +510,44 @@ FUNCTION random_chart_data(cid,minpos,maxpos,minval,maxval,avgval)
     END FOR
 
 END FUNCTION
+
+FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
+    DEFINE cid SMALLINT,
+           minpos, maxpos, minval, maxval DECIMAL
+    DEFINE i, totpos SMALLINT,
+           pos, dpos, val, piby2 DECIMAL
+
+    CALL fglsvgchart.reset(cid)
+
+    CALL fglsvgchart.defineDataSet(cid, 1, "Sine",    "my_data_style_1")
+    CALL fglsvgchart.defineDataSet(cid, 2, "Cosine",  "my_data_style_2")
+    CALL fglsvgchart.defineDataSet(cid, 3, "Tangent", "my_data_style_3")
+    CALL fglsvgchart.defineDataSet(cid, 4, "Nat Log", "my_data_style_4")
+
+    LET piby2 = util.Math.pi()/2.0
+    LET pos = minpos
+    LET dpos =  0.05
+    LET i=1
+    WHILE pos<=maxpos
+        CALL fglsvgchart.defineDataItem(cid, i, pos, NULL)
+        LET val = util.Math.sin( pos )
+        CALL fglsvgchart.setDataItemValue(cid, i, 1, val, SFMT("sin(%1)=%2",pos,val))
+        LET val = util.Math.cos( pos )
+        CALL fglsvgchart.setDataItemValue(cid, i, 2, val, SFMT("cos(%1)=%2",pos,val))
+        IF pos>=-piby2 AND pos<=piby2 THEN
+           LET val = util.Math.tan( pos )
+           CALL fglsvgchart.setDataItemValue(cid, i, 3, val, SFMT("tan(%1)=%2",pos,val))
+        END IF
+        IF pos>=0 THEN
+           LET val = util.Math.log( pos )
+           CALL fglsvgchart.setDataItemValue(cid, i, 4, val, SFMT("log(%1)=%2",pos,val))
+        END IF
+        LET pos = pos + dpos
+        LET i=i+1
+    END WHILE
+
+END FUNCTION
+
 
 -- Since font-size="x%" does not work, must adapt to the viewBox boundaries...
 FUNCTION compute_font_size_ratio()

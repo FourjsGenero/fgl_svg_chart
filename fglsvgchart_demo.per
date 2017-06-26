@@ -1,26 +1,26 @@
 LAYOUT
 GRID
 {
-Chart type: [ct                ]  Datasets:    [ds     ]
-Min/Max pos:[minpos  ][maxpos  ]  Grid steps X:[gsx    ]
-Min/Max val:[minval  ][maxval  ]  Grid steps Y:[gsy    ]
-Rectangular ratio:    [rra     ]  Skip grid lb:[sgl    ]
-Chart mode: [cm                                        ]
-<GROUP g1                                              >
- Dataset: [c_d      ] Item: [c_i     ] [cl     ]
- Position:[c_p      ] Value:[c_v     ] [sv     ]
+Chart type: [ct                   ]  Datasets:    [ds     ]
+Min/Max pos:[minpos     ][maxpos     ]  Grid steps X:[gsx    ]
+Min/Max val:[minval     ][maxval     ]  Grid steps Y:[gsy    ]
+Rectangular ratio:       [rra        ]  Skip grid lb:[sgl    ]
+Chart mode: [cm                                              ]
+            [cl        :                         :rd         ]
+<GROUP g1                                                    >
+ Dataset: [c_d      ] Item: [c_i     ]
+ Position:[c_p      ] Value:[c_v     ][sv  ]
  Label:   [c_l                       ]
-<                                                      >
-[rd                                                    ]
-[cv                                         ]<GROUP g2 >
-[                                           ][s_pts    ]
-[                                           ][s_pst    ]
-[                                           ][s_leg    ]
-[                                           ][s_org    ]
-[                                           ][s_plb    ]
-[                                           ][s_vlb    ]
-[                                           ]
-Selected:[es                                ]<         >
+<                                                            >
+[cv                                               ]<GROUP g2 >
+[                                                 ][s_pts    ]
+[                                                 ][s_pst    ]
+[                                                 ][s_leg    ]
+[                                                 ][s_org    ]
+[                                                 ][s_plb    ]
+[                                                 ][s_vlb    ]
+[                                                 ]
+Selected:[es                                      ]<         >
 }
 END
 END
@@ -55,9 +55,10 @@ SPINEDIT sgl=FORMONLY.skip_gl, NOT NULL,
 
 COMBOBOX cm=FORMONLY.chart_mode, NOT NULL,
    ITEMS=(
-          (1, "Default sample data"),
-          (2, "Random data (A)"),
-          (3, "Random data (B)")
+          (1, "Sample 1"),
+          (2, "Random data 1"),
+          (3, "Random data 2"),
+          (4, "Trigonometry")
          );
 
 GROUP g1: group1, TEXT="Values";
@@ -67,6 +68,7 @@ EDIT c_p= FORMONLY.curr_position, NOT NULL;
 EDIT c_v= FORMONLY.curr_value, NOT NULL;
 EDIT c_l= FORMONLY.curr_label, NOT NULL;
 BUTTON sv: set_value, TEXT="Set";
+
 BUTTON cl: clear, TEXT="Clear";
 BUTTON rd: render, TEXT="Render",
   COMMENT="Render chart (CTRL-R)";

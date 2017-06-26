@@ -89,16 +89,15 @@ END FUNCTION
 #+
 #+ @code
 #+ DEFINE id SMALLINT
-#+ LET id = fglsvgchart.create("mychart","Apple sales")
+#+ LET id = fglsvgchart.create("mychart")
 #+
 #+ @param name The name of the chart.
-#+ @param title The main title of the chart.
 #+
 #+ @returnType SMALLINT
 #+ @return The chart object ID
 #+
-PUBLIC FUNCTION create(name,title)
-    DEFINE name,title STRING
+PUBLIC FUNCTION create(name)
+    DEFINE name STRING
     DEFINE id, i SMALLINT
     IF LENGTH(name)==0 THEN
        OPEN FORM _dummy_ FROM NULL
@@ -113,11 +112,26 @@ PUBLIC FUNCTION create(name,title)
     END IF
     INITIALIZE charts[id].* TO NULL
     LET charts[id].name = name
-    LET charts[id].title = title
+    LET charts[id].title = SFMT("Chart #%1",id)
     CALL reset(id)
     RETURN id
 END FUNCTION
 
+#+ Defines the chart main title
+#+
+#+ @code
+#+ CALL fglsvgchart.setTitle(cid, "My chart")
+#+
+#+ @param id      The chart id
+#+ @param title   The lower limit for positions (X-axis)
+#+
+PUBLIC FUNCTION setTitle(id,title)
+    DEFINE id SMALLINT,
+           title STRING
+    CALL _check_id(id)
+    LET charts[id].title = title
+END FUNCTION
+ 
 #+ Defines the coordinate limits of the chart
 #+
 #+ Sets the lower and upper limits of the chart coordinate system.
@@ -338,6 +352,11 @@ PUBLIC FUNCTION setGridLabelY(id,index,label)
     LET charts[id].grid_ly[index] = label
 END FUNCTION
 
+PRIVATE FUNCTION _num_format(fmt)
+    DEFINE fmt STRING
+    RETURN NVL(fmt,"-<<<<<<<<&.&&")
+END FUNCTION
+
 #+ Set grid labels for X axis from grid steps.
 #+
 #+ @code
@@ -356,12 +375,9 @@ PUBLIC FUNCTION setGridLabelsFromStepsX(id,skip,format)
     CALL _check_id(id)
     LET dy = (charts[id].maxpos - charts[id].minpos) / charts[id].grid_np
     CALL charts[id].grid_lx.clear()
-    IF format IS NULL THEN
-       LET format = "----&.&&"
-    END IF
     FOR n=1 TO charts[id].grid_np+1 STEP skip
         LET v = charts[id].minpos + (dy * (n-1))
-        LET charts[id].grid_lx[n] = (v USING format)
+        LET charts[id].grid_lx[n] = (v USING _num_format(format))
     END FOR
 END FUNCTION
 
@@ -383,12 +399,9 @@ PUBLIC FUNCTION setGridLabelsFromStepsY(id,skip,format)
     CALL _check_id(id)
     LET dx = (charts[id].maxval - charts[id].minval) / charts[id].grid_nv
     CALL charts[id].grid_ly.clear()
-    IF format IS NULL THEN
-       LET format = "----&.&&"
-    END IF
     FOR n=1 TO charts[id].grid_nv+1 STEP skip
         LET v = charts[id].minval + (dx * (n-1))
-        LET charts[id].grid_ly[n] = (v USING format)
+        LET charts[id].grid_ly[n] = (v USING _num_format(format))
     END FOR
 END FUNCTION
 
@@ -407,9 +420,9 @@ PUBLIC FUNCTION clean(id)
     CALL charts[id].items.clear()
 END FUNCTION
 
-#+ Reset chart settings.
+#+ Reset chart datasets.
 #+
-#+ Call this function to reset all chart settings to the defaults.
+#+ Call this function to reset the chart by deleting all datasets.
 #+
 #+ @code
 #+ CALL fglsvgchart.reset(id)
@@ -420,11 +433,6 @@ PUBLIC FUNCTION reset(id)
     DEFINE id SMALLINT
     CALL _check_id(id)
     CALL clean(id)
-    LET charts[id].points = FALSE
-    LET charts[id].legend = FALSE
-    LET charts[id].xyratio = 1.0
-    LET charts[id].points = FALSE
-    CALL setBoundaries(id, 0, 1000, 0, 1000)
     CALL charts[id].grid_lx.clear()
     CALL charts[id].grid_ly.clear()
     CALL charts[id].datasets.clear()
@@ -486,6 +494,9 @@ PUBLIC FUNCTION defineDataItem(id,itemidx,position,title)
            title STRING
 
     CALL _check_id(id)
+    IF itemidx<=0 THEN
+       OPEN FORM _dummy_ FROM NULL
+    END IF
     LET charts[id].items[itemidx].position = position
     LET charts[id].items[itemidx].title = title
     CALL charts[id].items[itemidx].values.clear()
@@ -705,7 +716,7 @@ PRIVATE FUNCTION _render_base_svg(id, parent, x, y, width, height)
 
     IF charts[id].legend THEN
        LET ml = charts[id].datasets.getLength() -- FIXME: only visible datasets
-       LET n = _create_legend_box(id, ldy)
+       LET n = _create_legend_box(id, _get_y(id,ldy))
        CALL n.setAttribute("x", isodec(charts[id].minpos + (charts[id].width/2) - (ldy*(ml-1))) )
        CALL n.setAttribute("y", isodec(_get_y(id, charts[id].maxval+(ldy*0.4))) )
        CALL b.appendChild(n)
@@ -999,10 +1010,13 @@ PRIVATE FUNCTION _render_data_lines(id, base)
 
     FOR l=1 TO ml
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
-        LET p = " M"||isodec(charts[id].items[1].position)||",0"
+        LET p = NULL
         FOR i=1 TO m
             LET y = charts[id].items[i].values[l].value
             IF y IS NULL THEN CONTINUE FOR END IF
+            IF p IS NULL THEN
+               LET p = " M"||isodec(charts[id].items[i].position)||",0"
+            END IF
             LET x = charts[id].items[i].position
             LET p = p||" L"||isodec(x)||","||isodec(_get_y(id,y))
         END FOR
