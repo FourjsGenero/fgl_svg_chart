@@ -570,19 +570,6 @@ PUBLIC FUNCTION getDataItemCount(id)
     RETURN charts[id].items.getLength()
 END FUNCTION
 
-PRIVATE FUNCTION _max_value_count(id)
-    DEFINE id SMALLINT
-    DEFINE i, m, ml SMALLINT
-    LET m = charts[id].items.getLength()
-    LET ml = 0
-    FOR i=1 TO m
-        IF ml < charts[id].items[i].values.getLength() THEN
-           LET ml = charts[id].items[i].values.getLength()
-        END IF
-    END FOR
-    RETURN ml
-END FUNCTION
-
 #+ Returns the current number of datasets in the chart.
 #+
 #+ @param id      The chart id
@@ -593,7 +580,7 @@ END FUNCTION
 PUBLIC FUNCTION getDataSetCount(id)
     DEFINE id SMALLINT
     CALL _check_id(id)
-    RETURN _max_value_count(id)
+    RETURN charts[id].datasets.getLength()
 END FUNCTION
 
 #+ Render the chart in your web component.
@@ -639,7 +626,7 @@ PRIVATE FUNCTION _create_legend_box(id, h)
            w DECIMAL,
            l, ml SMALLINT
 
-    LET ml = _max_value_count(id)
+    LET ml = charts[id].datasets.getLength()
 
     LET w = (h * 1.10) * ml
 
@@ -717,7 +704,7 @@ PRIVATE FUNCTION _render_base_svg(id, parent, x, y, width, height)
     END IF
 
     IF charts[id].legend THEN
-       LET ml = _max_value_count(id) -- FIXME: only visible datasets
+       LET ml = charts[id].datasets.getLength() -- FIXME: only visible datasets
        LET n = _create_legend_box(id, ldy)
        CALL n.setAttribute("x", isodec(charts[id].minpos + (charts[id].width/2) - (ldy*(ml-1))) )
        CALL n.setAttribute("y", isodec(_get_y(id, charts[id].maxval+(ldy*0.4))) )
@@ -854,7 +841,7 @@ PRIVATE FUNCTION _render_data_bars(id, base)
 
     LET m = charts[id].items.getLength()
     LET dx = (charts[id].width / m) * 0.8
-    LET ml = _max_value_count(id)
+    LET ml = charts[id].datasets.getLength()
     LET sdx = dx / ml
 
     FOR l=1 TO ml
@@ -898,9 +885,10 @@ PRIVATE FUNCTION _render_data_points(id, base)
     LET g = fglsvgcanvas.g("data_points")
     CALL base.appendChild(g)
 
-    LET ml = _max_value_count(id)
+    LET ml = charts[id].datasets.getLength()
 
     FOR l=1 TO ml
+        IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         CALL _create_data_points(id, g, l, TRUE, charts[id].datasets[l].style)
     END FOR
 
@@ -912,7 +900,7 @@ PRIVATE FUNCTION _min_max_value2(id)
            l, ml SMALLINT,
            minv2, maxv2 DECIMAL
     LET m = charts[id].items.getLength()
-    LET ml = _max_value_count(id)
+    LET ml = charts[id].datasets.getLength()
     LET minv2 = NULL
     LET maxv2 = NULL
     FOR i=1 TO m
@@ -1007,7 +995,7 @@ PRIVATE FUNCTION _render_data_lines(id, base)
     LET m = charts[id].items.getLength()
     LET dx = ( charts[id].width / m ) * 0.10
 
-    LET ml = _max_value_count(id)
+    LET ml = charts[id].datasets.getLength()
 
     FOR l=1 TO ml
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
@@ -1053,7 +1041,7 @@ PRIVATE FUNCTION _render_data_splines(id, base)
     CALL base.appendChild(g)
 
     LET m = charts[id].items.getLength()
-    LET ml = _max_value_count(id)
+    LET ml = charts[id].datasets.getLength()
 
     FOR l=1 TO ml
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
