@@ -210,10 +210,12 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
               LET params.grid_sx = 12
               LET params.grid_sy = 14
               LET params.skip_gl = 2
+              LET params.curr_value = 500.0
            END IF
            CALL default_chart_data(cid)
       WHEN 2
            IF rc THEN
+              LET params.curr_value = NULL
               CALL random_chart_data(cid,
                                      params.minpos,params.maxpos,
                                      params.minval,params.maxval,
