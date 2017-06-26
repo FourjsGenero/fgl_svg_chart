@@ -96,8 +96,14 @@ MAIN
         ON CHANGE ds_count
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE show_points
+           IF NOT params.show_points THEN
+              LET params.points_style=FALSE
+           END IF
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE points_style
+           IF params.points_style THEN
+              LET params.show_points=TRUE
+           END IF
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE show_legend
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
@@ -258,9 +264,6 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
            END IF
     END CASE
 
-    CALL fglsvgchart.showPoints(cid, params.show_points, IIF(params.points_style,"points",NULL))
-
-    IF params.points_style AND NOT params.show_points THEN LET params.show_points=TRUE END IF
     CALL fglsvgchart.showPoints(cid, params.show_points, IIF(params.points_style,"points",NULL))
 
     CALL fglsvgchart.showDataSetLegend(cid, params.show_legend)
