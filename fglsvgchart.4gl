@@ -196,6 +196,40 @@ PRIVATE FUNCTION _get_y(id, value)
     RETURN (charts[id].xyratio * value)
 END FUNCTION
 
+PRIVATE FUNCTION _min(v1,v2)
+    DEFINE v1, v2 DECIMAL
+    RETURN IIF(v1 < v2, v1, v2)
+END FUNCTION
+
+PRIVATE FUNCTION _max(v1,v2)
+    DEFINE v1, v2 DECIMAL
+    RETURN IIF(v1 > v2, v1, v2)
+END FUNCTION
+
+#+ Computes the font-size ration for chart labels
+#+
+#+ Then chart boundaries must have been defined with setBoundaries().
+#+
+#+ @code
+#+ DEFINE fs3 DECIMAL
+#+ LET fs3 = ( fglsvgchart.getFontSizeRatio(cid) * 3 ) || "%"
+#+ CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
+#+ CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs3 )
+#+ CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+#+ CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
+#+ CALL attr.addAttribute(SVGATT_FILL,           "blue" )
+#+ CALL buf.append( fglsvgcanvas.styleDefinition(".main_title",attr) )
+#+
+#+ @param id      The chart id
+#+
+PUBLIC FUNCTION getFontSizeRatio(id)
+    DEFINE id SMALLINT
+    DEFINE br, tpos, tval DECIMAL
+    CALL _check_id(id)
+    LET br = 0.04
+    RETURN ( _min( charts[id].width, _get_y(id,charts[id].height) ) * br )
+END FUNCTION
+
 #+ Display points
 #+
 #+ @param id      The chart id

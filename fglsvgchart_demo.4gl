@@ -549,7 +549,6 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
 END FUNCTION
 
 
--- Since font-size="x%" does not work, must adapt to the viewBox boundaries...
 FUNCTION compute_font_size_ratio()
     DEFINE br, tpos, tval DECIMAL
     LET br = 0.025  -- 2.5% of the max viewbox edge
@@ -564,8 +563,9 @@ FUNCTION compute_font_size_ratio()
     END IF
 END FUNCTION
 
-FUNCTION create_styles(root_svg)
-    DEFINE root_svg, n om.DomNode
+FUNCTION create_styles(cid, root_svg)
+    DEFINE cid SMALLINT,
+           root_svg, n om.DomNode
     DEFINE attr om.SaxAttributes,
            buf base.StringBuffer,
            defs om.DomNode,
@@ -573,7 +573,7 @@ FUNCTION create_styles(root_svg)
            fs1, fs2, fs3 STRING
 
     -- It is in the hands of the caller to use the font size of its choice.
-    LET fr = compute_font_size_ratio()
+    LET fr = fglsvgchart.getFontSizeRatio(cid)
     LET fs1 = (2*fr) ||"%"
     LET fs2 = (5*fr) ||"%"
     LET fs3 = (8*fr) ||"%"
@@ -672,7 +672,7 @@ FUNCTION draw_graph(rid,cid,root_svg,ct)
     CALL fglsvgchart.showDataSet(cid, 4, (params.ds_count>3) )
 
     CALL fglsvgcanvas.clean(rid)
-    CALL create_styles(root_svg)
+    CALL create_styles(cid, root_svg)
     CALL fglsvgchart.render( cid, ct, root_svg, NULL,NULL,NULL,NULL )
 --display root_svg.toString()
     CALL fglsvgcanvas.display(rid)
