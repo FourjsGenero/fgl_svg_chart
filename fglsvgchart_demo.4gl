@@ -14,7 +14,8 @@ DEFINE params RECORD
                maxval DECIMAL(10,4),
                grid_sy SMALLINT,
                rect_ratio DECIMAL(10,3),
-               skip_gl SMALLINT,
+               skip_glx SMALLINT,
+               skip_gly SMALLINT,
                show_points BOOLEAN,
                points_style BOOLEAN,
                show_title BOOLEAN,
@@ -62,8 +63,9 @@ MAIN
     LET params.minval = -200.0
     LET params.maxval = 1200.0
     LET params.grid_sx = 12
+    LET params.skip_glx = 2
     LET params.grid_sy = 14
-    LET params.skip_gl = 2
+    LET params.skip_gly = 1
     LET params.rect_ratio = 1.0
     LET params.show_title  = TRUE
     LET params.show_points = TRUE
@@ -129,7 +131,9 @@ MAIN
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE grid_sy
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
-        ON CHANGE skip_gl
+        ON CHANGE skip_glx
+           CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
+        ON CHANGE skip_gly
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE rect_ratio
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
@@ -215,7 +219,8 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
               LET params.rect_ratio = 1.0
               LET params.grid_sx = 12
               LET params.grid_sy = 14
-              LET params.skip_gl = 2
+              LET params.skip_glx = 2
+              LET params.skip_gly = 1
               LET params.curr_value = 500.0
               LET params.show_points = TRUE
            END IF
@@ -286,9 +291,9 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
     CALL fglsvgchart.defineGrid(cid, params.grid_sx, params.grid_sy)
 
     IF params.chart_mode!=1 THEN
-       CALL fglsvgchart.setGridLabelsFromStepsX(cid,params.skip_gl,NULL)
+       CALL fglsvgchart.setGridLabelsFromStepsX(cid,params.skip_glx,NULL)
     END IF
-    CALL fglsvgchart.setGridLabelsFromStepsY(cid,params.skip_gl,NULL)
+    CALL fglsvgchart.setGridLabelsFromStepsY(cid,params.skip_gly,NULL)
 
     CALL draw_graph(rid,cid,root_svg,params.chart_type)
 

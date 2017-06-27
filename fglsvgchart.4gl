@@ -407,6 +407,7 @@ PUBLIC FUNCTION setGridLabelsFromStepsX(id,skip,format)
     DEFINE n SMALLINT,
            v, dy DECIMAL
     CALL _check_id(id)
+    IF skip <= 0 THEN OPEN FORM _dummy_ FROM NULL END IF
     LET dy = (charts[id].maxpos - charts[id].minpos) / charts[id].grid_np
     CALL charts[id].grid_lx.clear()
     FOR n=1 TO charts[id].grid_np+1 STEP skip
@@ -431,6 +432,7 @@ PUBLIC FUNCTION setGridLabelsFromStepsY(id,skip,format)
     DEFINE n SMALLINT,
            v, dx DECIMAL
     CALL _check_id(id)
+    IF skip <= 0 THEN OPEN FORM _dummy_ FROM NULL END IF
     LET dx = (charts[id].maxval - charts[id].minval) / charts[id].grid_nv
     CALL charts[id].grid_ly.clear()
     FOR n=1 TO charts[id].grid_nv+1 STEP skip

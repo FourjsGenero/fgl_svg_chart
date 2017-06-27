@@ -1,27 +1,27 @@
 LAYOUT
 GRID
 {
-Chart type: [ct                   ]  Datasets:    [ds     ]
-Min/Max pos:[minpos     ][maxpos     ]  Grid steps X:[gsx    ]
-Min/Max val:[minval     ][maxval     ]  Grid steps Y:[gsy    ]
-Rectangular ratio:       [rra        ]  Skip grid lb:[sgl    ]
-Chart mode: [cm                                              ]
-            [cl        :                         :rd         ]
-<GROUP g1                                                    >
+Chart type: [ct                   ]     Datasets:           [ds    ]
+Min/Max pos:[minpos     ][maxpos     ]  Grid st/sk X:[gsx  ][sglx  ]
+Min/Max val:[minval     ][maxval     ]  Grid st/sk Y:[gsy  ][sgly  ]
+Rectangular ratio:       [rra        ]
+Chart mode: [cm                                                    ]
+            [cl        :                               :rd         ]
+<GROUP g1                                                          >
  Dataset: [c_d      ] Item: [c_i     ]
  Position:[c_p      ] Value:[c_v     ][sv  ]
  Label:   [c_l                       ]
-<                                                            >
-[cv                                               ]<GROUP g2 >
-[                                                 ][s_tit    ]
-[                                                 ][s_pts    ]
-[                                                 ][s_pst    ]
-[                                                 ][s_leg    ]
-[                                                 ][s_org    ]
-[                                                 ][s_plb    ]
-[                                                 ][s_vlb    ]
-[                                                 ]
-Selected:[es                                      ]<         >
+<                                                                  >
+[cv                                                     ]<GROUP g2 >
+[                                                       ][s_tit    ]
+[                                                       ][s_pts    ]
+[                                                       ][s_pst    ]
+[                                                       ][s_leg    ]
+[                                                       ][s_org    ]
+[                                                       ][s_plb    ]
+[                                                       ][s_vlb    ]
+[                                                       ]
+Selected:[es                                            ]<         >
 }
 END
 END
@@ -51,7 +51,10 @@ SPINEDIT gsy=FORMONLY.grid_sy, NOT NULL,
 
 BUTTONEDIT rra=FORMONLY.rect_ratio, NOT NULL, IMAGE="fa-plus", ACTION=ratio_plus;
 
-SPINEDIT sgl=FORMONLY.skip_gl, NOT NULL,
+SPINEDIT sglx=FORMONLY.skip_glx, NOT NULL,
+   VALUEMIN=1, VALUEMAX=10;
+
+SPINEDIT sgly=FORMONLY.skip_gly, NOT NULL,
    VALUEMIN=1, VALUEMAX=10;
 
 COMBOBOX cm=FORMONLY.chart_mode, NOT NULL,
