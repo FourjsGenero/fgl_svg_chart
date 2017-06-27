@@ -12,16 +12,16 @@ Chart mode: [cm                                                    ]
  Position:[c_p      ] Value:[c_v     ][sv  ]
  Label:   [c_l                       ]
 <                                                                  >
-[cv                                                     ]<GROUP g2 >
-[                                                       ][s_tit    ]
-[                                                       ][s_pts    ]
-[                                                       ][s_pst    ]
-[                                                       ][s_leg    ]
-[                                                       ][s_org    ]
-[                                                       ][s_plb    ]
-[                                                       ][s_vlb    ]
-[                                                       ]
-Selected:[es                                            ]<         >
+[cv                                                ]<GROUP g2      >
+[                                                  ][s_tit         ]
+[                                                  ][s_pts         ]
+[                                                  ][s_pst         ]
+[                                                  ][s_org         ]
+[                                                  ][s_plb         ]
+[                                                  ][s_vlb         ]
+[                                                  ] Legend:[s_leg ]
+[                                                  ]
+Selected:[es                                       ]<              >
 }
 END
 END
@@ -84,14 +84,20 @@ CHECKBOX s_pts = FORMONLY.show_points, NOT NULL,
    TEXT="Show points";
 CHECKBOX s_pst = FORMONLY.points_style, NOT NULL,
    TEXT="Pts style";
-CHECKBOX s_leg = FORMONLY.show_legend, NOT NULL,
-   TEXT="Show legend";
 CHECKBOX s_org = FORMONLY.show_origin, NOT NULL,
    TEXT="Show origin";
 CHECKBOX s_plb = FORMONLY.show_plab, NOT NULL,
    TEXT="Show Pos Lab";
 CHECKBOX s_vlb = FORMONLY.show_vlab, NOT NULL,
    TEXT="Show Val Lab";
+COMBOBOX s_leg = FORMONLY.legend_pos,
+   ITEMS=(
+          (NULL, "None"),
+          (1, "Top"),
+          (2, "Left"),
+          (3, "Bottom"),
+          (4, "Right")
+         );
 
 WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",

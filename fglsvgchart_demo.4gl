@@ -19,10 +19,10 @@ DEFINE params RECORD
                show_points BOOLEAN,
                points_style BOOLEAN,
                show_title BOOLEAN,
-               show_legend BOOLEAN,
                show_origin BOOLEAN,
                show_plab BOOLEAN,
                show_vlab BOOLEAN,
+               legend_pos SMALLINT,
                curr_dataset SMALLINT,
                curr_item SMALLINT,
                curr_position DECIMAL,
@@ -57,7 +57,7 @@ MAIN
 
     LET params.chart_type = fglsvgchart.CHART_TYPE_LINES
     LET params.chart_mode = 1
-    LET params.ds_count = 2
+    LET params.ds_count = 4
     LET params.minpos =    0.0
     LET params.maxpos = 2400.0
     LET params.minval = -200.0
@@ -69,10 +69,10 @@ MAIN
     LET params.rect_ratio = 1.0
     LET params.show_title  = TRUE
     LET params.show_points = TRUE
-    LET params.show_legend = TRUE
     LET params.show_origin = TRUE
     LET params.show_plab   = TRUE
     LET params.show_vlab   = TRUE
+    LET params.legend_pos  = fglsvgchart.LEGEND_POS_BOTTOM
 
     LET params.curr_dataset = 1
     LET params.curr_item = 1
@@ -111,13 +111,13 @@ MAIN
               LET params.show_points=TRUE
            END IF
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
-        ON CHANGE show_legend
-           CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE show_origin
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE show_plab
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE show_vlab
+           CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
+        ON CHANGE legend_pos
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE minpos
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
@@ -275,7 +275,7 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
 
     CALL fglsvgchart.showPoints(cid, params.show_points, IIF(params.points_style,"points",NULL))
 
-    CALL fglsvgchart.showDataSetLegend(cid, params.show_legend)
+    CALL fglsvgchart.showDataSetLegend(cid, params.legend_pos)
     CALL fglsvgchart.showOrigin(cid, params.show_origin)
     CALL fglsvgchart.showGridPositionLabels(cid, params.show_plab)
     CALL fglsvgchart.showGridValueLabels(cid, params.show_vlab)

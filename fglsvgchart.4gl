@@ -25,7 +25,7 @@ PRIVATE TYPE t_chart RECORD
                title STRING,
                points BOOLEAN,
                points_style STRING,
-               legend BOOLEAN,
+               legend_pos SMALLINT,
                origin BOOLEAN,
                minpos DECIMAL,
                maxpos DECIMAL,
@@ -53,6 +53,12 @@ PUBLIC CONSTANT
   CHART_TYPE_POINTS = 2,
   CHART_TYPE_LINES = 3,
   CHART_TYPE_SPLINES = 4
+
+PUBLIC CONSTANT
+  LEGEND_POS_TOP    = 1,
+  LEGEND_POS_LEFT   = 2,
+  LEGEND_POS_BOTTOM = 3,
+  LEGEND_POS_RIGHT  = 4
 
 PRIVATE DEFINE debug_level SMALLINT
 
@@ -224,7 +230,7 @@ END FUNCTION
 #+
 PUBLIC FUNCTION getFontSizeRatio(id)
     DEFINE id SMALLINT
-    DEFINE br, tpos, tval DECIMAL
+    DEFINE br DECIMAL
     CALL _check_id(id)
     LET br = 0.04
     RETURN ( _min( charts[id].width, _get_y(id,charts[id].height) ) * br )
@@ -238,7 +244,7 @@ END FUNCTION
 #+
 PUBLIC FUNCTION showPoints(id,enable,style)
     DEFINE id SMALLINT,
-           enable STRING,
+           enable BOOLEAN,
            style STRING
     CALL _check_id(id)
     LET charts[id].points = enable
@@ -247,14 +253,16 @@ END FUNCTION
 
 #+ Display dataset legend
 #+
-#+ @param id      The chart id
-#+ @param enable  TRUE to display the legend
+#+ Defines the position of the legend box.
 #+
-PUBLIC FUNCTION showDataSetLegend(id,enable)
+#+ @param id        The chart id
+#+ @param position  NULL or LEGEND_POS_{TOP|LEFT|BOTTOM|RIGHT}
+#+
+PUBLIC FUNCTION showDataSetLegend(id,position)
     DEFINE id SMALLINT,
-           enable STRING
+           position SMALLINT
     CALL _check_id(id)
-    LET charts[id].legend = enable
+    LET charts[id].legend_pos = position
 END FUNCTION
 
 #+ Display value-axis labels
@@ -264,7 +272,7 @@ END FUNCTION
 #+
 PUBLIC FUNCTION showGridValueLabels(id,enable)
     DEFINE id SMALLINT,
-           enable STRING
+           enable BOOLEAN
     CALL _check_id(id)
     LET charts[id].grid_vl = enable
 END FUNCTION
@@ -276,7 +284,7 @@ END FUNCTION
 #+
 PUBLIC FUNCTION showGridPositionLabels(id,enable)
     DEFINE id SMALLINT,
-           enable STRING
+           enable BOOLEAN
     CALL _check_id(id)
     LET charts[id].grid_pl = enable
 END FUNCTION
@@ -288,7 +296,7 @@ END FUNCTION
 #+
 PUBLIC FUNCTION showOrigin(id,enable)
     DEFINE id SMALLINT,
-           enable STRING
+           enable BOOLEAN
     CALL _check_id(id)
     LET charts[id].origin = enable
 END FUNCTION
@@ -663,48 +671,105 @@ PUBLIC FUNCTION render(id, type, parent, x, y, width, height)
 
 END FUNCTION
 
--- TODO: Vertical / Horizontal legend...
-PRIVATE FUNCTION _create_legend_box(id, h)
+PRIVATE FUNCTION _create_legend_box(id, pw, ph)
+    CONSTANT CHAR_WIDTH DECIMAL = 0.18
     DEFINE id SMALLINT,
-           h DECIMAL
-    DEFINE b, r, n, t om.DomNode,
+           pw, ph DECIMAL
+    DEFINE b, g, n, r, t om.DomNode,
+           x, y DECIMAL, w, h STRING,
            vb STRING,
-           cw,ch INTEGER,
-           w DECIMAL,
-           l, ml SMALLINT
+           mc, cw, ch INTEGER,  -- (1) Using INTEGER avoids isodec() if box size = 100
+           tw, th INTEGER,      -- (1)
+           ldxl, ldxr DECIMAL,
+           ldyt, ldyb DECIMAL,
+           l, ml SMALLINT,
+           vv BOOLEAN
+
+    LET cw = 100
+    LET ch = 100
 
     LET ml = charts[id].datasets.getLength()
 
-    LET w = (h * 1.10) * ml
+    LET mc=3
+    FOR l=1 TO ml
+        IF mc < charts[id].datasets[l].label.getLength() THEN
+           LET mc = charts[id].datasets[l].label.getLength()
+        END IF
+    END FOR
 
-    LET cw = 270
-    LET ch = 100
-    LET vb = SFMT("0 0 %1 %2", (cw*ml), ch)
+    LET vv = (   charts[id].legend_pos==LEGEND_POS_TOP
+              OR charts[id].legend_pos==LEGEND_POS_BOTTOM )
 
-    LET b = fglsvgcanvas.svg(SFMT("legend_%1",id),
-                             NULL, NULL, isodec(w), isodec(h),
-                             vb, "xMidYMid meet")
-
-    LET r = fglsvgcanvas.rect(3,3,(cw*ml)-6,ch-6,NULL,NULL)
-    CALL r.setAttribute(fglsvgcanvas.SVGATT_CLASS,"legend_box")
-    CALL b.appendChild(r)
-
+    LET g = fglsvgcanvas.g(NULL)
+    LET tw = 0
+    LET th = 0
     FOR l=1 TO ml
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         LET n = fglsvgcanvas.g(NULL)
         CALL n.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
-                             SFMT("translate(%1,0)",isodec(cw*(l-1))) )
-        CALL b.appendChild(n)
+                             SFMT("translate(%1,%2)", tw, th)
+                           )
+        CALL g.appendChild(n)
         LET r = fglsvgcanvas.rect(15,15,70,70,NULL,NULL)
         CALL r.setAttribute(fglsvgcanvas.SVGATT_CLASS,charts[id].datasets[l].style)
         CALL n.appendChild(r)
-        LET t = fglsvgcanvas.text(100, (ch*0.60),
+        LET t = fglsvgcanvas.text(90, (ch*0.60),
                                   charts[id].datasets[l].label, "legend_label")
         CALL t.setAttribute("text-anchor","left")
         CALL n.appendChild(t)
+        IF vv THEN
+           LET tw = tw + ( cw * (1 + (charts[id].datasets[l].label.getLength() * CHAR_WIDTH)) )
+        ELSE
+           LET th = th + ch
+        END IF
     END FOR
 
-    RETURN b
+    LET ldxl = 0
+    LET ldxr = 0
+    LET ldyt = 0
+    LET ldyb = 0
+
+    IF vv THEN -- top/bottom
+       LET th = ch
+       LET x = 0
+       LET w = NULL
+       LET h = "7%"
+    ELSE       -- left/right
+       LET tw = (cw * (1 + (mc * CHAR_WIDTH)))
+       LET y = 0
+       LET w = "12%"
+       LET h = NULL
+    END IF
+
+    CASE charts[id].legend_pos
+      WHEN LEGEND_POS_TOP
+        LET y = (ph * 0.065)
+        LET ldyt = (ph * 0.09)
+      WHEN LEGEND_POS_BOTTOM
+        LET y = (ph * 0.93)
+        LET ldyb = (ph * 0.09)
+      WHEN LEGEND_POS_LEFT
+        LET x = 0
+        LET ldxl = (pw * 0.12)
+      WHEN LEGEND_POS_RIGHT
+        LET x = (pw * 0.88)
+        LET ldxr = (pw * 0.12)
+    END CASE
+
+    LET vb = SFMT("0 0 %1 %2", tw, th)
+    LET b = fglsvgcanvas.svg(SFMT("legend_%1",id),
+                             isodec(x), isodec(y), w, h,
+                             vb, "xMidYMid meet")
+
+    LET r = fglsvgcanvas.rect( 3, 3, tw-6, th-6, NULL, NULL)
+    CALL r.setAttribute(fglsvgcanvas.SVGATT_CLASS,"legend_box")
+    CALL b.appendChild(r)
+
+    CALL b.appendChild(g)
+
+--display b.toString()
+
+    RETURN b, ldxl, ldxr, ldyt, ldyb
 
 END FUNCTION
 
@@ -713,31 +778,17 @@ PRIVATE FUNCTION _create_base_svg(id, parent, x, y, width, height)
     DEFINE id SMALLINT,
            parent om.DomNode,
            x,y,width,height STRING
-    DEFINE b, s, t, n om.DomNode,
+    DEFINE b, s, t, lb om.DomNode,
            hwratio DECIMAL,
-           sheet_y, sheet_h DECIMAL,
-           bdy, tdy, ldy DECIMAL,
+           sheet_x, sheet_y, sheet_w, sheet_h DECIMAL,
+           bdx, bdy DECIMAL,
+           tdy DECIMAL,
+           ldxl, ldxr DECIMAL,
+           ldyt, ldyb DECIMAL,
            x1, y1, w1, h1 DECIMAL,
            vb STRING
 
     LET hwratio = _get_y(id,charts[id].height) / charts[id].width
-
-    IF charts[id].title IS NOT NULL THEN
-       LET tdy = (BASE_SVG_SIZE * 0.05) * hwratio
-    ELSE
-       LET tdy = 0.0
-    END IF
-
-    IF charts[id].legend THEN
-       LET ldy = (BASE_SVG_SIZE * 0.08) * hwratio
-    ELSE
-       LET ldy = 0.0
-    END IF
-
-    LET bdy = (BASE_SVG_SIZE * 0.01) * hwratio
-
-    LET sheet_y = bdy + tdy
-    LET sheet_h = (BASE_SVG_SIZE * hwratio) - (tdy + ldy)
 
     LET x1 = 0
     LET y1 = 0
@@ -745,6 +796,30 @@ PRIVATE FUNCTION _create_base_svg(id, parent, x, y, width, height)
     LET h1 = BASE_SVG_SIZE * hwratio
     LET vb = SFMT("%1 %2 %3 %4", isodec(x1), isodec(y1), isodec(w1), isodec(h1) )
 
+    IF charts[id].title IS NOT NULL THEN
+       LET tdy = (BASE_SVG_SIZE * 0.05) * hwratio
+    ELSE
+       LET tdy = 0.0
+    END IF
+
+    IF charts[id].legend_pos IS NOT NULL THEN
+       CALL _create_legend_box(id, w1, h1) RETURNING lb, ldxl, ldxr, ldyt, ldyb
+    ELSE
+       LET ldxl = 0.0
+       LET ldxr = 0.0
+       LET ldyt = 0.0
+       LET ldyb = 0.0
+    END IF
+
+    LET bdx = 0
+    LET bdy = (BASE_SVG_SIZE * 0.01) * hwratio
+
+    LET sheet_x = bdx + ldxl
+    LET sheet_y = bdy + tdy + ldyt
+    LET sheet_w = (BASE_SVG_SIZE)           - (bdx + ldxl + ldxr)
+    LET sheet_h = (BASE_SVG_SIZE * hwratio) - (tdy + ldyt + ldyb)
+
+-- For debug only
 --let y = "10%"
 --let height = "80%"
 
@@ -760,18 +835,16 @@ PRIVATE FUNCTION _create_base_svg(id, parent, x, y, width, height)
        CALL b.appendChild(t)
     END IF
 
-    IF charts[id].legend THEN
-       LET n = _create_legend_box(id, ldy)
-       CALL n.setAttribute("x", isodec(0) ) -- FIXME
-       CALL n.setAttribute("y", isodec(h1-ldy) )
-       CALL b.appendChild(n)
+    IF charts[id].legend_pos IS NOT NULL THEN
+       CALL b.appendChild(lb)
     END IF
 
     IF debug_level>0 THEN
        CALL b.appendChild( add_debug_rect(x1,y1,w1,h1) )
+       CALL b.appendChild( add_debug_rect(0,0,1000,tdy) )
     END IF
 
-    LET s = _create_sheet_1(id, b, 0, sheet_y, NULL, sheet_h)
+    LET s = _create_sheet_1(id, b, sheet_x, sheet_y, sheet_w, sheet_h)
 
     RETURN b, s
 
