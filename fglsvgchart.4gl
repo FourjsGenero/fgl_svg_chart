@@ -868,7 +868,7 @@ PRIVATE FUNCTION _create_sheet_1(id, base, x,y,width,height)
     DEFINE bdxl, bdxr DECIMAL,
            bdyt, bdyb DECIMAL,
            x1, y1, w1, h1 DECIMAL,
-           s, g om.DomNode,
+           s, g, d, cr om.DomNode,
            fy DECIMAL,
            vb STRING
 
@@ -889,6 +889,16 @@ PRIVATE FUNCTION _create_sheet_1(id, base, x,y,width,height)
     IF debug_level>0 THEN
        CALL s.appendChild( add_debug_rect(x1,_get_y(id,y1),w1,_get_y(id,h1)) )
     END IF
+
+    LET d = fglsvgcanvas.defs( NULL )
+    CALL s.appendChild(d)
+    LET cr = fglsvgcanvas.clipPath_rect("grid_clip",
+                                        charts[id].minpos,
+                                        _get_y(id,charts[id].minval),
+                                        charts[id].width,
+                                        _get_y(id,charts[id].height)
+                                       )
+    CALL d.appendChild(cr)
 
     LET g = fglsvgcanvas.g(SFMT("mg_%1",id))
     CALL s.appendChild(g)
@@ -984,6 +994,7 @@ PRIVATE FUNCTION _render_bars(id, sheet)
            x,y,w,h DECIMAL
 
     LET g = fglsvgcanvas.g("data_bars")
+    CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
 
     LET m = charts[id].items.getLength()
@@ -1022,6 +1033,7 @@ PRIVATE FUNCTION _render_points(id, sheet)
            l, ml INTEGER
 
     LET g = fglsvgcanvas.g("data_points")
+    CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
 
     LET ml = charts[id].datasets.getLength()
@@ -1121,6 +1133,7 @@ PRIVATE FUNCTION _render_lines(id, sheet)
            x,y DECIMAL
 
     LET g = fglsvgcanvas.g("data_lines")
+    CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
 
     LET m = charts[id].items.getLength()
@@ -1164,6 +1177,7 @@ PRIVATE FUNCTION _render_splines(id, sheet)
            s, p STRING
 
     LET g = fglsvgcanvas.g("data_splines")
+    CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
 
     LET m = charts[id].items.getLength()

@@ -550,7 +550,7 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
            LET val = util.Math.tan( pos )
            CALL fglsvgchart.setDataItemValue(cid, i, 3, val, SFMT("tan(%1)=%2",pos,val))
         END IF
-        IF pos>=0 THEN
+        IF pos>0 THEN
            LET val = util.Math.log( pos )
            CALL fglsvgchart.setDataItemValue(cid, i, 4, val, SFMT("log(%1)=%2",pos,val))
         END IF
