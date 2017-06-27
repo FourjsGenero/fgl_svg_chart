@@ -900,7 +900,7 @@ PRIVATE FUNCTION _create_grid_1(id, base)
 
 END FUNCTION
 
-PRIVATE FUNCTION _render_data_bars(id, sheet)
+PRIVATE FUNCTION _render_bars(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
     DEFINE n, g om.DomNode,
