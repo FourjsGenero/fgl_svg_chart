@@ -17,6 +17,7 @@ DEFINE params RECORD
                skip_gl SMALLINT,
                show_points BOOLEAN,
                points_style BOOLEAN,
+               show_title BOOLEAN,
                show_legend BOOLEAN,
                show_origin BOOLEAN,
                show_plab BOOLEAN,
@@ -64,6 +65,7 @@ MAIN
     LET params.grid_sy = 14
     LET params.skip_gl = 2
     LET params.rect_ratio = 1.0
+    LET params.show_title  = TRUE
     LET params.show_points = TRUE
     LET params.show_legend = TRUE
     LET params.show_origin = TRUE
@@ -94,6 +96,8 @@ MAIN
         ON CHANGE chart_mode
            CALL set_params_and_render(rid,cid,root_svg,TRUE,TRUE)
         ON CHANGE ds_count
+           CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
+        ON CHANGE show_title
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE show_points
            IF NOT params.show_points THEN
@@ -202,7 +206,7 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
 
     CASE params.chart_mode
       WHEN 1 -- sample 1
-           CALL fglsvgchart.setTitle(cid,"Export rates (2017)")
+           CALL fglsvgchart.setTitle(cid,IIF(params.show_title,"Export rates (2017)",NULL))
            IF ms THEN
               LET params.minpos =    0.0
               LET params.maxpos = 2400.0
@@ -217,7 +221,7 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
            END IF
            CALL sample1_chart_data(cid)
       WHEN 2 -- random 1
-           CALL fglsvgchart.setTitle(cid,"Random values 1")
+           CALL fglsvgchart.setTitle(cid,IIF(params.show_title,"Random values 1",NULL))
            IF rc THEN
               LET params.curr_value = NULL
               CALL random_chart_data(cid,
@@ -226,7 +230,7 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
                                      params.curr_value)
            END IF
       WHEN 3 -- random 2
-           CALL fglsvgchart.setTitle(cid,"Random values 2")
+           CALL fglsvgchart.setTitle(cid,IIF(params.show_title,"Random values 2",NULL))
            IF rc THEN
               IF ms THEN
                  LET params.minpos     = -100
@@ -245,7 +249,7 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
                                      params.curr_value)
            END IF
       WHEN 4 -- Trigo
-           CALL fglsvgchart.setTitle(cid,"Trigo functions")
+           CALL fglsvgchart.setTitle(cid,IIF(params.show_title,"Trigo functions",NULL))
            IF rc THEN
               IF ms THEN
                  LET params.minpos     = -5.0
@@ -603,17 +607,17 @@ FUNCTION create_styles(cid, root_svg)
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs3 )
-    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "1.8em" )
+    --CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    --CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
     CALL attr.addAttribute(SVGATT_FILL,           "blue" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".main_title",attr) )
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
     CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs2 )
-    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
+    --CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    --CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid_x_label",attr) )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid_y_label",attr) )
 
@@ -625,9 +629,9 @@ FUNCTION create_styles(cid, root_svg)
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs2 )
-    CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
+    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "2em" )
+    --CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
+    --CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".legend_label",attr) )
 
     CALL attr.clear()

@@ -646,17 +646,17 @@ PUBLIC FUNCTION render(id, type, parent, x, y, width, height)
            type SMALLINT,
            parent om.DomNode,
            x,y,width,height STRING
-    DEFINE b om.DomNode
+    DEFINE b, s om.DomNode
 
     CALL _check_id(id)
 
-    LET b = _render_base_svg(id, parent, x, y, width, height)
+    CALL _create_base_svg(id, parent, x, y, width, height) RETURNING b, s
 
     CASE type
-      WHEN CHART_TYPE_BARS     CALL _render_bars(id,b)
-      WHEN CHART_TYPE_POINTS   CALL _render_points(id,b)
-      WHEN CHART_TYPE_LINES    CALL _render_lines(id,b)
-      WHEN CHART_TYPE_SPLINES  CALL _render_splines(id,b)
+      WHEN CHART_TYPE_BARS     CALL _render_bars(id,s)
+      WHEN CHART_TYPE_POINTS   CALL _render_points(id,s)
+      WHEN CHART_TYPE_LINES    CALL _render_lines(id,s)
+      WHEN CHART_TYPE_SPLINES  CALL _render_splines(id,s)
     END CASE
 
 END FUNCTION
@@ -679,7 +679,9 @@ PRIVATE FUNCTION _create_legend_box(id, h)
     LET ch = 100
     LET vb = SFMT("0 0 %1 %2", (cw*ml), ch)
 
-    LET b = fglsvgcanvas.svg(SFMT("legend_%1",id), NULL,NULL,w,h, vb, "xMidYMid meet")
+    LET b = fglsvgcanvas.svg(SFMT("legend_%1",id),
+                             NULL, NULL, isodec(w), isodec(h),
+                             vb, "xMidYMid meet")
 
     LET r = fglsvgcanvas.rect(3,3,(cw*ml)-6,ch-6,NULL,NULL)
     CALL r.setAttribute(fglsvgcanvas.SVGATT_CLASS,"legend_box")
@@ -704,63 +706,72 @@ PRIVATE FUNCTION _create_legend_box(id, h)
 
 END FUNCTION
 
-PRIVATE FUNCTION _render_base_svg(id, parent, x, y, width, height)
+PRIVATE FUNCTION _create_base_svg(id, parent, x, y, width, height)
+    CONSTANT BASE_SVG_SIZE DECIMAL = 1000.0
     DEFINE id SMALLINT,
            parent om.DomNode,
            x,y,width,height STRING
-    DEFINE b, t, n om.DomNode,
-           bdx, bdy DECIMAL,
-           tdy DECIMAL,
-           ldy DECIMAL,
+    DEFINE b, s, t, n om.DomNode,
+           hwratio DECIMAL,
+           sheet_y, sheet_h DECIMAL,
+           bdy, tdy, ldy DECIMAL,
            x1, y1, w1, h1 DECIMAL,
-           vb STRING,
-           ml SMALLINT
+           vb STRING
 
-    LET bdx = charts[id].width  * IIF(charts[id].grid_vl,0.10,0.02)
-    LET bdy = charts[id].height * IIF(charts[id].grid_pl,0.05,0.02)
+    LET hwratio = _get_y(id,charts[id].height) / charts[id].width
 
     IF charts[id].title IS NOT NULL THEN
-       LET tdy = charts[id].height * 0.10
+       LET tdy = (BASE_SVG_SIZE * 0.05) * hwratio
     ELSE
        LET tdy = 0.0
     END IF
 
     IF charts[id].legend THEN
-       LET ldy = charts[id].height * 0.15
+       LET ldy = (BASE_SVG_SIZE * 0.08) * hwratio
     ELSE
        LET ldy = 0.0
     END IF
 
-    LET x1 = charts[id].minpos - (bdx)
-    LET y1 = charts[id].minval - (bdy+tdy)
-    LET w1 = charts[id].width + (bdx*2)
-    LET h1 = charts[id].height + tdy + ldy + (bdy*2)
-    LET vb = SFMT("%1 %2 %3 %4", isodec(x1), _get_y(id,y1), isodec(w1), _get_y(id,h1) )
+    LET bdy = (BASE_SVG_SIZE * 0.01) * hwratio
 
-    LET b = fglsvgcanvas.svg(SFMT("svgchart_%1",id), x,y,width,height, vb, "xMidYMid meet" )
+    LET sheet_y = bdy + tdy
+    LET sheet_h = (BASE_SVG_SIZE * hwratio) - (tdy + ldy)
+
+    LET x1 = 0
+    LET y1 = 0
+    LET w1 = BASE_SVG_SIZE
+    LET h1 = BASE_SVG_SIZE * hwratio
+    LET vb = SFMT("%1 %2 %3 %4", isodec(x1), isodec(y1), isodec(w1), isodec(h1) )
+
+--let y = "10%"
+--let height = "80%"
+
+    LET b = fglsvgcanvas.svg(SFMT("svgchart_%1",id),
+                             x,y,width,height, -- no need for isodec(): these a strings
+                             vb, "xMidYMid meet" )
     CALL parent.appendChild(b)
 
     IF charts[id].title IS NOT NULL THEN
-       LET t = fglsvgcanvas.text( charts[id].minpos + (charts[id].width/2),
-                                  _get_y(id, charts[id].minval + bdy - tdy),
+       LET t = fglsvgcanvas.text( isodec(w1/2), tdy,
                                   charts[id].title, "main_title" )
        CALL t.setAttribute("text-anchor","middle")
        CALL b.appendChild(t)
     END IF
 
     IF charts[id].legend THEN
-       LET ml = charts[id].datasets.getLength() -- FIXME: only visible datasets
-       LET n = _create_legend_box(id, _get_y(id,ldy))
-       CALL n.setAttribute("x", isodec(charts[id].minpos + (charts[id].width/2) - (ldy*(ml-1))) )
-       CALL n.setAttribute("y", isodec(_get_y(id, charts[id].maxval+(ldy*0.4))) )
+       LET n = _create_legend_box(id, ldy)
+       CALL n.setAttribute("x", isodec(0) ) -- FIXME
+       CALL n.setAttribute("y", isodec(h1-ldy) )
        CALL b.appendChild(n)
     END IF
 
     IF debug_level>0 THEN
-       CALL b.appendChild( add_debug_rect( x1, _get_y(id,y1), w1, _get_y(id,h1) ) )
+       CALL b.appendChild( add_debug_rect(x1,y1,w1,h1) )
     END IF
 
-    RETURN b
+    LET s = _create_sheet_1(id, b, 0, sheet_y, NULL, sheet_h)
+
+    RETURN b, s
 
 END FUNCTION
 
@@ -775,25 +786,49 @@ PRIVATE FUNCTION add_debug_rect(x,y,w,h)
     RETURN n
 END FUNCTION
 
-PRIVATE FUNCTION _render_sheet_1(id, base)
+PRIVATE FUNCTION _create_sheet_1(id, base, x,y,width,height)
     DEFINE id SMALLINT,
-           base om.DomNode
-    DEFINE n om.DomNode,
-           dy DECIMAL
-    LET n = fglsvgcanvas.g("sheet_1")
-    LET dy = charts[id].maxval + charts[id].minval
-    CALL n.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
-                         SFMT("translate(0,%1) scale(1,-1)",isodec(_get_y(id,dy))) )
-    CALL base.appendChild(n)
+           base om.DomNode,
+           x,y,width,height DECIMAL
+    DEFINE bdxl, bdxr DECIMAL,
+           bdyt, bdyb DECIMAL,
+           x1, y1, w1, h1 DECIMAL,
+           s, g om.DomNode,
+           fy DECIMAL,
+           vb STRING
+
+    LET bdxl = charts[id].width  * IIF(charts[id].grid_vl,0.10,0.03)
+    LET bdxr = charts[id].width  * 0.03
+    LET bdyt = charts[id].height * 0.03
+    LET bdyb = charts[id].height * IIF(charts[id].grid_pl,0.07,0.03)
+    LET x1 = charts[id].minpos - bdxl
+    LET y1 = charts[id].minval - bdyt
+    LET w1 = charts[id].width  + (bdxl+bdxr)
+    LET h1 = charts[id].height + (bdyt+bdyb)
+    LET vb = SFMT("%1 %2 %3 %4", isodec(x1), _get_y(id,y1), isodec(w1), _get_y(id,h1) )
+
+    LET s = fglsvgcanvas.svg(SFMT("sheet_%1",id),
+                             isodec(x), isodec(y), isodec(width), isodec(height),
+                             vb, "xMidYMid meet")
+    CALL base.appendChild(s)
+    IF debug_level>0 THEN
+       CALL s.appendChild( add_debug_rect(x1,_get_y(id,y1),w1,_get_y(id,h1)) )
+    END IF
+
+    LET g = fglsvgcanvas.g(SFMT("mg_%1",id))
+    CALL s.appendChild(g)
+    LET fy = charts[id].maxval + charts[id].minval
+    CALL g.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
+                         SFMT("translate(0,%1) scale(1,-1)",isodec(_get_y(id,fy))) )
     IF charts[id].grid_np IS NOT NULL
     OR charts[id].grid_nv IS NOT NULL
     THEN
-       CALL _render_grid_1(id, n)
+       CALL _create_grid_1(id, g)
     END IF
-    RETURN n
+    RETURN g
 END FUNCTION
 
-PRIVATE FUNCTION _render_grid_1(id, base)
+PRIVATE FUNCTION _create_grid_1(id, base)
     DEFINE id SMALLINT,
            base om.DomNode
     DEFINE n, t, g om.DomNode,
@@ -863,17 +898,9 @@ PRIVATE FUNCTION _render_grid_1(id, base)
 
 END FUNCTION
 
-PRIVATE FUNCTION _render_bars(id, base)
+PRIVATE FUNCTION _render_data_bars(id, sheet)
     DEFINE id SMALLINT,
-           base om.DomNode
-    DEFINE n om.DomNode
-    LET n = _render_sheet_1(id, base)
-    CALL _render_data_bars(id, n)
-END FUNCTION
-
-PRIVATE FUNCTION _render_data_bars(id, base)
-    DEFINE id SMALLINT,
-           base om.DomNode
+           sheet om.DomNode
     DEFINE n, g om.DomNode,
            i, m INTEGER,
            l, ml INTEGER,
@@ -882,7 +909,7 @@ PRIVATE FUNCTION _render_data_bars(id, base)
            x,y,w,h DECIMAL
 
     LET g = fglsvgcanvas.g("data_bars")
-    CALL base.appendChild(g)
+    CALL sheet.appendChild(g)
 
     LET m = charts[id].items.getLength()
     LET dx = (charts[id].width / m) * 0.8
@@ -913,22 +940,14 @@ PRIVATE FUNCTION _render_data_bars(id, base)
 
 END FUNCTION
 
-PRIVATE FUNCTION _render_points(id, base)
+PRIVATE FUNCTION _render_points(id, sheet)
     DEFINE id SMALLINT,
-           base om.DomNode
-    DEFINE n om.DomNode
-    LET n = _render_sheet_1(id, base)
-    CALL _render_data_points(id, n)
-END FUNCTION
-
-PRIVATE FUNCTION _render_data_points(id, base)
-    DEFINE id SMALLINT,
-           base om.DomNode
+           sheet om.DomNode
     DEFINE g om.DomNode,
            l, ml INTEGER
 
     LET g = fglsvgcanvas.g("data_points")
-    CALL base.appendChild(g)
+    CALL sheet.appendChild(g)
 
     LET ml = charts[id].datasets.getLength()
 
@@ -1016,17 +1035,9 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
 
 END FUNCTION
 
-PRIVATE FUNCTION _render_lines(id, base)
+PRIVATE FUNCTION _render_lines(id, sheet)
     DEFINE id SMALLINT,
-           base om.DomNode
-    DEFINE n om.DomNode
-    LET n = _render_sheet_1(id, base)
-    CALL _render_data_lines(id, n)
-END FUNCTION
-
-PRIVATE FUNCTION _render_data_lines(id, base)
-    DEFINE id SMALLINT,
-           base om.DomNode
+           sheet om.DomNode
     DEFINE n, g om.DomNode,
            i, m INTEGER,
            l, ml INTEGER,
@@ -1035,7 +1046,7 @@ PRIVATE FUNCTION _render_data_lines(id, base)
            x,y DECIMAL
 
     LET g = fglsvgcanvas.g("data_lines")
-    CALL base.appendChild(g)
+    CALL sheet.appendChild(g)
 
     LET m = charts[id].items.getLength()
     LET dx = ( charts[id].width / m ) * 0.10
@@ -1069,24 +1080,16 @@ PRIVATE FUNCTION _render_data_lines(id, base)
 
 END FUNCTION
 
-PRIVATE FUNCTION _render_splines(id, base)
+PRIVATE FUNCTION _render_splines(id, sheet)
     DEFINE id SMALLINT,
-           base om.DomNode
-    DEFINE n om.DomNode
-    LET n = _render_sheet_1(id, base)
-    CALL _render_data_splines(id, n)
-END FUNCTION
-
-PRIVATE FUNCTION _render_data_splines(id, base)
-    DEFINE id SMALLINT,
-           base om.DomNode
+           sheet om.DomNode
     DEFINE n, g om.DomNode,
            m INTEGER,
            l, ml INTEGER,
            s, p STRING
 
     LET g = fglsvgcanvas.g("data_splines")
-    CALL base.appendChild(g)
+    CALL sheet.appendChild(g)
 
     LET m = charts[id].items.getLength()
     LET ml = charts[id].datasets.getLength()

@@ -13,6 +13,7 @@ Chart mode: [cm                                              ]
  Label:   [c_l                       ]
 <                                                            >
 [cv                                               ]<GROUP g2 >
+[                                                 ][s_tit    ]
 [                                                 ][s_pts    ]
 [                                                 ][s_pst    ]
 [                                                 ][s_leg    ]
@@ -74,6 +75,8 @@ BUTTON rd: render, TEXT="Render",
   COMMENT="Render chart (CTRL-R)";
 
 GROUP g2: group2, TEXT="Options";
+CHECKBOX s_tit = FORMONLY.show_title, NOT NULL,
+   TEXT="Show title";
 CHECKBOX s_pts = FORMONLY.show_points, NOT NULL,
    TEXT="Show points";
 CHECKBOX s_pst = FORMONLY.points_style, NOT NULL,
