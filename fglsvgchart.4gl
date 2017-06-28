@@ -971,14 +971,18 @@ PRIVATE FUNCTION _create_grid_1(id, base)
     END IF
 
     IF charts[id].origin THEN
-       LET n = fglsvgcanvas.line(charts[id].minpos, 0,
-                                 charts[id].maxpos, 0)
-       CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_x_axis")
-       CALL g.appendChild(n)
-       LET n = fglsvgcanvas.line(0, _get_y(id,charts[id].minval),
-                                 0, _get_y(id,charts[id].maxval))
-       CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_y_axis")
-       CALL g.appendChild(n)
+       IF charts[id].minval <= 0 THEN
+          LET n = fglsvgcanvas.line(charts[id].minpos, 0,
+                                    charts[id].maxpos, 0)
+          CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_x_axis")
+          CALL g.appendChild(n)
+       END IF
+       IF charts[id].minpos <= 0 THEN
+          LET n = fglsvgcanvas.line(0, _get_y(id,charts[id].minval),
+                                    0, _get_y(id,charts[id].maxval))
+          CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_y_axis")
+          CALL g.appendChild(n)
+       END IF
     END IF
 
 END FUNCTION
