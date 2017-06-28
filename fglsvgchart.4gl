@@ -649,10 +649,10 @@ PUBLIC FUNCTION render(id, type, parent, x, y, width, height)
 
 END FUNCTION
 
-PRIVATE FUNCTION _create_legend_box(id, pw, ph)
+PRIVATE FUNCTION _create_legend_box(id, pw, ph, tdy)
     CONSTANT CHAR_WIDTH DECIMAL = 0.18
     DEFINE id SMALLINT,
-           pw, ph DECIMAL
+           pw, ph, tdy DECIMAL
     DEFINE b, g, n, r, t om.DomNode,
            x, y DECIMAL, w, h STRING,
            vb STRING,
@@ -722,11 +722,11 @@ PRIVATE FUNCTION _create_legend_box(id, pw, ph)
 
     CASE charts[id].legend_pos
       WHEN LEGEND_POS_TOP
-        LET y = (ph * 0.065)
-        LET ldyt = (ph * 0.09)
+        LET y = tdy + (ph * 0.03)
+        LET ldyt = (ph * 0.10)
       WHEN LEGEND_POS_BOTTOM
-        LET y = (ph * 0.93)
-        LET ldyb = (ph * 0.09)
+        LET y = (ph * 0.91)
+        LET ldyb = (ph * 0.10)
       WHEN LEGEND_POS_LEFT
         LET x = 0
         LET ldxl = (pw * 0.12)
@@ -782,7 +782,7 @@ PRIVATE FUNCTION _create_base_svg(id, parent, x, y, width, height)
     END IF
 
     IF charts[id].legend_pos IS NOT NULL THEN
-       CALL _create_legend_box(id, w1, h1) RETURNING lb, ldxl, ldxr, ldyt, ldyb
+       CALL _create_legend_box(id, w1, h1, tdy) RETURNING lb, ldxl, ldxr, ldyt, ldyb
     ELSE
        LET ldxl = 0.0
        LET ldxr = 0.0
