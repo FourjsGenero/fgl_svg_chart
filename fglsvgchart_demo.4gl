@@ -58,15 +58,6 @@ MAIN
     LET params.chart_type = fglsvgchart.CHART_TYPE_LINES
     LET params.chart_mode = 1
     LET params.ds_count = 4
-    LET params.minpos =    0.0
-    LET params.maxpos = 2400.0
-    LET params.minval = -200.0
-    LET params.maxval = 1200.0
-    LET params.grid_sx = 12
-    LET params.skip_glx = 2
-    LET params.grid_sy = 14
-    LET params.skip_gly = 1
-    LET params.rect_ratio = 1.0
     LET params.show_title  = TRUE
     LET params.show_points = TRUE
     LET params.show_origin = TRUE
@@ -76,7 +67,7 @@ MAIN
 
     LET params.curr_dataset = 1
     LET params.curr_item = 1
-    LET params.curr_position = params.minpos
+    LET params.curr_position = 200.0
     LET params.curr_value = 500.0
     LET params.curr_label = "Lab 1"
 
@@ -90,11 +81,11 @@ MAIN
           ATTRIBUTES( WITHOUT DEFAULTS, UNBUFFERED )
 
         BEFORE INPUT
-           CALL sample1_chart_data(cid)
+           CALL sample1_chart_data(cid, params.chart_type)
            CALL set_params_and_render(rid,cid,root_svg,TRUE,TRUE)
 
         ON CHANGE chart_type
-           CALL set_params_and_render(rid,cid,root_svg,TRUE,FALSE)
+           CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE chart_mode
            CALL set_params_and_render(rid,cid,root_svg,TRUE,TRUE)
         ON CHANGE ds_count
@@ -213,18 +204,18 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
            CALL fglsvgchart.setTitle(cid,IIF(params.show_title,"Export rates (2017)",NULL))
            IF ms THEN
               LET params.minpos =    0.0
-              LET params.maxpos = 2400.0
+              LET params.maxpos = 2600.0
+              LET params.grid_sx = 13
+              LET params.skip_glx = 2
               LET params.minval = -200.0
               LET params.maxval = 1200.0
-              LET params.rect_ratio = 1.0
-              LET params.grid_sx = 12
               LET params.grid_sy = 14
-              LET params.skip_glx = 2
               LET params.skip_gly = 1
+              LET params.rect_ratio = 1.0
               LET params.curr_value = 500.0
               LET params.show_points = TRUE
            END IF
-           CALL sample1_chart_data(cid)
+           CALL sample1_chart_data(cid, params.chart_type)
       WHEN 2 -- random 1
            CALL fglsvgchart.setTitle(cid,IIF(params.show_title,"Random values 1",NULL))
            IF rc THEN
@@ -325,8 +316,9 @@ FUNCTION init_month_names(cid)
     END FOR
 END FUNCTION
 
-FUNCTION sample1_chart_data(cid)
-    DEFINE cid SMALLINT
+FUNCTION sample1_chart_data(cid,chart_type)
+    DEFINE cid SMALLINT,
+           chart_type SMALLINT
     DEFINE x SMALLINT
 
     CALL fglsvgchart.reset(cid)
@@ -359,10 +351,12 @@ FUNCTION sample1_chart_data(cid)
     CALL fglsvgchart.setDataItemValue(cid, x, 4,  835.82, "Feb1.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    6.50, NULL)
 
-    -- Interim values
-    CALL fglsvgchart.defineDataItem(cid, x:=x+1, 500, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  -60.64, "Feb1.1.1")
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  455.82, "Feb1.4.1")
+    -- Intermidiate values
+    IF chart_type != CHART_TYPE_BARS THEN
+       CALL fglsvgchart.defineDataItem(cid, x:=x+1, 500, NULL)
+       CALL fglsvgchart.setDataItemValue(cid, x, 1,  -60.64, "Feb1.1.1")
+       CALL fglsvgchart.setDataItemValue(cid, x, 4,  455.82, "Feb1.4.1")
+    END IF
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 600, NULL)
     CALL fglsvgchart.setDataItemValue(cid, x, 1, 1000.50, "Mar1.1")
@@ -394,15 +388,19 @@ FUNCTION sample1_chart_data(cid)
     CALL fglsvgchart.setDataItemValue(cid, x, 4,  325.13, "May1.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    1.43, NULL)
 
-    -- Interim values
-    CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1100, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  353.49, "May1.1.1")
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  250.13, "May1.4.1")
+    -- Intermidiate values
+    IF chart_type != CHART_TYPE_BARS THEN
+       CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1100, NULL)
+       CALL fglsvgchart.setDataItemValue(cid, x, 1,  353.49, "May1.1.1")
+       CALL fglsvgchart.setDataItemValue(cid, x, 4,  250.13, "May1.4.1")
+    END IF
 
-    -- Interim values
-    CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1150, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  300.56, "May1.1.2")
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  150.13, "May1.4.2")
+    -- Intermidiate values
+    IF chart_type != CHART_TYPE_BARS THEN
+       CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1150, NULL)
+       CALL fglsvgchart.setDataItemValue(cid, x, 1,  300.56, "May1.1.2")
+       CALL fglsvgchart.setDataItemValue(cid, x, 4,  150.13, "May1.4.2")
+    END IF
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1200, NULL)
     CALL fglsvgchart.setDataItemValue(cid, x, 1, -150.50, "Jun1.1")

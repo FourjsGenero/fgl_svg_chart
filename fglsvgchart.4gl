@@ -987,14 +987,44 @@ PRIVATE FUNCTION _create_grid_1(id, base)
 
 END FUNCTION
 
+PRIVATE FUNCTION _position_in_grid_range(id,i,tx)
+    DEFINE id, i SMALLINT,
+           tx DECIMAL
+    LET tx = (charts[id].width * tx)
+    RETURN ( charts[id].items[i].position >= (charts[id].minpos - tx)
+         AND charts[id].items[i].position <= (charts[id].maxpos + tx) )
+END FUNCTION
+
+PRIVATE FUNCTION _items_in_grid_range(id,tx)
+    DEFINE id SMALLINT,
+           tx DECIMAL
+    DEFINE i, m, n SMALLINT,
+           minpos, maxpos DECIMAL
+    LET m = charts[id].items.getLength()
+    LET minpos = NULL
+    LET maxpos = NULL
+    FOR i=1 TO m
+        IF _position_in_grid_range(id,i,tx) THEN
+           LET n = n + 1
+           IF minpos IS NULL THEN
+              LET minpos=charts[id].items[i].position
+           END IF
+           LET maxpos = charts[id].items[i].position
+        END IF
+    END FOR
+    RETURN n, minpos, maxpos
+END FUNCTION
+
 PRIVATE FUNCTION _render_bars(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
     DEFINE n, g om.DomNode,
+           vi INTEGER,
            i, m INTEGER,
            l, ml INTEGER,
            s STRING,
-           dx, sdx DECIMAL,
+           ipmin, ipmax DECIMAL,
+           wi, dx, bx DECIMAL,
            x,y,w,h DECIMAL
 
     LET g = fglsvgcanvas.g("data_bars")
@@ -1002,14 +1032,20 @@ PRIVATE FUNCTION _render_bars(id, sheet)
     CALL sheet.appendChild(g)
 
     LET m = charts[id].items.getLength()
-    LET dx = (charts[id].width / m) * 0.8
     LET ml = charts[id].datasets.getLength()
-    LET sdx = dx / ml
+
+    CALL _items_in_grid_range(id,0.10) RETURNING vi, ipmin, ipmax
+
+    LET wi = (ipmax - ipmin)
+    LET dx = (wi / (ml*vi)) * 0.85
+    LET w = dx * 0.90
+    LET bx = (-(ml/2) * dx) + ((dx-w)/2)
 
     FOR l=1 TO ml
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         LET s = charts[id].datasets[l].style
         FOR i=1 TO m
+            IF NOT _position_in_grid_range(id,i,0.10) THEN CONTINUE FOR END IF
             LET h = charts[id].items[i].values[l].value
             IF h IS NULL THEN CONTINUE FOR END IF
             IF h<0 THEN
@@ -1018,8 +1054,7 @@ PRIVATE FUNCTION _render_bars(id, sheet)
             ELSE
                LET y = 0
             END IF
-            LET x = charts[id].items[i].position - (dx/2) + (sdx*(l-1))
-            LET w = (sdx * 0.95)
+            LET x = charts[id].items[i].position + bx + (dx*(l-1))
             LET n = fglsvgcanvas.rect(x, _get_y(id,y), w, _get_y(id,h), NULL, NULL)
             IF s IS NOT NULL THEN
                CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
@@ -1107,6 +1142,7 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
 
     LET m = charts[id].items.getLength()
     FOR i=1 TO m
+        IF NOT _position_in_grid_range(id,i,0.10) THEN CONTINUE FOR END IF
         LET cy = charts[id].items[i].values[l].value
         IF cy IS NULL THEN CONTINUE FOR END IF
         LET cx = charts[id].items[i].position
@@ -1149,6 +1185,7 @@ PRIVATE FUNCTION _render_lines(id, sheet)
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         LET p = NULL
         FOR i=1 TO m
+            IF NOT _position_in_grid_range(id,i,0.10) THEN CONTINUE FOR END IF
             LET y = charts[id].items[i].values[l].value
             IF y IS NULL THEN CONTINUE FOR END IF
             IF p IS NULL THEN
@@ -1221,7 +1258,8 @@ PRIVATE FUNCTION _spline_path(id, l)
 
     LET n = 1
     FOR i=1 TO m
-        IF charts[id].items[i].values[l].value IS NOT NULL THEN
+        IF charts[id].items[i].values[l].value IS NOT NULL
+        AND _position_in_grid_range(id,i,0.10) THEN
            LET n = n+1
            LET x[n] = charts[id].items[i].position
            LET y[n] = _get_y(id,charts[id].items[i].values[l].value)
