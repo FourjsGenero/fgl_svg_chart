@@ -17,7 +17,8 @@ Chart mode: [cm                                                    ]
 [                                                  ][s_pts         ]
 [                                                  ][s_pst         ]
 [                                                  ][s_org         ]
-[                                                  ][s_plb         ]
+[                                                  ][s_xlb         ]
+[                                                  ][s_ylb         ]
 [                                                  ][s_vlb         ]
 [                                                  ] Legend:[s_leg ]
 [                                                  ]
@@ -86,10 +87,12 @@ CHECKBOX s_pst = FORMONLY.points_style, NOT NULL,
    TEXT="Pts style";
 CHECKBOX s_org = FORMONLY.show_origin, NOT NULL,
    TEXT="Show origin";
-CHECKBOX s_plb = FORMONLY.show_plab, NOT NULL,
-   TEXT="Show Pos Lab";
+CHECKBOX s_xlb = FORMONLY.show_xlab, NOT NULL,
+   TEXT="Show X Lab";
+CHECKBOX s_ylb = FORMONLY.show_ylab, NOT NULL,
+   TEXT="Show Y Lab";
 CHECKBOX s_vlb = FORMONLY.show_vlab, NOT NULL,
-   TEXT="Show Val Lab";
+   TEXT="Show V Lab";
 COMBOBOX s_leg = FORMONLY.legend_pos,
    ITEMS=(
           (NULL, "None"),

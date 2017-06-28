@@ -41,6 +41,7 @@ PRIVATE TYPE t_chart RECORD
                grid_nv DECIMAL,
                grid_vl BOOLEAN,
                grid_ly DYNAMIC ARRAY OF STRING,
+               value_lb BOOLEAN,
                datasets DYNAMIC ARRAY OF t_dataset,
                items DYNAMIC ARRAY OF t_data_item
              END RECORD
@@ -276,6 +277,18 @@ PUBLIC FUNCTION showOrigin(id,enable)
            enable BOOLEAN
     CALL _check_id(id)
     LET charts[id].origin = enable
+END FUNCTION
+
+#+ Display value labels
+#+
+#+ @param id      The chart id
+#+ @param enable  TRUE to display the value labels
+#+
+PUBLIC FUNCTION showValueLabels(id,enable)
+    DEFINE id SMALLINT,
+           enable BOOLEAN
+    CALL _check_id(id)
+    LET charts[id].value_lb = enable
 END FUNCTION
 
 #+ Destroy a chart object
@@ -808,7 +821,7 @@ PRIVATE FUNCTION _create_base_svg(id, parent, x, y, width, height)
     CALL parent.appendChild(b)
 
     IF charts[id].title IS NOT NULL THEN
-       LET t = fglsvgcanvas.text( isodec(w1/2), tdy,
+       LET t = fglsvgcanvas.text( (w1/2), tdy,
                                   charts[id].title, "main_title" )
        CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,"1.8em")
        CALL t.setAttribute("text-anchor","middle")
@@ -839,6 +852,12 @@ PRIVATE FUNCTION add_debug_rect(x,y,w,h)
     CALL n.setAttribute(fglsvgcanvas.SVGATT_STROKE,"red")
     CALL n.setAttribute(fglsvgcanvas.SVGATT_STROKE_WIDTH,"0.4%")
     RETURN n
+END FUNCTION
+
+PRIVATE FUNCTION _flip_transform(id, y)
+    DEFINE id SMALLINT,
+           y DECIMAL
+    RETURN SFMT("translate(0,%1) scale(1,-1)", isodec( _get_y(id,y) ) )
 END FUNCTION
 
 PRIVATE FUNCTION _create_sheet_1(id, base, x,y,width,height)
@@ -883,8 +902,7 @@ PRIVATE FUNCTION _create_sheet_1(id, base, x,y,width,height)
     LET g = fglsvgcanvas.g(SFMT("mg_%1",id))
     CALL s.appendChild(g)
     LET fy = charts[id].maxval + charts[id].minval
-    CALL g.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
-                         SFMT("translate(0,%1) scale(1,-1)",isodec(_get_y(id,fy))) )
+    CALL g.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM, _flip_transform(id,fy) )
     IF charts[id].grid_np IS NOT NULL
     OR charts[id].grid_nv IS NOT NULL
     THEN
@@ -941,9 +959,7 @@ PRIVATE FUNCTION _create_grid_1(id, base)
                                          charts[id].grid_lx[i], "grid_x_label" )
               CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,fs)
               CALL t.setAttribute("text-anchor","middle")
-              CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
-                                   SFMT("translate(0,%1) scale(1,-1)",
-                                                     isodec(_get_y(id,ly*2))) )
+              CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM, _flip_transform(id,ly*2) )
               CALL g.appendChild(t)
            END IF
            LET ix = ix + dx
@@ -964,9 +980,7 @@ PRIVATE FUNCTION _create_grid_1(id, base)
                                          charts[id].grid_ly[i], "grid_y_label" )
               CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,fs)
               CALL t.setAttribute("text-anchor","end")
-              CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
-                                   SFMT("translate(0,%1) scale(1,-1)",
-                                                     isodec(_get_y(id,iy*2))) )
+              CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM, _flip_transform(id,iy*2) )
               CALL g.appendChild(t)
            END IF
            LET iy = iy + dy
@@ -1064,6 +1078,9 @@ PRIVATE FUNCTION _render_bars(id, sheet)
             END IF
             CALL g.appendChild(n)
         END FOR
+        IF charts[id].value_lb THEN
+           CALL _create_data_labels(id, g, l, -(dx*(l-1)), NULL)
+        END IF
     END FOR
 
 END FUNCTION
@@ -1083,6 +1100,9 @@ PRIVATE FUNCTION _render_points(id, sheet)
     FOR l=1 TO ml
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         CALL _create_data_points(id, g, l, TRUE, charts[id].datasets[l].style)
+        IF charts[id].value_lb THEN
+           CALL _create_data_labels(id, g, l, NULL, NULL)
+        END IF
     END FOR
 
 END FUNCTION
@@ -1165,6 +1185,42 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
 
 END FUNCTION
 
+PRIVATE FUNCTION _create_data_labels(id, g, l, dx, dy)
+    DEFINE id SMALLINT,
+           g om.DomNode,
+           l SMALLINT
+    DEFINE t om.DomNode,
+           fsr, dx, dy DECIMAL,
+           fs STRING,
+           i, m INTEGER,
+           tx,ty DECIMAL
+
+    LET fsr = (5.0 * _font_size_ratio(id))
+    LET fs = fsr || "%"
+    IF dx IS NULL THEN
+       LET dx = (fsr * 0.05)
+    END IF
+    IF dy IS NULL THEN
+       LET dy = (fsr * 0.05)
+    END IF
+
+    LET m = charts[id].items.getLength()
+
+    FOR i=1 TO m
+        IF NOT _position_in_grid_range(id,i,0.10) THEN CONTINUE FOR END IF
+        LET ty = (charts[id].items[i].values[l].value + dy)
+        IF ty IS NULL THEN CONTINUE FOR END IF
+        LET tx = (charts[id].items[i].position + dx)
+        LET t = fglsvgcanvas.text( tx, _get_y(id,ty),
+                                   charts[id].items[i].values[l].label, "value_label" )
+        CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,fs)
+        CALL t.setAttribute("text-anchor","left")
+        CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM, _flip_transform(id,ty*2) )
+        CALL g.appendChild(t)
+    END FOR
+
+END FUNCTION
+
 PRIVATE FUNCTION _render_lines(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
@@ -1208,6 +1264,9 @@ PRIVATE FUNCTION _render_lines(id, sheet)
         IF charts[id].points THEN
            CALL _create_data_points(id, g, l, FALSE, NVL(charts[id].points_style,s))
         END IF
+        IF charts[id].value_lb THEN
+           CALL _create_data_labels(id, g, l, NULL, NULL)
+        END IF
     END FOR
 
 END FUNCTION
@@ -1238,6 +1297,9 @@ PRIVATE FUNCTION _render_splines(id, sheet)
         CALL g.appendChild(n)
         IF charts[id].points THEN
            CALL _create_data_points(id, g, l, FALSE, NVL(charts[id].points_style,s))
+        END IF
+        IF charts[id].value_lb THEN
+           CALL _create_data_labels(id, g, l, NULL, NULL)
         END IF
     END FOR
 

@@ -20,7 +20,8 @@ DEFINE params RECORD
                points_style BOOLEAN,
                show_title BOOLEAN,
                show_origin BOOLEAN,
-               show_plab BOOLEAN,
+               show_xlab BOOLEAN,
+               show_ylab BOOLEAN,
                show_vlab BOOLEAN,
                legend_pos SMALLINT,
                curr_dataset SMALLINT,
@@ -61,7 +62,8 @@ MAIN
     LET params.show_title  = TRUE
     LET params.show_points = TRUE
     LET params.show_origin = TRUE
-    LET params.show_plab   = TRUE
+    LET params.show_xlab   = TRUE
+    LET params.show_ylab   = TRUE
     LET params.show_vlab   = TRUE
     LET params.legend_pos  = fglsvgchart.LEGEND_POS_BOTTOM
 
@@ -104,7 +106,9 @@ MAIN
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE show_origin
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
-        ON CHANGE show_plab
+        ON CHANGE show_xlab
+           CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
+        ON CHANGE show_ylab
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE show_vlab
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
@@ -268,8 +272,9 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
 
     CALL fglsvgchart.showDataSetLegend(cid, params.legend_pos)
     CALL fglsvgchart.showOrigin(cid, params.show_origin)
-    CALL fglsvgchart.showGridPositionLabels(cid, params.show_plab)
-    CALL fglsvgchart.showGridValueLabels(cid, params.show_vlab)
+    CALL fglsvgchart.showGridPositionLabels(cid, params.show_xlab)
+    CALL fglsvgchart.showGridValueLabels(cid, params.show_ylab)
+    CALL fglsvgchart.showValueLabels(cid, params.show_vlab)
 
     IF params.maxpos<params.minpos THEN LET params.maxpos=params.minpos+100 END IF
     IF params.minpos>params.maxpos THEN LET params.minpos=params.maxpos-100 END IF
@@ -332,144 +337,144 @@ FUNCTION sample1_chart_data(cid,chart_type)
 
     LET x=0
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 200, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  150.50, "Jan1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,  150.50, "Jan.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,   12.50, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,   45.25, "Jan1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,   45.25, "Jan.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,    7.50, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,   25.65, "Jan1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,   25.65, "Jan.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    2.50, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  135.80, "Jan1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  135.80, "Jan.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,   11.50, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 400, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1, -150.30, "Feb1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1, -150.30, "Feb.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,   10.23, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  423.43, "Feb1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  423.43, "Feb.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,    3.50, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  625.15, "Feb1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  625.15, "Feb.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    1.50, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  835.82, "Feb1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  835.82, "Feb.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    6.50, NULL)
 
     -- Intermidiate values
     IF chart_type != CHART_TYPE_BARS THEN
        CALL fglsvgchart.defineDataItem(cid, x:=x+1, 500, NULL)
-       CALL fglsvgchart.setDataItemValue(cid, x, 1,  -60.64, "Feb1.1.1")
-       CALL fglsvgchart.setDataItemValue(cid, x, 4,  455.82, "Feb1.4.1")
+       CALL fglsvgchart.setDataItemValue(cid, x, 1,  -60.64, "Feb.1.1")
+       CALL fglsvgchart.setDataItemValue(cid, x, 4,  455.82, "Feb.4.1")
     END IF
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 600, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1, 1000.50, "Mar1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1, 1000.50, "Mar.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,   -3.23, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  223.43, "Mar1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  223.43, "Mar.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,    5.13, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  125.15, "Mar1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  125.15, "Mar.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    8.23, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  735.82, "Mar1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  735.82, "Mar.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,  -10.23, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 800, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  800.00, "Apr1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,  800.00, "Apr.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,    2.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  723.13, "Apr1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  723.13, "Apr.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,   15.13, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  425.25, "Apr1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  425.25, "Apr.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,   10.23, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  235.82, "Apr1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  235.82, "Apr.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    3.43, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1000, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  423.59, "May1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,  423.59, "May.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,    8.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  243.13, "May1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  243.13, "May.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,    6.83, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  145.15, "May1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  145.15, "May.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    4.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  325.13, "May1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  325.13, "May.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    1.43, NULL)
 
     -- Intermidiate values
     IF chart_type != CHART_TYPE_BARS THEN
        CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1100, NULL)
-       CALL fglsvgchart.setDataItemValue(cid, x, 1,  353.49, "May1.1.1")
-       CALL fglsvgchart.setDataItemValue(cid, x, 4,  250.13, "May1.4.1")
+       CALL fglsvgchart.setDataItemValue(cid, x, 1,  353.49, "May.1.1")
+       CALL fglsvgchart.setDataItemValue(cid, x, 4,  250.13, "May.4.1")
     END IF
 
     -- Intermidiate values
     IF chart_type != CHART_TYPE_BARS THEN
        CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1150, NULL)
-       CALL fglsvgchart.setDataItemValue(cid, x, 1,  300.56, "May1.1.2")
-       CALL fglsvgchart.setDataItemValue(cid, x, 4,  150.13, "May1.4.2")
+       CALL fglsvgchart.setDataItemValue(cid, x, 1,  300.56, "May.1.2")
+       CALL fglsvgchart.setDataItemValue(cid, x, 4,  150.13, "May.4.2")
     END IF
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1200, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1, -150.50, "Jun1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1, -150.50, "Jun.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,   11.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  723.13, "Jun1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  723.13, "Jun.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,    8.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  455.15, "Jun1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  455.15, "Jun.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    5.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  923.13, "Jun1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  923.13, "Jun.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    3.43, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1400, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  250.80, "Jul1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,  250.80, "Jul.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,    2.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  123.13, "Jul1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  123.13, "Jul.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,   13.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  333.15, "Jul1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  333.15, "Jul.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    8.73, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  423.13, "Jul1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  423.13, "Jul.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,   11.23, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1600, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  150.50, "Aug1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,  150.50, "Aug.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,    5.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  423.13, "Aug1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  423.13, "Aug.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,   10.13, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  533.15, "Aug1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  533.15, "Aug.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    4.23, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  823.13, "Aug1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  823.13, "Aug.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    2.63, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1800, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  250.00, "Sep1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,  250.00, "Sep.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,   12.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  323.13, "Sep1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  323.13, "Sep.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,    2.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  433.15, "Sep1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  433.15, "Sep.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    9.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  223.13, "Sep1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  223.13, "Sep.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    7.63, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 2000, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  250.50, "Oct1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,  250.50, "Oct.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,   11.43, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  523.43, "Oct1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  523.43, "Oct.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,    4.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  233.45, "Oct1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  233.45, "Oct.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    2.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  123.63, "Oct1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  123.63, "Oct.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    7.63, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 2200, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,  150.20, "Nov1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,  150.20, "Nov.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,   10.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,  123.43, "Nov1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,  123.43, "Nov.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,    3.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,  133.45, "Nov1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,  133.45, "Nov.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    8.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,  222.63, "Nov1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,  222.63, "Nov.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    4.63, NULL)
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 2400, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 1,   50.89, "Dec1.1")
+    CALL fglsvgchart.setDataItemValue(cid, x, 1,   50.89, "Dec.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,    2.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 2,   23.43, "Dec1.2")
+    CALL fglsvgchart.setDataItemValue(cid, x, 2,   23.43, "Dec.2")
     CALL fglsvgchart.setDataItemValue2(cid,x, 2,   10.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 3,   33.45, "Dec1.3")
+    CALL fglsvgchart.setDataItemValue(cid, x, 3,   33.45, "Dec.3")
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    9.63, NULL)
-    CALL fglsvgchart.setDataItemValue(cid, x, 4,   23.63, "Dec1.4")
+    CALL fglsvgchart.setDataItemValue(cid, x, 4,   23.63, "Dec.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    3.63, NULL)
 
 END FUNCTION
@@ -525,6 +530,7 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
     DEFINE cid SMALLINT,
            minpos, maxpos, minval, maxval DECIMAL
     DEFINE i, totpos SMALLINT,
+           lab BOOLEAN,
            pos, dpos, val, piby2 DECIMAL
 
     CALL fglsvgchart.reset(cid)
@@ -539,18 +545,23 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
     LET dpos =  0.05
     LET i=1
     WHILE pos<=maxpos
+        LET lab = (pos == -1 OR pos == 0 OR pos == 1)
         CALL fglsvgchart.defineDataItem(cid, i, pos, NULL)
         LET val = util.Math.sin( pos )
-        CALL fglsvgchart.setDataItemValue(cid, i, 1, val, SFMT("sin(%1)=%2",pos,val))
+        CALL fglsvgchart.setDataItemValue(cid, i, 1, val,
+                    IIF(lab, SFMT("sin(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         LET val = util.Math.cos( pos )
-        CALL fglsvgchart.setDataItemValue(cid, i, 2, val, SFMT("cos(%1)=%2",pos,val))
+        CALL fglsvgchart.setDataItemValue(cid, i, 2, val,
+                    IIF(lab, SFMT("cos(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         IF pos>=-piby2 AND pos<=piby2 THEN
            LET val = util.Math.tan( pos )
-           CALL fglsvgchart.setDataItemValue(cid, i, 3, val, SFMT("tan(%1)=%2",pos,val))
+           CALL fglsvgchart.setDataItemValue(cid, i, 3, val,
+                    IIF(lab, SFMT("tan(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         END IF
         IF pos>0 THEN
            LET val = util.Math.log( pos )
-           CALL fglsvgchart.setDataItemValue(cid, i, 4, val, SFMT("log(%1)=%2",pos,val))
+           CALL fglsvgchart.setDataItemValue(cid, i, 4, val,
+                    IIF(lab, SFMT("log(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         END IF
         LET pos = pos + dpos
         LET i=i+1
@@ -611,6 +622,11 @@ FUNCTION create_styles(cid, root_svg)
     CALL attr.addAttribute(SVGATT_FONT_STYLE,     "oblique" )
     CALL attr.addAttribute(SVGATT_FILL,           "navy" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid_y_label",attr) )
+
+    CALL attr.clear()
+    CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
+    CALL attr.addAttribute(SVGATT_FILL,           "green" )
+    CALL buf.append( fglsvgcanvas.styleDefinition(".value_label",attr) )
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
