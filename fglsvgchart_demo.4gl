@@ -578,22 +578,13 @@ FUNCTION create_styles(cid, root_svg)
            root_svg, n om.DomNode
     DEFINE attr om.SaxAttributes,
            buf base.StringBuffer,
-           defs om.DomNode,
-           fr DECIMAL,
-           fs1, fs2, fs3 STRING
-
-    -- It is in the hands of the caller to use the font size of its choice.
-    LET fr = fglsvgchart.getFontSizeRatio(cid)
-    LET fs1 = (2*fr) ||"%"
-    LET fs2 = (5*fr) ||"%"
-    LET fs3 = (8*fr) ||"%"
+           defs om.DomNode
 
     LET attr = om.SaxAttributes.create()
     LET buf = base.StringBuffer.create()
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FILL,           "navy" )
-    --CALL attr.addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid",attr) )
 
     CALL attr.clear()
@@ -610,18 +601,15 @@ FUNCTION create_styles(cid, root_svg)
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "1.8em" )
-    --CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    --CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
     CALL attr.addAttribute(SVGATT_FILL,           "blue" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".main_title",attr) )
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs2 )
-    --CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    --CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
+    CALL attr.addAttribute(SVGATT_FILL,           "black" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid_x_label",attr) )
+    CALL attr.addAttribute(SVGATT_FONT_STYLE,     "oblique" )
+    CALL attr.addAttribute(SVGATT_FILL,           "navy" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".grid_y_label",attr) )
 
     CALL attr.clear()
@@ -632,9 +620,6 @@ FUNCTION create_styles(cid, root_svg)
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-    CALL attr.addAttribute(SVGATT_FONT_SIZE,      "2em" )
-    --CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    --CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".legend_label",attr) )
 
     CALL attr.clear()

@@ -213,30 +213,6 @@ PRIVATE FUNCTION _max(v1,v2)
     RETURN IIF(v1 > v2, v1, v2)
 END FUNCTION
 
-#+ Computes the font-size ration for chart labels
-#+
-#+ Then chart boundaries must have been defined with setBoundaries().
-#+
-#+ @code
-#+ DEFINE fs3 DECIMAL
-#+ LET fs3 = ( fglsvgchart.getFontSizeRatio(cid) * 3 ) || "%"
-#+ CALL attr.addAttribute(SVGATT_FONT_FAMILY,    "Arial" )
-#+ CALL attr.addAttribute(SVGATT_FONT_SIZE,      fs3 )
-#+ CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-#+ CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
-#+ CALL attr.addAttribute(SVGATT_FILL,           "blue" )
-#+ CALL buf.append( fglsvgcanvas.styleDefinition(".main_title",attr) )
-#+
-#+ @param id      The chart id
-#+
-PUBLIC FUNCTION getFontSizeRatio(id)
-    DEFINE id SMALLINT
-    DEFINE br DECIMAL
-    CALL _check_id(id)
-    LET br = 0.04
-    RETURN ( _min( charts[id].width, _get_y(id,charts[id].height) ) * br )
-END FUNCTION
-
 #+ Display points
 #+
 #+ @param id      The chart id
@@ -717,6 +693,7 @@ PRIVATE FUNCTION _create_legend_box(id, pw, ph)
         CALL n.appendChild(r)
         LET t = fglsvgcanvas.text(90, (ch*0.60),
                                   charts[id].datasets[l].label, "legend_label")
+        CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,"2em")
         CALL t.setAttribute("text-anchor","left")
         CALL n.appendChild(t)
         IF vv THEN
@@ -833,6 +810,7 @@ PRIVATE FUNCTION _create_base_svg(id, parent, x, y, width, height)
     IF charts[id].title IS NOT NULL THEN
        LET t = fglsvgcanvas.text( isodec(w1/2), tdy,
                                   charts[id].title, "main_title" )
+       CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,"1.8em")
        CALL t.setAttribute("text-anchor","middle")
        CALL b.appendChild(t)
     END IF
@@ -920,6 +898,11 @@ PRIVATE FUNCTION _grid_needs_pos_shift(id)
     RETURN (charts[id].type == CHART_TYPE_BARS)
 END FUNCTION
 
+PRIVATE FUNCTION _font_size_ratio(id)
+    DEFINE id SMALLINT
+    RETURN ( _min( charts[id].width, _get_y(id,charts[id].height) ) * 0.04 )
+END FUNCTION
+
 PRIVATE FUNCTION _create_grid_1(id, base)
     DEFINE id SMALLINT,
            base om.DomNode
@@ -928,11 +911,14 @@ PRIVATE FUNCTION _create_grid_1(id, base)
            ix, iy DECIMAL,
            lx, ly DECIMAL,
            ox DECIMAL,
-           i, m SMALLINT
+           i, m SMALLINT,
+           fs STRING
 
     LET g = fglsvgcanvas.g("grid")
     CALL g.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid")
     CALL base.appendChild(g)
+
+    LET fs = (5.5 * _font_size_ratio(id)) || "%"
 
     IF charts[id].grid_np > 0 THEN
        LET dx = charts[id].width / charts[id].grid_np
@@ -953,6 +939,7 @@ PRIVATE FUNCTION _create_grid_1(id, base)
            IF charts[id].grid_pl AND charts[id].grid_lx[i] IS NOT NULL THEN
               LET t = fglsvgcanvas.text( ix, _get_y(id,ly),
                                          charts[id].grid_lx[i], "grid_x_label" )
+              CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,fs)
               CALL t.setAttribute("text-anchor","middle")
               CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
                                    SFMT("translate(0,%1) scale(1,-1)",
@@ -975,6 +962,7 @@ PRIVATE FUNCTION _create_grid_1(id, base)
            IF charts[id].grid_vl AND charts[id].grid_ly[i] IS NOT NULL THEN
               LET t = fglsvgcanvas.text( lx, _get_y(id,iy),
                                          charts[id].grid_ly[i], "grid_y_label" )
+              CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,fs)
               CALL t.setAttribute("text-anchor","end")
               CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM,
                                    SFMT("translate(0,%1) scale(1,-1)",
