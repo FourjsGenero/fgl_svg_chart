@@ -22,6 +22,7 @@ PUBLIC TYPE t_dataset RECORD
 
 PRIVATE TYPE t_chart RECORD
                name STRING,
+               type SMALLINT,
                title STRING,
                points BOOLEAN,
                points_style STRING,
@@ -659,6 +660,7 @@ PUBLIC FUNCTION render(id, type, parent, x, y, width, height)
     DEFINE b, s om.DomNode
 
     CALL _check_id(id)
+    LET charts[id].type = type
 
     CALL _create_base_svg(id, parent, x, y, width, height) RETURNING b, s
 
@@ -913,6 +915,11 @@ PRIVATE FUNCTION _create_sheet_1(id, base, x,y,width,height)
     RETURN g
 END FUNCTION
 
+PRIVATE FUNCTION _grid_needs_pos_shift(id)
+    DEFINE id SMALLINT
+    RETURN (charts[id].type == CHART_TYPE_BARS)
+END FUNCTION
+
 PRIVATE FUNCTION _create_grid_1(id, base)
     DEFINE id SMALLINT,
            base om.DomNode
@@ -920,7 +927,8 @@ PRIVATE FUNCTION _create_grid_1(id, base)
            dx, dy DECIMAL,
            ix, iy DECIMAL,
            lx, ly DECIMAL,
-           i SMALLINT
+           ox DECIMAL,
+           i, m SMALLINT
 
     LET g = fglsvgcanvas.g("grid")
     CALL g.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid")
@@ -928,11 +936,18 @@ PRIVATE FUNCTION _create_grid_1(id, base)
 
     IF charts[id].grid_np > 0 THEN
        LET dx = charts[id].width / charts[id].grid_np
+       IF _grid_needs_pos_shift(id) THEN
+          LET ox = dx/2
+          LET m = charts[id].grid_np
+       ELSE
+          LET ox = 0.0
+          LET m = charts[id].grid_np+1
+       END IF
        LET ly = charts[id].minval - (charts[id].height * 0.04)
        LET ix = charts[id].minpos
-       FOR i=1 TO charts[id].grid_np+1
-           LET n = fglsvgcanvas.line(ix, _get_y(id,charts[id].minval),
-                                     ix, _get_y(id,charts[id].maxval))
+       FOR i=1 TO m
+           LET n = fglsvgcanvas.line((ix+ox), _get_y(id,charts[id].minval),
+                                     (ix+ox), _get_y(id,charts[id].maxval))
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid_x_line")
            CALL g.appendChild(n)
            IF charts[id].grid_pl AND charts[id].grid_lx[i] IS NOT NULL THEN
