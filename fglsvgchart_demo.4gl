@@ -501,7 +501,7 @@ FUNCTION random_chart_data(cid,minpos,maxpos,minval,maxval,avgval)
 
     CALL util.Math.srand()
 
-    LET totpos = util.Math.rand(90) + 10
+    LET totpos = util.Math.rand(40) + 10
 
     IF avgval IS NOT NULL THEN
        LET da = IIF(avgval<0,-avgval,avgval) / 2
@@ -517,7 +517,8 @@ FUNCTION random_chart_data(cid,minpos,maxpos,minval,maxval,avgval)
         CALL fglsvgchart.defineDataItem(cid, i, pos, NULL)
         FOR d=1 TO MAX_DS
             LET val = min_max_rand(minval,maxval)
-            CALL fglsvgchart.setDataItemValue(cid, i, d, val, SFMT("R%1.%2",i,d))
+            CALL fglsvgchart.setDataItemValue(cid, i, d, val,
+                                IIF((i MOD 5)==0,val,NULL))
             LET val = min_max_rand(minval,maxval) / 100
             CALL fglsvgchart.setDataItemValue2(cid, i, d, val, NULL)
         END FOR
@@ -530,7 +531,6 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
     DEFINE cid SMALLINT,
            minpos, maxpos, minval, maxval DECIMAL
     DEFINE i, totpos SMALLINT,
-           lab BOOLEAN,
            pos, dpos, val, piby2 DECIMAL
 
     CALL fglsvgchart.reset(cid)
@@ -545,23 +545,22 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
     LET dpos =  0.05
     LET i=1
     WHILE pos<=maxpos
-        LET lab = (pos == -1 OR pos == 0 OR pos == 1)
         CALL fglsvgchart.defineDataItem(cid, i, pos, NULL)
         LET val = util.Math.sin( pos )
         CALL fglsvgchart.setDataItemValue(cid, i, 1, val,
-                    IIF(lab, SFMT("sin(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+                    IIF(pos==-1.0, SFMT("sin(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         LET val = util.Math.cos( pos )
         CALL fglsvgchart.setDataItemValue(cid, i, 2, val,
-                    IIF(lab, SFMT("cos(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+                    IIF(pos==1.0, SFMT("cos(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         IF pos>=-piby2 AND pos<=piby2 THEN
            LET val = util.Math.tan( pos )
            CALL fglsvgchart.setDataItemValue(cid, i, 3, val,
-                    IIF(lab, SFMT("tan(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+                    IIF(pos==1.0, SFMT("tan(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         END IF
         IF pos>0 THEN
            LET val = util.Math.log( pos )
            CALL fglsvgchart.setDataItemValue(cid, i, 4, val,
-                    IIF(lab, SFMT("log(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+                    IIF(pos==2.5, SFMT("log(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         END IF
         LET pos = pos + dpos
         LET i=i+1

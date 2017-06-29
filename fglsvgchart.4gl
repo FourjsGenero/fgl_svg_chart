@@ -1198,10 +1198,10 @@ PRIVATE FUNCTION _create_data_labels(id, g, l, dx, dy)
     LET fsr = (5.0 * _font_size_ratio(id))
     LET fs = fsr || "%"
     IF dx IS NULL THEN
-       LET dx = (fsr * 0.05)
+       LET dx = (charts[id].width * 0.01)
     END IF
     IF dy IS NULL THEN
-       LET dy = (fsr * 0.05)
+       LET dy = (charts[id].height * 0.01)
     END IF
 
     LET m = charts[id].items.getLength()
