@@ -29,6 +29,7 @@ DEFINE params RECORD
                curr_position DECIMAL,
                curr_value DECIMAL,
                curr_label STRING,
+               fill_opacity SMALLINT,
                canvas STRING,
                elem_selected STRING
            END RECORD
@@ -72,6 +73,8 @@ MAIN
     LET params.curr_position = 200.0
     LET params.curr_value = 500.0
     LET params.curr_label = "Lab 1"
+
+    LET params.fill_opacity = 30
 
     LET cid = fglsvgchart.create("mychart")
 
@@ -131,6 +134,9 @@ MAIN
         ON CHANGE skip_gly
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
         ON CHANGE rect_ratio
+           CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
+
+        ON CHANGE fill_opacity
            CALL set_params_and_render(rid,cid,root_svg,FALSE,FALSE)
 
         ON ACTION minpos_minus
@@ -550,19 +556,19 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
         CALL fglsvgchart.defineDataItem(cid, i, pos, NULL)
         LET val = util.Math.sin( pos )
         CALL fglsvgchart.setDataItemValue(cid, i, 1, val,
-                    IIF(pos==-1.0, SFMT("sin(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+                    IIF((i MOD 50==0), SFMT("sin(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         LET val = util.Math.cos( pos )
         CALL fglsvgchart.setDataItemValue(cid, i, 2, val,
-                    IIF(pos==1.0, SFMT("cos(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+                    IIF((i MOD 50==0), SFMT("cos(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         IF pos>=-piby2 AND pos<=piby2 THEN
            LET val = util.Math.tan( pos )
            CALL fglsvgchart.setDataItemValue(cid, i, 3, val,
-                    IIF(pos==1.0, SFMT("tan(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+                    IIF((i MOD 50==0), SFMT("tan(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         END IF
         IF pos>0 THEN
            LET val = util.Math.log( pos )
            CALL fglsvgchart.setDataItemValue(cid, i, 4, val,
-                    IIF(pos==2.5, SFMT("log(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+                    IIF((i MOD 50==0), SFMT("log(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
         END IF
         LET pos = pos + dpos
         LET i=i+1
@@ -631,8 +637,9 @@ FUNCTION create_styles(cid, root_svg)
 
     CALL attr.clear()
     CALL attr.addAttribute(SVGATT_STROKE,         "gray" )
-    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.2%" )
-    CALL attr.addAttribute(SVGATT_FILL,           "lightYellow" )
+    CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.3%" )
+    CALL attr.addAttribute(SVGATT_FILL,           "lightGray" )
+    CALL attr.addAttribute(SVGATT_FILL_OPACITY,   "0.4" )
     CALL buf.append( fglsvgcanvas.styleDefinition(".legend_box",attr) )
 
     CALL attr.clear()
@@ -648,7 +655,7 @@ FUNCTION create_styles(cid, root_svg)
 
     -- Dataset colors
     CALL attr.clear()
-    CALL attr.addAttribute(SVGATT_FILL_OPACITY,   "0.3" )
+    CALL attr.addAttribute(SVGATT_FILL_OPACITY,   (params.fill_opacity/100) )
     CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
 
     CALL attr.addAttribute(SVGATT_FILL,   "cyan" )

@@ -21,6 +21,7 @@ Chart mode: [cm                                                    ]
 [                                                  ][s_ylb         ]
 [                                                  ][s_vlb         ]
 [                                                  ] Legend:[s_leg ]
+[                                                  ] F.Opac:[fo    ]
 [                                                  ]
 Selected:[es                                       ]<              >
 }
@@ -102,6 +103,8 @@ COMBOBOX s_leg = FORMONLY.legend_pos,
           (3, "Bottom"),
           (4, "Right")
          );
+SPINEDIT fo = FORMONLY.fill_opacity,
+   VALUEMIN=0, VALUEMAX=100, STEP=5;
 
 WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",
