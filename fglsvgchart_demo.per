@@ -34,7 +34,8 @@ COMBOBOX ct=FORMONLY.chart_type, NOT NULL,
           (1, "Bars"),
           (2, "Points"),
           (3, "Lines"),
-          (4, "Spline")
+          (4, "Splines"),
+          (5, "Stacks")
          );
 
 SPINEDIT ds=FORMONLY.ds_count, NOT NULL,
@@ -75,8 +76,8 @@ EDIT c_l= FORMONLY.curr_label, NOT NULL;
 BUTTON sv: set_value, TEXT="Set";
 
 BUTTON cl: clear, TEXT="Clear";
-BUTTON rd: render, TEXT="Render",
-  COMMENT="Render chart (CTRL-R)";
+BUTTON rd: recomp, TEXT="Recomp",
+  COMMENT="Recomp chart (CTRL-R)";
 
 GROUP g2: group2, TEXT="Options";
 CHECKBOX s_tit = FORMONLY.show_title, NOT NULL,

@@ -26,7 +26,7 @@ This Genero BDL library implements functions to draw charts in SVG.
 
 ## Compilation in Genero Studio
 
-1. Load the fglsvgchart_demo.4pw project
+1. Load the *fglsvgchart_demo.4pw* project
 2. Build the project
 
 ## Bug fixes:

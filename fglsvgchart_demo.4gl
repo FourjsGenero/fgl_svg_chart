@@ -178,7 +178,7 @@ MAIN
               END IF
            END IF
 
-        ON ACTION render ATTRIBUTES(ACCELERATOR="CONTROL-R")
+        ON ACTION recomp ATTRIBUTES(ACCELERATOR="CONTROL-R")
            CALL set_params_and_render(rid,cid,root_svg,FALSE,TRUE)
 
         ON ACTION clear ATTRIBUTES(ACCELERATOR="CONTROL-C")
@@ -219,7 +219,9 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
               LET params.curr_value = 500.0
               LET params.show_points = TRUE
            END IF
-           CALL sample1_chart_data(cid, params.chart_type)
+           IF rc THEN
+              CALL sample1_chart_data(cid, params.chart_type)
+           END IF
       WHEN 2 -- random 1
            CALL fglsvgchart.setTitle(cid,IIF(params.show_title,"Random values 1",NULL))
            IF rc THEN
@@ -356,13 +358,6 @@ FUNCTION sample1_chart_data(cid,chart_type)
     CALL fglsvgchart.setDataItemValue(cid, x, 4,  835.82, "Feb.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    6.50, NULL)
 
-    -- Intermidiate values
-    IF chart_type != CHART_TYPE_BARS THEN
-       CALL fglsvgchart.defineDataItem(cid, x:=x+1, 500, NULL)
-       CALL fglsvgchart.setDataItemValue(cid, x, 1,  -60.64, "Feb.1.1")
-       CALL fglsvgchart.setDataItemValue(cid, x, 4,  455.82, "Feb.4.1")
-    END IF
-
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 600, NULL)
     CALL fglsvgchart.setDataItemValue(cid, x, 1, 1000.50, "Mar.1")
     CALL fglsvgchart.setDataItemValue2(cid,x, 1,   -3.23, NULL)
@@ -392,20 +387,6 @@ FUNCTION sample1_chart_data(cid,chart_type)
     CALL fglsvgchart.setDataItemValue2(cid,x, 3,    4.43, NULL)
     CALL fglsvgchart.setDataItemValue(cid, x, 4,  325.13, "May.4")
     CALL fglsvgchart.setDataItemValue2(cid,x, 4,    1.43, NULL)
-
-    -- Intermidiate values
-    IF chart_type != CHART_TYPE_BARS THEN
-       CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1100, NULL)
-       CALL fglsvgchart.setDataItemValue(cid, x, 1,  353.49, "May.1.1")
-       CALL fglsvgchart.setDataItemValue(cid, x, 4,  250.13, "May.4.1")
-    END IF
-
-    -- Intermidiate values
-    IF chart_type != CHART_TYPE_BARS THEN
-       CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1150, NULL)
-       CALL fglsvgchart.setDataItemValue(cid, x, 1,  300.56, "May.1.2")
-       CALL fglsvgchart.setDataItemValue(cid, x, 4,  150.13, "May.4.2")
-    END IF
 
     CALL fglsvgchart.defineDataItem(cid, x:=x+1, 1200, NULL)
     CALL fglsvgchart.setDataItemValue(cid, x, 1, -150.50, "Jun.1")

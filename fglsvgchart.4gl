@@ -51,10 +51,11 @@ PRIVATE DEFINE initCount SMALLINT
 PRIVATE DEFINE charts DYNAMIC ARRAY OF t_chart
 
 PUBLIC CONSTANT
-  CHART_TYPE_BARS = 1,
-  CHART_TYPE_POINTS = 2,
-  CHART_TYPE_LINES = 3,
-  CHART_TYPE_SPLINES = 4
+  CHART_TYPE_BARS    = 1,
+  CHART_TYPE_POINTS  = 2,
+  CHART_TYPE_LINES   = 3,
+  CHART_TYPE_SPLINES = 4,
+  CHART_TYPE_STACKS  = 5
 
 PUBLIC CONSTANT
   LEGEND_POS_TOP    = 1,
@@ -658,6 +659,7 @@ PUBLIC FUNCTION render(id, type, parent, x, y, width, height)
       WHEN CHART_TYPE_POINTS   CALL _render_points(id,s)
       WHEN CHART_TYPE_LINES    CALL _render_lines(id,s)
       WHEN CHART_TYPE_SPLINES  CALL _render_splines(id,s)
+      WHEN CHART_TYPE_STACKS   CALL _render_stacks(id,s)
     END CASE
 
 END FUNCTION
@@ -914,6 +916,7 @@ END FUNCTION
 PRIVATE FUNCTION _grid_needs_pos_shift(id)
     DEFINE id SMALLINT
     RETURN (charts[id].type == CHART_TYPE_BARS)
+        OR (charts[id].type == CHART_TYPE_STACKS)
 END FUNCTION
 
 PRIVATE FUNCTION _font_size_ratio(id)
@@ -1085,6 +1088,62 @@ PRIVATE FUNCTION _render_bars(id, sheet)
 
 END FUNCTION
 
+PRIVATE FUNCTION _render_stacks(id, sheet)
+    DEFINE id SMALLINT,
+           sheet om.DomNode
+    DEFINE n, g om.DomNode,
+           vi INTEGER,
+           i, m INTEGER,
+           l, ml INTEGER,
+           s STRING,
+           ipmin, ipmax DECIMAL,
+           wi, dx, bx DECIMAL,
+           x,y,w,h,y1,h1 DECIMAL
+
+    LET g = fglsvgcanvas.g("data_stacks")
+    CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
+    CALL sheet.appendChild(g)
+
+    LET m = charts[id].items.getLength()
+    LET ml = charts[id].datasets.getLength()
+
+    CALL _items_in_grid_range(id,0.10) RETURNING vi, ipmin, ipmax
+
+    LET wi = (ipmax - ipmin)
+    LET dx = (wi / vi)
+    LET w = dx * 0.85
+    LET bx = -(w / 2.0)
+
+    FOR i=1 TO m
+        IF NOT _position_in_grid_range(id,i,0.10) THEN CONTINUE FOR END IF
+        LET y = 0
+        FOR l=1 TO ml
+            IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
+            LET s = charts[id].datasets[l].style
+            LET h = charts[id].items[i].values[l].value
+            IF h IS NULL THEN CONTINUE FOR END IF
+            LET x = charts[id].items[i].position + bx
+            IF h < 0 THEN
+               LET y1 = y + h
+               LET h1 = -h
+            ELSE
+               LET y1 = y
+               LET h1 = h
+            END IF
+            LET n = fglsvgcanvas.rect(x, _get_y(id,y1), w, _get_y(id,h1), NULL, NULL)
+            IF s IS NOT NULL THEN
+               CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
+            END IF
+            CALL g.appendChild(n)
+            IF charts[id].value_lb THEN
+               CALL _create_data_label(id, g, l, i, (x+(w*0.05)), (y1+(h*0.60)), NULL, NULL)
+            END IF
+            LET y = y + h
+        END FOR
+    END FOR
+
+END FUNCTION
+
 PRIVATE FUNCTION _render_points(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
@@ -1185,18 +1244,47 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
 
 END FUNCTION
 
-PRIVATE FUNCTION _create_data_labels(id, g, l, dx, dy)
+PRIVATE FUNCTION _create_data_label(id, g, l, i, tx, ty, dx, dy)
     DEFINE id SMALLINT,
            g om.DomNode,
-           l SMALLINT
+           l, i SMALLINT,
+           tx, ty DECIMAL,
+           dx, dy DECIMAL
     DEFINE t om.DomNode,
-           fsr, dx, dy DECIMAL,
-           fs STRING,
-           i, m INTEGER,
-           tx,ty DECIMAL
+           fsr DECIMAL,
+           fs STRING
+
+    IF charts[id].items[i].values[l].value IS NULL
+    OR NOT _position_in_grid_range(id,i,0.10) THEN
+       RETURN
+    END IF
 
     LET fsr = (5.0 * _font_size_ratio(id))
     LET fs = fsr || "%"
+
+    IF tx IS NULL THEN
+       LET tx = (charts[id].items[i].position + NVL(dx,0))
+    END IF
+    IF ty IS NULL THEN
+       LET ty = (charts[id].items[i].values[l].value + NVL(dy,0))
+    END IF
+
+    LET t = fglsvgcanvas.text( tx, _get_y(id,ty),
+                               charts[id].items[i].values[l].label, "value_label" )
+    CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,fs)
+    CALL t.setAttribute("text-anchor","left")
+    CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM, _flip_transform(id,ty*2) )
+    CALL g.appendChild(t)
+
+END FUNCTION
+
+PRIVATE FUNCTION _create_data_labels(id, g, l, dx, dy)
+    DEFINE id SMALLINT,
+           g om.DomNode,
+           l SMALLINT,
+           dx, dy DECIMAL
+    DEFINE i, m INTEGER
+
     IF dx IS NULL THEN
        LET dx = (charts[id].width * 0.01)
     END IF
@@ -1205,18 +1293,8 @@ PRIVATE FUNCTION _create_data_labels(id, g, l, dx, dy)
     END IF
 
     LET m = charts[id].items.getLength()
-
     FOR i=1 TO m
-        IF NOT _position_in_grid_range(id,i,0.10) THEN CONTINUE FOR END IF
-        LET ty = (charts[id].items[i].values[l].value + dy)
-        IF ty IS NULL THEN CONTINUE FOR END IF
-        LET tx = (charts[id].items[i].position + dx)
-        LET t = fglsvgcanvas.text( tx, _get_y(id,ty),
-                                   charts[id].items[i].values[l].label, "value_label" )
-        CALL t.setAttribute(fglsvgcanvas.SVGATT_FONT_SIZE,fs)
-        CALL t.setAttribute("text-anchor","left")
-        CALL t.setAttribute( fglsvgcanvas.SVGATT_TRANSFORM, _flip_transform(id,ty*2) )
-        CALL g.appendChild(t)
+        CALL _create_data_label(id, g, l, i, NULL, NULL, dx, dy)
     END FOR
 
 END FUNCTION
