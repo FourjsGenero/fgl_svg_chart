@@ -1035,10 +1035,27 @@ PRIVATE FUNCTION _items_in_grid_range(id,tx)
     RETURN n, minpos, maxpos
 END FUNCTION
 
+PRIVATE FUNCTION _dataset_id(l)
+    DEFINE l SMALLINT
+    RETURN SFMT("dataset_%1",l)
+END FUNCTION
+
+PRIVATE FUNCTION _data_id(l, i)
+    DEFINE l, i SMALLINT
+    RETURN SFMT("data_%1_%2",l,i)
+END FUNCTION
+
+PRIVATE FUNCTION _define_clickable_element(n,id)
+    DEFINE n om.DomNode,
+           id STRING
+    CALL n.setAttribute("id",id)
+    CALL n.setAttribute("onclick","elem_clicked(this)")
+END FUNCTION
+
 PRIVATE FUNCTION _render_bars(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
-    DEFINE n, g om.DomNode,
+    DEFINE n, g, gi om.DomNode,
            vi INTEGER,
            i, m INTEGER,
            l, ml INTEGER,
@@ -1075,11 +1092,14 @@ PRIVATE FUNCTION _render_bars(id, sheet)
                LET y = 0
             END IF
             LET x = charts[id].items[i].position + bx + (dx*(l-1))
+            LET gi = fglsvgcanvas.g(NULL)
+            CALL _define_clickable_element(gi,_data_id(l,i))
+            CALL g.appendChild(gi)
             LET n = fglsvgcanvas.rect(x, _get_y(id,y), w, _get_y(id,h), NULL, NULL)
             IF s IS NOT NULL THEN
                CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
             END IF
-            CALL g.appendChild(n)
+            CALL gi.appendChild(n)
         END FOR
         IF charts[id].value_lb THEN
            CALL _create_data_labels(id, g, l, -(dx*(l-1)), NULL)
@@ -1091,7 +1111,7 @@ END FUNCTION
 PRIVATE FUNCTION _render_stacks(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
-    DEFINE n, g om.DomNode,
+    DEFINE n, g, gi om.DomNode,
            vi INTEGER,
            i, m INTEGER,
            l, ml INTEGER,
@@ -1130,13 +1150,16 @@ PRIVATE FUNCTION _render_stacks(id, sheet)
                LET y1 = y
                LET h1 = h
             END IF
+            LET gi = fglsvgcanvas.g(NULL)
+            CALL _define_clickable_element(gi,_data_id(l,i))
+            CALL g.appendChild(gi)
             LET n = fglsvgcanvas.rect(x, _get_y(id,y1), w, _get_y(id,h1), NULL, NULL)
             IF s IS NOT NULL THEN
                CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
             END IF
-            CALL g.appendChild(n)
+            CALL gi.appendChild(n)
             IF charts[id].value_lb THEN
-               CALL _create_data_label(id, g, l, i, (x+(w*0.05)), (y1+(h*0.60)), NULL, NULL)
+               CALL _create_data_label(id, gi, l, i, (x+(w*0.05)), (y1+(h*0.60)), NULL, NULL)
             END IF
             LET y = y + h
         END FOR
@@ -1209,7 +1232,7 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
            l SMALLINT,
            r BOOLEAN,
            s STRING
-    DEFINE n om.DomNode,
+    DEFINE n, gi om.DomNode,
            i, m INTEGER,
            minv2, maxv2 DECIMAL,
            br,rr,vr DECIMAL,
@@ -1235,11 +1258,14 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
         ELSE
            LET cr = br
         END IF
+        LET gi = fglsvgcanvas.g(NULL)
+        CALL _define_clickable_element(gi,_data_id(l,i))
+        CALL g.appendChild(gi)
         LET n = fglsvgcanvas.circle(cx, _get_y(id,cy), cr)
         IF s IS NOT NULL THEN
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
         END IF
-        CALL g.appendChild(n)
+        CALL gi.appendChild(n)
     END FOR
 
 END FUNCTION
@@ -1334,6 +1360,7 @@ PRIVATE FUNCTION _render_lines(id, sheet)
         LET p = p||" L"||isodec(x)||",0"
         LET p = p||" Z"
         LET n = fglsvgcanvas.path(p)
+        CALL _define_clickable_element(n,_dataset_id(l))
         LET s = charts[id].datasets[l].style
         IF s IS NOT NULL THEN
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
@@ -1368,6 +1395,7 @@ PRIVATE FUNCTION _render_splines(id, sheet)
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         LET p = _spline_path(id, l)
         LET n = fglsvgcanvas.path(p)
+        CALL _define_clickable_element(n,_dataset_id(l))
         LET s = charts[id].datasets[l].style
         IF s IS NOT NULL THEN
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)

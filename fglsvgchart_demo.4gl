@@ -187,6 +187,7 @@ MAIN
 
         ON ACTION svg_selection ATTRIBUTES(DEFAULTVIEW = NO)
            LET params.elem_selected = params.canvas
+           CALL item_click( params.elem_selected )
 
     END INPUT
 
@@ -197,6 +198,26 @@ MAIN
     CALL fglsvgcanvas.finalize()
 
 END MAIN
+
+FUNCTION item_click(js)
+    DEFINE js STRING
+    DEFINE rec RECORD
+               id STRING
+           END RECORD,
+           x SMALLINT
+    TRY
+        CALL util.JSON.parse(js, rec)
+        CASE
+           WHEN rec.id MATCHES "dataset_*"
+                LET params.curr_dataset = rec.id.subString(9, rec.id.getLength())
+           WHEN rec.id MATCHES "data_*"
+                LET x = rec.id.getIndexOf("_",6)
+                LET params.curr_dataset = rec.id.subString(6, x-1)
+                LET params.curr_item    = rec.id.subString(x+1, rec.id.getLength())
+        END CASE
+    CATCH
+    END TRY
+END FUNCTION
 
 FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
     DEFINE cid, rid SMALLINT,
