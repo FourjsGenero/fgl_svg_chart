@@ -1160,7 +1160,7 @@ PRIVATE FUNCTION _render_bars(id, sheet)
             CALL gi.appendChild(n)
         END FOR
         IF charts[id].value_lb THEN
-           CALL _create_data_labels(id, g, l, -(dx*(l-1)), NULL)
+           CALL _create_data_labels(id, g, l, bx+(dx*(l-1)), NULL)
         END IF
     END FOR
 
