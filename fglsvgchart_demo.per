@@ -8,9 +8,10 @@ Rectangular ratio:       [rra        ]
 Chart mode: [cm                                                    ]
             [cl        :                               :rd         ]
 <GROUP g1                                                          >
- Dataset: [c_d      ] Item: [c_i     ]
- Position:[c_p      ] Value:[c_v     ][sv  ]
- Label:   [c_l                       ]
+ Dataset: [c_d  ] Item: [c_i  ] [sv                 ]
+ Position:[c_p      ]
+ Value:   [c_v      ] Label:   [c_l                 ]
+ Value 2: [c_v2     ] Label 2: [c_l2                ]
 <                                                                  >
 [cv                                                ]<GROUP g2      >
 [                                                  ][s_tit         ]
@@ -73,7 +74,9 @@ SPINEDIT c_d= FORMONLY.curr_dataset, NOT NULL;
 SPINEDIT c_i= FORMONLY.curr_item, NOT NULL;
 EDIT c_p= FORMONLY.curr_position, NOT NULL;
 EDIT c_v= FORMONLY.curr_value;
-EDIT c_l= FORMONLY.curr_label, NOT NULL;
+EDIT c_l= FORMONLY.curr_label;
+EDIT c_v2= FORMONLY.curr_value2;
+EDIT c_l2= FORMONLY.curr_label2;
 BUTTON sv: set_value, TEXT="Set";
 
 BUTTON cl: clear, TEXT="Clear";

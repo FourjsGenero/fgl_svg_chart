@@ -29,6 +29,8 @@ DEFINE params RECORD
                curr_position DECIMAL,
                curr_value DECIMAL,
                curr_label STRING,
+               curr_value2 DECIMAL,
+               curr_label2 STRING,
                fill_opacity SMALLINT,
                canvas STRING,
                elem_selected STRING
@@ -73,6 +75,8 @@ MAIN
     LET params.curr_position = 200.0
     LET params.curr_value = 500.0
     LET params.curr_label = "Lab 1"
+    LET params.curr_value2 = 50.0
+    LET params.curr_label2 = "Lab 2"
 
     LET params.fill_opacity = 30
 
@@ -180,6 +184,7 @@ MAIN
               END IF
               IF pos IS NOT NULL THEN
                  CALL fglsvgchart.setDataItemValue(cid, params.curr_item, params.curr_dataset, params.curr_value, params.curr_label)
+                 CALL fglsvgchart.setDataItemValue2(cid, params.curr_item, params.curr_dataset, params.curr_value2, params.curr_label2)
                  CALL draw_graph(rid,cid,root_svg,params.chart_type)
               END IF
            END IF
@@ -193,7 +198,7 @@ MAIN
 
         ON ACTION svg_selection ATTRIBUTES(DEFAULTVIEW = NO)
            LET params.elem_selected = params.canvas
-           CALL item_click( params.elem_selected )
+           CALL item_click(cid, params.elem_selected )
 
     END INPUT
 
@@ -205,8 +210,8 @@ MAIN
 
 END MAIN
 
-FUNCTION item_click(js)
-    DEFINE js STRING
+FUNCTION item_click(cid,js)
+    DEFINE cid SMALLINT, js STRING
     DEFINE rec RECORD
                id STRING
            END RECORD,
@@ -221,6 +226,11 @@ FUNCTION item_click(js)
                 LET params.curr_dataset = rec.id.subString(6, x-1)
                 LET params.curr_item    = rec.id.subString(x+1, rec.id.getLength())
         END CASE
+        IF params.curr_dataset>0 AND params.curr_item>0 THEN
+           LET params.curr_position = fglsvgchart.getDataItemPosition(cid, params.curr_item)
+           LET params.curr_value = fglsvgchart.getDataItemValue(cid, params.curr_item, params.curr_dataset)
+           LET params.curr_value2 = fglsvgchart.getDataItemValue2(cid, params.curr_item, params.curr_dataset)
+        END IF
     CATCH
     END TRY
 END FUNCTION

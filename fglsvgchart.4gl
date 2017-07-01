@@ -538,7 +538,7 @@ PUBLIC FUNCTION defineDataItem(id,itemidx,position,title)
 
 END FUNCTION
 
-#+ Set a value to an existing data item.
+#+ Set the main value and label of an existing data item.
 #+
 #+ The data item must have been created with the defineDataItem() function.
 #+
@@ -571,7 +571,7 @@ PUBLIC FUNCTION setDataItemValue(id,itemidx,dataidx,value,label)
 
 END FUNCTION
 
-#+ Set the secondary value to an existing data item.
+#+ Set the secondary value and label of an existing data item.
 #+
 #+ The data item must have been created with the defineDataItem() function.
 #+
@@ -600,6 +600,63 @@ PUBLIC FUNCTION setDataItemValue2(id,itemidx,dataidx,value,label)
     CALL _check_data_item_index(id, itemidx)
     LET charts[id].items[itemidx].values[dataidx].value2 = value
     LET charts[id].items[itemidx].values[dataidx].label2 = label
+
+END FUNCTION
+
+#+ Get the main value from an existing data item.
+#+
+#+ @code
+#+ DISPLAY fglsvgchart.getDataItemValue(id, 5, 1)
+#+
+#+ @param id         The chart id
+#+ @param itemidx    The index of the item.
+#+ @param dataidx    The index of the data set.
+#+
+PUBLIC FUNCTION getDataItemValue(id,itemidx,dataidx)
+    DEFINE id SMALLINT,
+           itemidx SMALLINT,
+           dataidx SMALLINT
+
+    CALL _check_data_item_index(id, itemidx)
+    CALL _check_dataset_index(id, dataidx)
+    RETURN charts[id].items[itemidx].values[dataidx].value
+
+END FUNCTION
+
+#+ Get the secondary value from an existing data item.
+#+
+#+ @code
+#+ DISPLAY fglsvgchart.getDataItemValue2(id, 5, 1)
+#+
+#+ @param id         The chart id
+#+ @param itemidx    The index of the item.
+#+ @param dataidx    The index of the data set.
+#+
+PUBLIC FUNCTION getDataItemValue2(id,itemidx,dataidx)
+    DEFINE id SMALLINT,
+           itemidx SMALLINT,
+           dataidx SMALLINT
+
+    CALL _check_data_item_index(id, itemidx)
+    CALL _check_dataset_index(id, dataidx)
+    RETURN charts[id].items[itemidx].values[dataidx].value2
+
+END FUNCTION
+
+#+ Get the data item position.
+#+
+#+ @code
+#+ DISPLAY fglsvgchart.getDataItemPosition(id, 1)
+#+
+#+ @param id         The chart id
+#+ @param itemidx    The index of the item.
+#+
+PUBLIC FUNCTION getDataItemPosition(id,itemidx)
+    DEFINE id SMALLINT,
+           itemidx SMALLINT
+
+    CALL _check_data_item_index(id, itemidx)
+    RETURN charts[id].items[itemidx].position
 
 END FUNCTION
 
