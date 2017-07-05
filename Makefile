@@ -5,10 +5,14 @@ BINS=\
  fglsvgchart_demo.42m\
  fglsvgchart_demo.42f
 
-all: $(BINS)
+all: $(BINS) doc
 
 run:: $(BINS)
 	fglrun fglsvgchart_demo
+
+doc:
+	fglcomp --build-doc fglsvgchart.4gl
+	mv fglsvgchart.html docs
 
 fglsvgchart.42m: fglsvgchart.4gl
 	fglcomp -M fglsvgchart.4gl
@@ -29,4 +33,4 @@ runjgas: fglsvgchart_demo.war
 	fglgar run --war fglsvgchart_demo.war
 
 clean::
-	rm -f *.42m *.42f *.gar *.war
+	rm -f *.42m *.42f *.gar *.war fglsvgchart.html fglsvgchart.xa

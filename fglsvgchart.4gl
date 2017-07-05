@@ -1,3 +1,9 @@
+#+ Genero SVG Chart Library
+#+
+#+ This library provides a set of functions to produce SVG charts.
+#+ Before using this library, you need to know how to use fglsvgcanvas.4gl.
+#+
+
 IMPORT util
 IMPORT FGL fglsvgcanvas
 
