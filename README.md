@@ -35,7 +35,7 @@ This library is under [MIT license](./LICENSE)
 
 ## Programming API
 
-See [Genero SVG charts documentation](https://github.com/FourjsGenero/fgl_svg_chart/raw/master/docs/fglsvgchart.html)
+See [Genero SVG charts documentation](http://htmlpreview.github.io/?github.com/FourjsGenero/fgl_svg_chart/raw/master/docs/fglsvgchart.html)
 
 ## Bug fixes:
 
