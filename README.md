@@ -6,6 +6,10 @@ This Genero BDL library implements functions to draw charts in SVG.
 
 ![Genero SVG charts demo (GDC)](https://github.com/FourjsGenero/fgl_svg_chart/raw/master/docs/fglsvgchart-screen-001.png)
 
+## License
+
+This library is under [MIT license](./LICENSE)
+
 ## Prerequisites
 
 * Genero BDL 3.10+
