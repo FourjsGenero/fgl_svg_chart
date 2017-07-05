@@ -1323,6 +1323,9 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
         IF s IS NOT NULL THEN
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
         END IF
+        IF NOT r THEN
+           CALL n.setAttribute(fglsvgcanvas.SVGATT_STYLE, SFMT("%1:%2",fglsvgcanvas.SVGATT_FILL_OPACITY,1.0))
+        END IF
         CALL gi.appendChild(n)
     END FOR
 
