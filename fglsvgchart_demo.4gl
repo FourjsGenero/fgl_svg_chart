@@ -299,7 +299,6 @@ FUNCTION set_params_and_render(cid,rid,root_svg,ms,rc)
                  LET params.grid_sx    =   20
                  LET params.grid_sy    =   10
                  LET params.curr_value = NULL
-                 LET params.show_points = FALSE
               END IF
               CALL trigo_chart_data( cid,
                                      params.minpos,params.maxpos,
@@ -549,7 +548,8 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
     DEFINE cid SMALLINT,
            minpos, maxpos, minval, maxval DECIMAL
     DEFINE i, totpos SMALLINT,
-           pos, dpos, val, piby2 DECIMAL
+           pos, dpos, val, piby2 DECIMAL,
+           lab STRING
 
     CALL fglsvgchart.reset(cid)
 
@@ -563,24 +563,35 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
     LET dpos =  0.05
     LET i=1
     WHILE pos<=maxpos
+
         CALL fglsvgchart.defineDataItem(cid, i, pos, NULL)
+
         LET val = util.Math.sin( pos )
-        CALL fglsvgchart.setDataItemValue(cid, i, 1, val,
-                    IIF((i MOD 50==0), SFMT("sin(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+        LET lab = IIF((i MOD 50==0), SFMT("sin(%1)=%2",pos,(val USING "--&.&&&")), NULL)
+        CALL fglsvgchart.setDataItemValue(cid, i, 1, val, lab)
+        CALL fglsvgchart.showDataItemPoint(cid, i, 1, (lab IS NOT NULL))
+
         LET val = util.Math.cos( pos )
-        CALL fglsvgchart.setDataItemValue(cid, i, 2, val,
-                    IIF((i MOD 50==0), SFMT("cos(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+        LET lab = IIF(((i+10) MOD 50==0), SFMT("cos(%1)=%2",pos,(val USING "--&.&&&")), NULL)
+        CALL fglsvgchart.setDataItemValue(cid, i, 2, val, lab)
+        CALL fglsvgchart.showDataItemPoint(cid, i, 2, (lab IS NOT NULL))
+
         IF pos>=-piby2 AND pos<=piby2 THEN
            LET val = util.Math.tan( pos )
-           CALL fglsvgchart.setDataItemValue(cid, i, 3, val,
-                    IIF((i MOD 50==0), SFMT("tan(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+           LET lab = IIF(((i+20) MOD 70==0), SFMT("tan(%1)=%2",pos,(val USING "--&.&&&")), NULL)
+           CALL fglsvgchart.setDataItemValue(cid, i, 3, val, lab)
+           CALL fglsvgchart.showDataItemPoint(cid, i, 3, (lab IS NOT NULL))
         END IF
+
         IF pos>0 THEN
            LET val = util.Math.log( pos )
-           CALL fglsvgchart.setDataItemValue(cid, i, 4, val,
-                    IIF((i MOD 50==0), SFMT("log(%1)=%2",pos,(val USING "--&.&&&")), NULL) )
+           LET lab = IIF(((i+30) MOD 70==0), SFMT("log(%1)=%2",pos,(val USING "--&.&&&")), NULL)
+           CALL fglsvgchart.setDataItemValue(cid, i, 4, val, lab)
+           CALL fglsvgchart.showDataItemPoint(cid, i, 4, (lab IS NOT NULL))
         END IF
+
         LET pos = pos + dpos
+
         LET i=i+1
     END WHILE
 

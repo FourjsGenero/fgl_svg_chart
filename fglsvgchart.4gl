@@ -11,7 +11,8 @@ PUBLIC TYPE t_value RECORD
                  value DECIMAL,
                  label STRING,
                  value2 DECIMAL,
-                 label2 STRING
+                 label2 STRING,
+                 point BOOLEAN
              END RECORD
 
 PUBLIC TYPE t_data_item RECORD
@@ -604,10 +605,38 @@ PUBLIC FUNCTION setDataItemValue2(id,itemidx,dataidx,value,label)
            label STRING
 
     CALL _check_data_item_index(id, itemidx)
+    CALL _check_dataset_index(id, dataidx)
     LET charts[id].items[itemidx].values[dataidx].value2 = value
     LET charts[id].items[itemidx].values[dataidx].label2 = label
 
 END FUNCTION
+
+#+ Defines if a point must be displayed for this data item.
+#+
+#+ By default, when the global setting for points display is true,
+#+ all data items get a points. You can control data items level
+#+ points display with this function.
+#+
+#+ @code
+#+ CALL fglsvgchart.showDataItemPoint(id, 5, 3, FALSE)
+#+
+#+ @param id         The chart id
+#+ @param itemidx    The index of the item.
+#+ @param dataidx    The index of the data set.
+#+ @param enable     TRUE to display the data item point
+#+
+PUBLIC FUNCTION showDataItemPoint(id,itemidx,dataidx,enable)
+    DEFINE id SMALLINT,
+           itemidx SMALLINT,
+           dataidx SMALLINT,
+           enable BOOLEAN
+
+    CALL _check_data_item_index(id, itemidx)
+    CALL _check_dataset_index(id, dataidx)
+    LET charts[id].items[itemidx].values[dataidx].point = enable
+
+END FUNCTION
+
 
 #+ Get the main value from an existing data item.
 #+
@@ -1311,7 +1340,10 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
 
     LET m = charts[id].items.getLength()
     FOR i=1 TO m
-        IF NOT _position_in_grid_range(id,i,0.10) THEN CONTINUE FOR END IF
+        IF NOT _position_in_grid_range(id,i,0.10)
+        OR NOT charts[id].items[i].values[l].point THEN
+           CONTINUE FOR
+        END IF
         LET cy = charts[id].items[i].values[l].value
         IF cy IS NULL THEN CONTINUE FOR END IF
         LET cx = charts[id].items[i].position

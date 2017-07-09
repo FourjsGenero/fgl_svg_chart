@@ -188,6 +188,11 @@
 <tr>
 <td class="summary-text"></td>
 <td class="summary-text">
+<b><a href="#showDataItemPoint">showDataItemPoint</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, enable BOOLEAN)<br> Defines if a point must be displayed for this data item.</td>
+</tr>
+<tr>
+<td class="summary-text"></td>
+<td class="summary-text">
 <b><a href="#showDataSet">showDataSet</a></b>(id SMALLINT, index SMALLINT, enable STRING)<br> Display dataset</td>
 </tr>
 <tr>
@@ -257,6 +262,7 @@
 <tr><td>label STRING</td></tr>
 <tr><td>value2 DECIMAL</td></tr>
 <tr><td>label2 STRING</td></tr>
+<tr><td>point BOOLEAN</td></tr>
 </table></td>
 </tr></table> END RECORD</tt><dl>
 <dd></dd>
@@ -715,6 +721,25 @@
 <dt><b>Parameters:</b></dt>
 <dd>
 <code>id</code> - The chart id<br><code>title</code> - The lower limit for positions (X-axis)<br>
+</dd>
+</dl></dd>
+</dl>
+<hr>
+<a id="showDataItemPoint"> </a><h3>showDataItemPoint</h3>
+<tt>FUNCTION <b>showDataItemPoint</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, enable BOOLEAN)</tt><dl>
+<dd>
+<p> Defines if a point must be displayed for this data item.</p>
+<p> By default, when the global setting for points display is true,
+ all data items get a points. You can control data items level
+ points display with this function.</p>
+<p>
+      <span><pre> CALL fglsvgchart.showDataItemPoint(id, 5, 3, FALSE)</pre></span>
+    </p>
+</dd>
+<dd><dl>
+<dt><b>Parameters:</b></dt>
+<dd>
+<code>id</code> - The chart id<br><code>itemidx</code> - The index of the item.<br><code>dataidx</code> - The index of the data set.<br><code>enable</code> - TRUE to display the data item point<br>
 </dd>
 </dl></dd>
 </dl>
