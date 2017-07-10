@@ -1148,7 +1148,7 @@ END FUNCTION
 PRIVATE FUNCTION _render_bars(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
-    DEFINE n, g, gi om.DomNode,
+    DEFINE n, g, gl, gi om.DomNode,
            vi INTEGER,
            i, m INTEGER,
            l, ml INTEGER,
@@ -1160,6 +1160,8 @@ PRIVATE FUNCTION _render_bars(id, sheet)
     LET g = fglsvgcanvas.g("data_bars")
     CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
+
+    LET gl = fglsvgcanvas.g("decoration")
 
     LET m = charts[id].items.getLength()
     LET ml = charts[id].datasets.getLength()
@@ -1195,16 +1197,18 @@ PRIVATE FUNCTION _render_bars(id, sheet)
             CALL gi.appendChild(n)
         END FOR
         IF charts[id].value_lb THEN
-           CALL _create_data_labels(id, g, l, bx+(dx*(l-1)), NULL)
+           CALL _create_data_labels(id, gl, l, bx+(dx*(l-1)), NULL)
         END IF
     END FOR
+
+    CALL g.appendChild(gl)
 
 END FUNCTION
 
 PRIVATE FUNCTION _render_stacks(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
-    DEFINE n, g, gi om.DomNode,
+    DEFINE n, g, gl, gi om.DomNode,
            vi INTEGER,
            i, m INTEGER,
            l, ml INTEGER,
@@ -1216,6 +1220,8 @@ PRIVATE FUNCTION _render_stacks(id, sheet)
     LET g = fglsvgcanvas.g("data_stacks")
     CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
+
+    LET gl = fglsvgcanvas.g("decoration")
 
     LET m = charts[id].items.getLength()
     LET ml = charts[id].datasets.getLength()
@@ -1252,23 +1258,27 @@ PRIVATE FUNCTION _render_stacks(id, sheet)
             END IF
             CALL gi.appendChild(n)
             IF charts[id].value_lb THEN
-               CALL _create_data_label(id, gi, l, i, (x+(w*0.05)), (y1+(h*0.60)), NULL, NULL)
+               CALL _create_data_label(id, gl, l, i, (x+(w*0.05)), (y1+(h*0.60)), NULL, NULL)
             END IF
             LET y = y + h
         END FOR
     END FOR
+
+    CALL g.appendChild(gl)
 
 END FUNCTION
 
 PRIVATE FUNCTION _render_points(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
-    DEFINE g om.DomNode,
+    DEFINE g, gl om.DomNode,
            l, ml INTEGER
 
     LET g = fglsvgcanvas.g("data_points")
     CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
+
+    LET gl = fglsvgcanvas.g("decoration")
 
     LET ml = charts[id].datasets.getLength()
 
@@ -1276,9 +1286,11 @@ PRIVATE FUNCTION _render_points(id, sheet)
         IF NOT charts[id].datasets[l].visible THEN CONTINUE FOR END IF
         CALL _create_data_points(id, g, l, TRUE, charts[id].datasets[l].style)
         IF charts[id].value_lb THEN
-           CALL _create_data_labels(id, g, l, NULL, NULL)
+           CALL _create_data_labels(id, gl, l, NULL, NULL)
         END IF
     END FOR
+
+    CALL g.appendChild(gl)
 
 END FUNCTION
 
@@ -1427,7 +1439,7 @@ END FUNCTION
 PRIVATE FUNCTION _render_lines(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
-    DEFINE n, g om.DomNode,
+    DEFINE n, g, gl om.DomNode,
            i, m INTEGER,
            l, ml INTEGER,
            s, p STRING,
@@ -1437,6 +1449,8 @@ PRIVATE FUNCTION _render_lines(id, sheet)
     LET g = fglsvgcanvas.g("data_lines")
     CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
+
+    LET gl = fglsvgcanvas.g("decoration")
 
     LET m = charts[id].items.getLength()
     LET dx = ( charts[id].width / m ) * 0.10
@@ -1466,19 +1480,21 @@ PRIVATE FUNCTION _render_lines(id, sheet)
         END IF
         CALL g.appendChild(n)
         IF charts[id].points THEN
-           CALL _create_data_points(id, g, l, FALSE, NVL(charts[id].points_style,s))
+           CALL _create_data_points(id, gl, l, FALSE, NVL(charts[id].points_style,s))
         END IF
         IF charts[id].value_lb THEN
-           CALL _create_data_labels(id, g, l, NULL, NULL)
+           CALL _create_data_labels(id, gl, l, NULL, NULL)
         END IF
     END FOR
+
+    CALL g.appendChild(gl)
 
 END FUNCTION
 
 PRIVATE FUNCTION _render_splines(id, sheet)
     DEFINE id SMALLINT,
            sheet om.DomNode
-    DEFINE n, g om.DomNode,
+    DEFINE n, g, gl om.DomNode,
            m INTEGER,
            l, ml INTEGER,
            s, p STRING
@@ -1486,6 +1502,8 @@ PRIVATE FUNCTION _render_splines(id, sheet)
     LET g = fglsvgcanvas.g("data_splines")
     CALL g.setAttribute("clip-path", fglsvgcanvas.url("grid_clip"))
     CALL sheet.appendChild(g)
+
+    LET gl = fglsvgcanvas.g("decoration")
 
     LET m = charts[id].items.getLength()
     LET ml = charts[id].datasets.getLength()
@@ -1501,12 +1519,14 @@ PRIVATE FUNCTION _render_splines(id, sheet)
         END IF
         CALL g.appendChild(n)
         IF charts[id].points THEN
-           CALL _create_data_points(id, g, l, FALSE, NVL(charts[id].points_style,s))
+           CALL _create_data_points(id, gl, l, FALSE, NVL(charts[id].points_style,s))
         END IF
         IF charts[id].value_lb THEN
-           CALL _create_data_labels(id, g, l, NULL, NULL)
+           CALL _create_data_labels(id, gl, l, NULL, NULL)
         END IF
     END FOR
+
+    CALL g.appendChild(gl)
 
 END FUNCTION
 

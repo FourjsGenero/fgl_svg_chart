@@ -714,7 +714,7 @@ FUNCTION draw_graph(rid,cid,root_svg,ct)
     CALL fglsvgcanvas.clean(rid)
     CALL create_styles(cid, root_svg)
     CALL fglsvgchart.render( cid, ct, root_svg, NULL,NULL,NULL,NULL )
---display root_svg.toString()
+display root_svg.toString()
     CALL fglsvgcanvas.display(rid)
 
 END FUNCTION
