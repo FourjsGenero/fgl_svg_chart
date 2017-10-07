@@ -14,6 +14,7 @@ This library is under [MIT license](./LICENSE)
 
 * Genero BDL 3.10+
 * Genero Desktop Client 3.10+
+* Genero Studio 3.10+
 * GNU Make
 
 ## Compilation from command line
