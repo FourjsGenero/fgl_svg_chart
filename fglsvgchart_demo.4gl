@@ -196,9 +196,17 @@ MAIN
            CALL fglsvgchart.clean(cid)
            CALL draw_graph(rid,cid,root_svg,params.chart_type)
 
-        ON ACTION svg_selection ATTRIBUTES(DEFAULTVIEW = NO)
+        ON ACTION item_selection ATTRIBUTES(DEFAULTVIEW = NO)
            LET params.elem_selected = params.canvas
            CALL item_click(cid, params.elem_selected )
+
+        ON ACTION mouse_over ATTRIBUTES(DEFAULTVIEW = NO)
+           MESSAGE SFMT("%1 : mouse over item : %2",
+                            CURRENT HOUR TO FRACTION(5),
+                            fglsvgcanvas.getItemId(cid) )
+
+        ON ACTION mouse_out ATTRIBUTES(DEFAULTVIEW = NO)
+           MESSAGE ""
 
     END INPUT
 
@@ -213,7 +221,9 @@ END MAIN
 FUNCTION item_click(cid,js)
     DEFINE cid SMALLINT, js STRING
     DEFINE rec RECORD
-               id STRING
+               id STRING,
+               source STRING,
+               action STRING
            END RECORD,
            x SMALLINT
     TRY

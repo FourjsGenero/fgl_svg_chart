@@ -1,30 +1,37 @@
-LAYOUT
+LAYOUT (VERSION="1.2", STYLE="main2")
 GRID
 {
-Chart type: [ct                   ]     Datasets:           [ds    ]
-Min/Max pos:[minpos     ][maxpos     ]  Grid st/sk X:[gsx  ][sglx  ]
-Min/Max val:[minval     ][maxval     ]  Grid st/sk Y:[gsy  ][sgly  ]
-Rectangular ratio:       [rra        ]
-Chart mode: [cm                                                    ]
-            [cl        :                               :rd         ]
-<GROUP g1                                                          >
- Dataset: [c_d  ] Item: [c_i  ] [sv                 ]
- Position:[c_p      ]
- Value:   [c_v      ] Label:   [c_l                 ]
- Value 2: [c_v2     ] Label 2: [c_l2                ]
-<                                                                  >
-[cv                                                ]<GROUP g2      >
-[                                                  ][s_tit         ]
-[                                                  ][s_pts         ]
-[                                                  ][s_pst         ]
-[                                                  ][s_org         ]
-[                                                  ][s_xlb         ]
-[                                                  ][s_ylb         ]
-[                                                  ][s_vlb         ]
-[                                                  ] Legend:[s_leg ]
-[                                                  ] F.Opac:[fo    ]
-[                                                  ]
-Selected:[es                                       ]<              >
+Chart type: [ct                ] Datasets:            [ds    ]
+Min/Max pos:[minpos  ][maxpos  ] Grid st/sk X: [gsx  ][sglx  ]
+Min/Max val:[minval  ][maxval  ] Grid st/sk Y: [gsy  ][sgly  ]
+Rectangular ratio:    [rra     ] Mode: [cm       ][cl  ][rd  ]
+[cv                                                          ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[                                                            ]
+[s_tit|s_pts|s_pst|s_org|s_xlb|s_ylb|s_vlb|s_leg       |fo   ]
+--------------------------------------------------------------
+Selection: [es                                               ]
+--------------------------------------------------------------
+[sv        ] Dataset:    [c_d ]  Item: [c_i ] Position:[c_p  ]
+[          ] Value:      [c_v      ]  Label:  [c_l           ]
+[          ] Value 2:    [c_v2     ]  Label 2:[c_l2          ]
 }
 END
 END
@@ -32,6 +39,7 @@ END
 ATTRIBUTES
 
 COMBOBOX ct=FORMONLY.chart_type, NOT NULL,
+   COMMENT="Select the type of chart",
    ITEMS=(
           (1, "Bars"),
           (2, "Points"),
@@ -41,27 +49,41 @@ COMBOBOX ct=FORMONLY.chart_type, NOT NULL,
          );
 
 SPINEDIT ds=FORMONLY.ds_count, NOT NULL,
+   COMMENT="Number of data sets to be displayed",
    VALUEMIN=1, VALUEMAX=4;
 
-BUTTONEDIT minpos=FORMONLY.minpos, NOT NULL, IMAGE="fa-minus", ACTION=minpos_minus;
-BUTTONEDIT maxpos=FORMONLY.maxpos, NOT NULL, IMAGE="fa-plus",  ACTION=maxpos_plus;
+BUTTONEDIT minpos=FORMONLY.minpos, NOT NULL,
+   COMMENT="Lower position in chart",
+   IMAGE="fa-minus", ACTION=minpos_minus;
+BUTTONEDIT maxpos=FORMONLY.maxpos, NOT NULL,
+   COMMENT="Upper position in chart",
+   IMAGE="fa-plus",  ACTION=maxpos_plus;
 SPINEDIT gsx=FORMONLY.grid_sx, NOT NULL,
+   COMMENT="Grid step X:\nNumber of vertical grid lines to draw in the X direction",
    VALUEMIN=0, VALUEMAX=100;
-
-BUTTONEDIT minval=FORMONLY.minval, NOT NULL, IMAGE="fa-minus", ACTION=minval_minus;
-BUTTONEDIT maxval=FORMONLY.maxval, NOT NULL, IMAGE="fa-plus",  ACTION=maxval_plus;
-SPINEDIT gsy=FORMONLY.grid_sy, NOT NULL,
-   VALUEMIN=0, VALUEMAX=100;
-
-BUTTONEDIT rra=FORMONLY.rect_ratio, NOT NULL, IMAGE="fa-plus", ACTION=ratio_plus;
-
 SPINEDIT sglx=FORMONLY.skip_glx, NOT NULL,
+   COMMENT="Grid X label display sequence",
    VALUEMIN=1, VALUEMAX=10;
 
+BUTTONEDIT minval=FORMONLY.minval, NOT NULL,
+   COMMENT="Lower value limit in chart",
+   IMAGE="fa-minus", ACTION=minval_minus;
+BUTTONEDIT maxval=FORMONLY.maxval, NOT NULL,
+   COMMENT="Upper value limit in chart",
+   IMAGE="fa-plus",  ACTION=maxval_plus;
+SPINEDIT gsy=FORMONLY.grid_sy, NOT NULL,
+   COMMENT="Grid step Y:\nNumber of horizontal grid lines to draw in the Y direction",
+   VALUEMIN=0, VALUEMAX=100;
 SPINEDIT sgly=FORMONLY.skip_gly, NOT NULL,
+   COMMENT="Grid Y label display sequence",
    VALUEMIN=1, VALUEMAX=10;
+
+BUTTONEDIT rra=FORMONLY.rect_ratio, NOT NULL,
+   COMMENT="Adjust the rectangular aspect ratio for better rendering",
+   IMAGE="fa-plus", ACTION=ratio_plus;
 
 COMBOBOX cm=FORMONLY.chart_mode, NOT NULL,
+   COMMENT="Select the chart data mode",
    ITEMS=(
           (1, "Sample 1"),
           (2, "Random data 1"),
@@ -69,36 +91,43 @@ COMBOBOX cm=FORMONLY.chart_mode, NOT NULL,
           (4, "Trigonometry")
          );
 
-GROUP g1: group1, TEXT="Values";
-SPINEDIT c_d= FORMONLY.curr_dataset, NOT NULL;
-SPINEDIT c_i= FORMONLY.curr_item, NOT NULL;
-EDIT c_p= FORMONLY.curr_position, NOT NULL;
-EDIT c_v= FORMONLY.curr_value;
-EDIT c_l= FORMONLY.curr_label;
-EDIT c_v2= FORMONLY.curr_value2;
-EDIT c_l2= FORMONLY.curr_label2;
-BUTTON sv: set_value, TEXT="Set";
+SPINEDIT c_d= FORMONLY.curr_dataset, NOT NULL,
+   COMMENT="Dataset id";
+SPINEDIT c_i= FORMONLY.curr_item, NOT NULL,
+   COMMENT="Item id";
+EDIT c_p= FORMONLY.curr_position, NOT NULL,
+   COMMENT="X Position";
+EDIT c_v= FORMONLY.curr_value,
+   COMMENT="Main item value";
+EDIT c_l= FORMONLY.curr_label,
+   COMMENT="Main item label";
+EDIT c_v2= FORMONLY.curr_value2,
+   COMMENT="Secondary item value";
+EDIT c_l2= FORMONLY.curr_label2,
+   COMMENT="Secondary item label";
+BUTTON sv: set_value, TEXT="Set value\nin\nDataset";
 
-BUTTON cl: clear, TEXT="Clear";
-BUTTON rd: recomp, TEXT="Recomp",
-  COMMENT="Recomp chart (CTRL-R)";
+BUTTON cl: clear, TEXT="Clear",
+  COMMENT="Clear all data sets";
+BUTTON rd: recomp, TEXT="Compute",
+  COMMENT="Compute data sets (CTRL-R)";
 
-GROUP g2: group2, TEXT="Options";
 CHECKBOX s_tit = FORMONLY.show_title, NOT NULL,
-   TEXT="Show title";
+   TEXT="Title", COMMENT="Toggle main title";
 CHECKBOX s_pts = FORMONLY.show_points, NOT NULL,
-   TEXT="Show points";
+   TEXT="Points", COMMENT="Toggle points";
 CHECKBOX s_pst = FORMONLY.points_style, NOT NULL,
-   TEXT="Pts style";
+   TEXT="PtsStl", COMMENT="Use points style";
 CHECKBOX s_org = FORMONLY.show_origin, NOT NULL,
-   TEXT="Show origin";
+   TEXT="Origin", COMMENT="Toggle origin lines";
 CHECKBOX s_xlb = FORMONLY.show_xlab, NOT NULL,
-   TEXT="Show X Lab";
+   TEXT="XLabs", COMMENT="Toggle X labels";
 CHECKBOX s_ylb = FORMONLY.show_ylab, NOT NULL,
-   TEXT="Show Y Lab";
+   TEXT="YLabs", COMMENT="Toggle Y labels";
 CHECKBOX s_vlb = FORMONLY.show_vlab, NOT NULL,
-   TEXT="Show V Lab";
+   TEXT="VLabs", COMMENT="Toggle value labels";
 COMBOBOX s_leg = FORMONLY.legend_pos,
+   COMMENT="Chart legend position",
    ITEMS=(
           (NULL, "None"),
           (1, "Top"),
@@ -107,11 +136,23 @@ COMBOBOX s_leg = FORMONLY.legend_pos,
           (4, "Right")
          );
 SPINEDIT fo = FORMONLY.fill_opacity,
+   COMMENT="Fill opacity",
    VALUEMIN=0, VALUEMAX=100, STEP=5;
 
 WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",
-   PROPERTIES=(selection="svg_selection"),
+   PROPERTIES=(
+       selection="item_selection",
+       user_action_1 = ( name="mouse_over",
+                         timeout=500,
+                         focus=false
+                       ),
+       user_action_2 = ( name="mouse_out",
+                         timeout=500,
+                         focus=false,
+                         cancel=("mouse_over")
+                       )
+   ),
    SIZEPOLICY=FIXED,
    STRETCH=BOTH,
    SCROLLBARS=NONE
