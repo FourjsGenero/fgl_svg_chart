@@ -647,6 +647,9 @@ END FUNCTION
 #+ @param itemidx    The index of the item.
 #+ @param dataidx    The index of the data set.
 #+
+#+ @returnType DECIMAL
+#+ @return The primary value of the item.
+#+
 PUBLIC FUNCTION getDataItemValue(id,itemidx,dataidx)
     DEFINE id SMALLINT,
            itemidx SMALLINT,
@@ -667,6 +670,9 @@ END FUNCTION
 #+ @param itemidx    The index of the item.
 #+ @param dataidx    The index of the data set.
 #+
+#+ @returnType DECIMAL
+#+ @return The secondary value of the item.
+#+
 PUBLIC FUNCTION getDataItemValue2(id,itemidx,dataidx)
     DEFINE id SMALLINT,
            itemidx SMALLINT,
@@ -685,6 +691,9 @@ END FUNCTION
 #+
 #+ @param id         The chart id
 #+ @param itemidx    The index of the item.
+#+
+#+ @returnType DECIMAL
+#+ @return The position of the item.
 #+
 PUBLIC FUNCTION getDataItemPosition(id,itemidx)
     DEFINE id SMALLINT,

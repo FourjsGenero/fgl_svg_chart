@@ -108,17 +108,17 @@
 <tr>
 <td class="summary-text"></td>
 <td class="summary-text">
-<b><a href="#getDataItemPosition">getDataItemPosition</a></b>(id SMALLINT, itemidx SMALLINT)<br> Get the data item position.</td>
+<b><a href="#getDataItemPosition">getDataItemPosition</a></b>(id SMALLINT, itemidx SMALLINT) RETURNS DECIMAL<br> Get the data item position.</td>
 </tr>
 <tr>
 <td class="summary-text"></td>
 <td class="summary-text">
-<b><a href="#getDataItemValue">getDataItemValue</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT)<br> Get the main value from an existing data item.</td>
+<b><a href="#getDataItemValue">getDataItemValue</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL<br> Get the main value from an existing data item.</td>
 </tr>
 <tr>
 <td class="summary-text"></td>
 <td class="summary-text">
-<b><a href="#getDataItemValue2">getDataItemValue2</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT)<br> Get the secondary value from an existing data item.</td>
+<b><a href="#getDataItemValue2">getDataItemValue2</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL<br> Get the secondary value from an existing data item.</td>
 </tr>
 <tr>
 <td class="summary-text"></td>
@@ -456,7 +456,7 @@
 </dl>
 <hr>
 <a id="getDataItemPosition"> </a><h3>getDataItemPosition</h3>
-<tt>FUNCTION <b>getDataItemPosition</b>(id SMALLINT, itemidx SMALLINT)</tt><dl>
+<tt>FUNCTION <b>getDataItemPosition</b>(id SMALLINT, itemidx SMALLINT) RETURNS DECIMAL</tt><dl>
 <dd>
 <p> Get the data item position.</p>
 <p>
@@ -468,11 +468,14 @@
 <dd>
 <code>id</code> - The chart id<br><code>itemidx</code> - The index of the item.<br>
 </dd>
+<dt><b>Returns:</b></dt>
+<dd>The position of the item.<br>
+</dd>
 </dl></dd>
 </dl>
 <hr>
 <a id="getDataItemValue"> </a><h3>getDataItemValue</h3>
-<tt>FUNCTION <b>getDataItemValue</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT)</tt><dl>
+<tt>FUNCTION <b>getDataItemValue</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL</tt><dl>
 <dd>
 <p> Get the main value from an existing data item.</p>
 <p>
@@ -484,11 +487,14 @@
 <dd>
 <code>id</code> - The chart id<br><code>itemidx</code> - The index of the item.<br><code>dataidx</code> - The index of the data set.<br>
 </dd>
+<dt><b>Returns:</b></dt>
+<dd>The primary value of the item.<br>
+</dd>
 </dl></dd>
 </dl>
 <hr>
 <a id="getDataItemValue2"> </a><h3>getDataItemValue2</h3>
-<tt>FUNCTION <b>getDataItemValue2</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT)</tt><dl>
+<tt>FUNCTION <b>getDataItemValue2</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL</tt><dl>
 <dd>
 <p> Get the secondary value from an existing data item.</p>
 <p>
@@ -499,6 +505,9 @@
 <dt><b>Parameters:</b></dt>
 <dd>
 <code>id</code> - The chart id<br><code>itemidx</code> - The index of the item.<br><code>dataidx</code> - The index of the data set.<br>
+</dd>
+<dt><b>Returns:</b></dt>
+<dd>The secondary value of the item.<br>
 </dd>
 </dl></dd>
 </dl>
