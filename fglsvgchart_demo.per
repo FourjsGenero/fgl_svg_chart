@@ -59,7 +59,7 @@ BUTTONEDIT maxpos=FORMONLY.maxpos, NOT NULL,
    COMMENT="Upper position in chart",
    IMAGE="fa-plus",  ACTION=maxpos_plus;
 SPINEDIT gsx=FORMONLY.grid_sx, NOT NULL,
-   COMMENT="Grid step X:\nNumber of vertical grid lines to draw in the X direction",
+   COMMENT="Grid step X: Number of vertical grid lines to draw in the X direction",
    VALUEMIN=0, VALUEMAX=100;
 SPINEDIT sglx=FORMONLY.skip_glx, NOT NULL,
    COMMENT="Grid X label display sequence",
@@ -72,7 +72,7 @@ BUTTONEDIT maxval=FORMONLY.maxval, NOT NULL,
    COMMENT="Upper value limit in chart",
    IMAGE="fa-plus",  ACTION=maxval_plus;
 SPINEDIT gsy=FORMONLY.grid_sy, NOT NULL,
-   COMMENT="Grid step Y:\nNumber of horizontal grid lines to draw in the Y direction",
+   COMMENT="Grid step Y: Number of horizontal grid lines to draw in the Y direction",
    VALUEMIN=0, VALUEMAX=100;
 SPINEDIT sgly=FORMONLY.skip_gly, NOT NULL,
    COMMENT="Grid Y label display sequence",
@@ -143,15 +143,10 @@ WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",
    PROPERTIES=(
        selection="item_selection",
-       user_action_1 = ( name="mouse_over",
-                         timeout=500,
-                         focus=false
-                       ),
-       user_action_2 = ( name="mouse_out",
-                         timeout=500,
-                         focus=false,
-                         cancel=("mouse_over")
-                       )
+       user_actions = (
+            mouse_over = ( timeout=500, focus=false ),
+            mouse_out  = ( timeout=500, focus=false, cancel=("mouse_over") )
+       )
    ),
    SIZEPOLICY=FIXED,
    STRETCH=BOTH,
