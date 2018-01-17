@@ -143,8 +143,9 @@ WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",
    PROPERTIES=(
        selection = "item_selection",
-       mouseover = ( action = "mouse_over", focus = false ),
-       mouseout  = ( action = "mouse_out" )
+       mouse_over = "mouse_over",
+       mouse_out  = "mouse_out",
+       mouse_event_focus = false
    ),
    SIZEPOLICY=FIXED,
    STRETCH=BOTH,

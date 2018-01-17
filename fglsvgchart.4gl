@@ -1152,8 +1152,8 @@ PRIVATE FUNCTION _define_clickable_element(n,id)
            id STRING
     CALL n.setAttribute("id",id)
     CALL n.setAttribute("onclick",     "elem_clicked(this)")
-    CALL n.setAttribute("onmouseover", "elem_mouseover(this)")
-    CALL n.setAttribute("onmouseout",  "elem_mouseout(this)")
+    CALL n.setAttribute("onmouseover", "elem_mouse_over(this)")
+    CALL n.setAttribute("onmouseout",  "elem_mouse_out(this)")
 END FUNCTION
 
 PRIVATE FUNCTION _render_bars(id, sheet)
