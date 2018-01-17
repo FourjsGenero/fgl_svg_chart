@@ -142,11 +142,9 @@ SPINEDIT fo = FORMONLY.fill_opacity,
 WEBCOMPONENT cv=FORMONLY.canvas,
    COMPONENTTYPE="fglsvgcanvas",
    PROPERTIES=(
-       selection="item_selection",
-       user_actions = (
-            mouse_over = ( timeout=500, focus=false ),
-            mouse_out  = ( timeout=500, focus=false, cancel=("mouse_over") )
-       )
+       selection = "item_selection",
+       mouseover = ( action = "mouse_over", focus = false ),
+       mouseout  = ( action = "mouse_out" )
    ),
    SIZEPOLICY=FIXED,
    STRETCH=BOTH,

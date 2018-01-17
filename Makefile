@@ -10,7 +10,9 @@ all: $(BINS) doc
 run:: $(BINS)
 	fglrun fglsvgchart_demo
 
-doc:
+doc: docs/fglsvgchart.html
+
+docs/fglsvgchart.html: fglsvgchart.4gl
 	fglcomp --build-doc fglsvgchart.4gl
 	mv fglsvgchart.html docs
 
