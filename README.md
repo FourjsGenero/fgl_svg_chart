@@ -14,6 +14,7 @@ This library is under [MIT license](./LICENSE)
 ## Prerequisites
 
 * Genero BDL 3.10+
+* Genero Browser Client 1.00.52+
 * Genero Desktop Client 3.10+
 * Genero Studio 3.10+
 * GNU Make
