@@ -1,5 +1,7 @@
 *.42*
+bin
 *.tmp
 *.log
 *.4pwdb
 *.4pwvs
+*.4pwcfg
