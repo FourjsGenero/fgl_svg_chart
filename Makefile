@@ -17,10 +17,10 @@ docs/fglsvgchart.html: fglsvgchart.4gl
 	mv fglsvgchart.html docs
 
 fglsvgchart.42m: fglsvgchart.4gl
-	fglcomp -M fglsvgchart.4gl
+	fglcomp -Wall -M fglsvgchart.4gl
 
 fglsvgchart_demo.42m: fglsvgchart_demo.4gl
-	fglcomp -M fglsvgchart_demo.4gl
+	fglcomp -Wall -M fglsvgchart_demo.4gl
 
 fglsvgchart_demo.42f: fglsvgchart_demo.per
 	fglform -M fglsvgchart_demo.per

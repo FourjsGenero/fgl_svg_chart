@@ -115,7 +115,7 @@ END FUNCTION
 PUBLIC FUNCTION create(name)
     DEFINE name STRING
     DEFINE id, i SMALLINT
-    IF LENGTH(name)==0 THEN
+    IF length(name)==0 THEN
        OPEN FORM _dummy_ FROM NULL
     END IF
     FOR i=1 TO charts.getLength()
@@ -1403,7 +1403,7 @@ PRIVATE FUNCTION _create_data_label(id, g, l, i, tx, ty, dx, dy)
            fs STRING
 
     IF charts[id].items[i].values[l].value IS NULL
-    OR LENGTH(charts[id].items[i].values[l].label)==0
+    OR length(charts[id].items[i].values[l].label)==0
     OR NOT _position_in_grid_range(id,i,0.10) THEN
        RETURN
     END IF

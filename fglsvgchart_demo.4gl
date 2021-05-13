@@ -374,6 +374,8 @@ FUNCTION sample1_chart_data(cid,chart_type)
            chart_type SMALLINT
     DEFINE x SMALLINT
 
+    LET chart_type = NULL
+
     CALL fglsvgchart.reset(cid)
 
     CALL fglsvgchart.defineDataSet(cid, 1, "North",      "my_data_style_1")
@@ -557,9 +559,12 @@ END FUNCTION
 FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
     DEFINE cid SMALLINT,
            minpos, maxpos, minval, maxval DECIMAL
-    DEFINE i, totpos SMALLINT,
+    DEFINE i SMALLINT,
            pos, dpos, val, piby2 DECIMAL,
            lab STRING
+
+    LET minval = NULL
+    LET maxval = NULL
 
     CALL fglsvgchart.reset(cid)
 
@@ -624,10 +629,12 @@ END FUNCTION
 
 FUNCTION create_styles(cid, root_svg)
     DEFINE cid SMALLINT,
-           root_svg, n om.DomNode
+           root_svg om.DomNode
     DEFINE attr om.SaxAttributes,
            buf base.StringBuffer,
            defs om.DomNode
+
+    LET cid = NULL
 
     LET attr = om.SaxAttributes.create()
     LET buf = base.StringBuffer.create()

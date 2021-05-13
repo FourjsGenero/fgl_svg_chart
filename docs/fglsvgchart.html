@@ -21,214 +21,251 @@
 <p> Genero SVG Chart Library</p>
 <p> This library provides a set of functions to produce SVG charts.
  Before using this library, you need to know how to use fglsvgcanvas.4gl.</p>
+<p></p>
 <a id="type_summary"></a><table border="1" width="100%" cellpadding="3" cellspacing="0" class="summary">
-<tr><th class="summary" colspan="1">TYPE Summary</th></tr>
-<tr><td class="summary-text">
-<b><a href="#t_data_item">t_data_item</a></b> RECORD R3<br>
-</td></tr>
-<tr><td class="summary-text">
-<b><a href="#t_dataset">t_dataset</a></b> RECORD R5<br>
-</td></tr>
-<tr><td class="summary-text">
-<b><a href="#t_value">t_value</a></b> RECORD R1<br>
-</td></tr>
+<tr><th class="summary" colspan="2">TYPE Summary</th></tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
+<b><a href="#t_data_item">t_data_item</a></b> RECORD<br>
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
+<b><a href="#t_dataset">t_dataset</a></b> RECORD<br>
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
+<b><a href="#t_value">t_value</a></b> RECORD<br>
+</td>
+</tr>
 </table>
 <br><a id="constant_summary"></a><table border="1" width="100%" cellpadding="3" cellspacing="0" class="summary">
-<tr><th class="summary" colspan="1">CONSTANT Summary</th></tr>
-<tr><td class="summary-text">
+<tr><th class="summary" colspan="2">CONSTANT Summary</th></tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#CHART_TYPE_BARS">CHART_TYPE_BARS</a></b> INTEGER<br>
-</td></tr>
-<tr><td class="summary-text">
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#CHART_TYPE_LINES">CHART_TYPE_LINES</a></b> INTEGER<br>
-</td></tr>
-<tr><td class="summary-text">
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#CHART_TYPE_POINTS">CHART_TYPE_POINTS</a></b> INTEGER<br>
-</td></tr>
-<tr><td class="summary-text">
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#CHART_TYPE_SPLINES">CHART_TYPE_SPLINES</a></b> INTEGER<br>
-</td></tr>
-<tr><td class="summary-text">
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#CHART_TYPE_STACKS">CHART_TYPE_STACKS</a></b> INTEGER<br>
-</td></tr>
-<tr><td class="summary-text">
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#LEGEND_POS_BOTTOM">LEGEND_POS_BOTTOM</a></b> INTEGER<br>
-</td></tr>
-<tr><td class="summary-text">
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#LEGEND_POS_LEFT">LEGEND_POS_LEFT</a></b> INTEGER<br>
-</td></tr>
-<tr><td class="summary-text">
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#LEGEND_POS_RIGHT">LEGEND_POS_RIGHT</a></b> INTEGER<br>
-</td></tr>
-<tr><td class="summary-text">
+</td>
+</tr>
+<tr>
+<td class="summary-text" width="25%">public</td>
+<td class="summary-text">
 <b><a href="#LEGEND_POS_TOP">LEGEND_POS_TOP</a></b> INTEGER<br>
-</td></tr>
+</td>
+</tr>
 </table>
 <br><a id="function_summary"></a><table border="1" width="100%" cellpadding="3" cellspacing="0" class="summary">
 <tr><th class="summary" colspan="2">FUNCTION Summary</th></tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#clean">clean</a></b>(id SMALLINT)<br> Remove all data items from the chart.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#create">create</a></b>(name STRING) RETURNS SMALLINT<br> Create a new chart and return an ID</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#defineDataItem">defineDataItem</a></b>(id SMALLINT, itemidx SMALLINT, position DECIMAL, title STRING)<br> Define a new data item to the chart with a single value.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#defineDataSet">defineDataSet</a></b>(id SMALLINT, index SMALLINT, label STRING, style STRING)<br> Define a new data set.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#defineGrid">defineGrid</a></b>(id SMALLINT, nx SMALLINT, ny SMALLINT)<br> Set the number of horizontal and vertical grid lines to display.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#destroy">destroy</a></b>(id SMALLINT)<br> Destroy a chart object</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#finalize">finalize</a></b>()<br> Library finalization function.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#getDataItemCount">getDataItemCount</a></b>(id SMALLINT) RETURNS INTEGER<br> Returns the current number of data items in the chart.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#getDataItemPosition">getDataItemPosition</a></b>(id SMALLINT, itemidx SMALLINT) RETURNS DECIMAL<br> Get the data item position.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#getDataItemValue">getDataItemValue</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL<br> Get the main value from an existing data item.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#getDataItemValue2">getDataItemValue2</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL<br> Get the secondary value from an existing data item.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#getDataSetCount">getDataSetCount</a></b>(id SMALLINT) RETURNS INTEGER<br> Returns the current number of datasets in the chart.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#initialize">initialize</a></b>()<br> Library initialization function.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#render">render</a></b>(id SMALLINT, type SMALLINT, parent om.DomNode, x STRING, y STRING, width STRING, height STRING)<br> Render the chart in your web component.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#reset">reset</a></b>(id SMALLINT)<br> Reset chart datasets.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setBoundaries">setBoundaries</a></b>(id SMALLINT, minpos DECIMAL, maxpos DECIMAL, minval DECIMAL, maxval DECIMAL)<br> Defines the coordinate limits of the chart</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setDataItemValue">setDataItemValue</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, value DECIMAL, label STRING)<br> Set the main value and label of an existing data item.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setDataItemValue2">setDataItemValue2</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, value DECIMAL, label STRING)<br> Set the secondary value and label of an existing data item.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setGridLabelX">setGridLabelX</a></b>(id SMALLINT, index SMALLINT, label STRING)<br> Set grid labels for X axis.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setGridLabelY">setGridLabelY</a></b>(id SMALLINT, index SMALLINT, label STRING)<br> Set grid labels for Y axis.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setGridLabelsFromStepsX">setGridLabelsFromStepsX</a></b>(id SMALLINT, skip SMALLINT, format STRING)<br> Set grid labels for X axis from grid steps.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setGridLabelsFromStepsY">setGridLabelsFromStepsY</a></b>(id SMALLINT, skip SMALLINT, format STRING)<br> Set grid labels for Y axis from grid steps.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setRectangularRatio">setRectangularRatio</a></b>(id SMALLINT, ratio DECIMAL)<br> Defines the rectangular ratio of the chart</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#setTitle">setTitle</a></b>(id SMALLINT, title STRING)<br> Defines the chart main title</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#showDataItemPoint">showDataItemPoint</a></b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, enable BOOLEAN)<br> Defines if a point must be displayed for this data item.</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#showDataSet">showDataSet</a></b>(id SMALLINT, index SMALLINT, enable STRING)<br> Display dataset</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#showDataSetLegend">showDataSetLegend</a></b>(id SMALLINT, position SMALLINT)<br> Display dataset legend</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#showGridPositionLabels">showGridPositionLabels</a></b>(id SMALLINT, enable BOOLEAN)<br> Display position-axis labels</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#showGridValueLabels">showGridValueLabels</a></b>(id SMALLINT, enable BOOLEAN)<br> Display value-axis labels</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#showOrigin">showOrigin</a></b>(id SMALLINT, enable BOOLEAN)<br> Display X/Y axis</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#showPoints">showPoints</a></b>(id SMALLINT, enable BOOLEAN, style STRING)<br> Display points</td>
 </tr>
 <tr>
-<td class="summary-text"></td>
+<td class="summary-text" width="25%">public</td>
 <td class="summary-text">
 <b><a href="#showValueLabels">showValueLabels</a></b>(id SMALLINT, enable BOOLEAN)<br> Display value labels</td>
 </tr>
 </table>
 <br><h2>Types</h2>
 <a id="t_data_item"> </a><h3>t_data_item</h3>
-<tt>TYPE <b>t_data_item</b> RECORD R3<table border="0" cellpadding="0" cellspacing="0" class="member"><tr>
+<tt>public TYPE <b>t_data_item</b> RECORD<table border="0" cellpadding="0" cellspacing="0" class="member"><tr>
 <td>    </td>
 <td><table border="0" cellpadding="0" cellspacing="0" class="member">
 <tr><td>position DECIMAL</td></tr>
@@ -242,7 +279,7 @@
 </dl>
 <hr>
 <a id="t_dataset"> </a><h3>t_dataset</h3>
-<tt>TYPE <b>t_dataset</b> RECORD R5<table border="0" cellpadding="0" cellspacing="0" class="member"><tr>
+<tt>public TYPE <b>t_dataset</b> RECORD<table border="0" cellpadding="0" cellspacing="0" class="member"><tr>
 <td>    </td>
 <td><table border="0" cellpadding="0" cellspacing="0" class="member">
 <tr><td>label STRING</td></tr>
@@ -255,7 +292,7 @@
 </dl>
 <hr>
 <a id="t_value"> </a><h3>t_value</h3>
-<tt>TYPE <b>t_value</b> RECORD R1<table border="0" cellpadding="0" cellspacing="0" class="member"><tr>
+<tt>public TYPE <b>t_value</b> RECORD<table border="0" cellpadding="0" cellspacing="0" class="member"><tr>
 <td>    </td>
 <td><table border="0" cellpadding="0" cellspacing="0" class="member">
 <tr><td>value DECIMAL</td></tr>
@@ -271,62 +308,62 @@
 <hr>
 <h2>Constants</h2>
 <a id="CHART_TYPE_BARS"> </a><h3>CHART_TYPE_BARS</h3>
-<tt>CONSTANT <b>CHART_TYPE_BARS</b> INTEGER = 1</tt><dl>
+<tt>public CONSTANT <b>CHART_TYPE_BARS</b> INTEGER = 1</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <a id="CHART_TYPE_LINES"> </a><h3>CHART_TYPE_LINES</h3>
-<tt>CONSTANT <b>CHART_TYPE_LINES</b> INTEGER = 3</tt><dl>
+<tt>public CONSTANT <b>CHART_TYPE_LINES</b> INTEGER = 3</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <a id="CHART_TYPE_POINTS"> </a><h3>CHART_TYPE_POINTS</h3>
-<tt>CONSTANT <b>CHART_TYPE_POINTS</b> INTEGER = 2</tt><dl>
+<tt>public CONSTANT <b>CHART_TYPE_POINTS</b> INTEGER = 2</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <a id="CHART_TYPE_SPLINES"> </a><h3>CHART_TYPE_SPLINES</h3>
-<tt>CONSTANT <b>CHART_TYPE_SPLINES</b> INTEGER = 4</tt><dl>
+<tt>public CONSTANT <b>CHART_TYPE_SPLINES</b> INTEGER = 4</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <a id="CHART_TYPE_STACKS"> </a><h3>CHART_TYPE_STACKS</h3>
-<tt>CONSTANT <b>CHART_TYPE_STACKS</b> INTEGER = 5</tt><dl>
+<tt>public CONSTANT <b>CHART_TYPE_STACKS</b> INTEGER = 5</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <a id="LEGEND_POS_BOTTOM"> </a><h3>LEGEND_POS_BOTTOM</h3>
-<tt>CONSTANT <b>LEGEND_POS_BOTTOM</b> INTEGER = 3</tt><dl>
+<tt>public CONSTANT <b>LEGEND_POS_BOTTOM</b> INTEGER = 3</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <a id="LEGEND_POS_LEFT"> </a><h3>LEGEND_POS_LEFT</h3>
-<tt>CONSTANT <b>LEGEND_POS_LEFT</b> INTEGER = 2</tt><dl>
+<tt>public CONSTANT <b>LEGEND_POS_LEFT</b> INTEGER = 2</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <a id="LEGEND_POS_RIGHT"> </a><h3>LEGEND_POS_RIGHT</h3>
-<tt>CONSTANT <b>LEGEND_POS_RIGHT</b> INTEGER = 4</tt><dl>
+<tt>public CONSTANT <b>LEGEND_POS_RIGHT</b> INTEGER = 4</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <a id="LEGEND_POS_TOP"> </a><h3>LEGEND_POS_TOP</h3>
-<tt>CONSTANT <b>LEGEND_POS_TOP</b> INTEGER = 1</tt><dl>
+<tt>public CONSTANT <b>LEGEND_POS_TOP</b> INTEGER = 1</tt><dl>
 <dd></dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
 <h2>Functions</h2>
-<a id="clean"> </a><h3>clean</h3>
-<tt>FUNCTION <b>clean</b>(id SMALLINT)</tt><dl>
+<h3><a id="clean">clean</a></h3>
+<tt>public FUNCTION <b>clean</b>(id SMALLINT)</tt><dl>
 <dd>
 <p> Remove all data items from the chart.</p>
 <p> Call this function to clean the data of the chart.</p>
@@ -342,8 +379,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="create"> </a><h3>create</h3>
-<tt>FUNCTION <b>create</b>(name STRING) RETURNS SMALLINT</tt><dl>
+<h3><a id="create">create</a></h3>
+<tt>public FUNCTION <b>create</b>(name STRING) RETURNS SMALLINT</tt><dl>
 <dd>
 <p> Create a new chart and return an ID</p>
 <p> This function creates a new chart object and returns its ID.
@@ -360,13 +397,13 @@
 <code>name</code> - The name of the chart.<br>
 </dd>
 <dt><b>Returns:</b></dt>
-<dd>The chart object ID<br>
+<dd>The chart object ID<br>The chart object ID<br>
 </dd>
 </dl></dd>
 </dl>
 <hr>
-<a id="defineDataItem"> </a><h3>defineDataItem</h3>
-<tt>FUNCTION <b>defineDataItem</b>(id SMALLINT, itemidx SMALLINT, position DECIMAL, title STRING)</tt><dl>
+<h3><a id="defineDataItem">defineDataItem</a></h3>
+<tt>public FUNCTION <b>defineDataItem</b>(id SMALLINT, itemidx SMALLINT, position DECIMAL, title STRING)</tt><dl>
 <dd>
 <p> Define a new data item to the chart with a single value.</p>
 <p>
@@ -381,8 +418,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="defineDataSet"> </a><h3>defineDataSet</h3>
-<tt>FUNCTION <b>defineDataSet</b>(id SMALLINT, index SMALLINT, label STRING, style STRING)</tt><dl>
+<h3><a id="defineDataSet">defineDataSet</a></h3>
+<tt>public FUNCTION <b>defineDataSet</b>(id SMALLINT, index SMALLINT, label STRING, style STRING)</tt><dl>
 <dd>
 <p> Define a new data set.</p>
 <p>
@@ -399,8 +436,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="defineGrid"> </a><h3>defineGrid</h3>
-<tt>FUNCTION <b>defineGrid</b>(id SMALLINT, nx SMALLINT, ny SMALLINT)</tt><dl>
+<h3><a id="defineGrid">defineGrid</a></h3>
+<tt>public FUNCTION <b>defineGrid</b>(id SMALLINT, nx SMALLINT, ny SMALLINT)</tt><dl>
 <dd>
 <p> Set the number of horizontal and vertical grid lines to display.</p>
 <p> The style of the grid can be defined with "grid", the line styles
@@ -418,8 +455,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="destroy"> </a><h3>destroy</h3>
-<tt>FUNCTION <b>destroy</b>(id SMALLINT)</tt><dl>
+<h3><a id="destroy">destroy</a></h3>
+<tt>public FUNCTION <b>destroy</b>(id SMALLINT)</tt><dl>
 <dd>
 <p> Destroy a chart object</p>
 <p> This function releases all resources allocated for the chart.</p>
@@ -432,17 +469,18 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="finalize"> </a><h3>finalize</h3>
-<tt>FUNCTION <b>finalize</b>()</tt><dl>
+<h3><a id="finalize">finalize</a></h3>
+<tt>public FUNCTION <b>finalize</b>()</tt><dl>
 <dd>
 <p> Library finalization function.</p>
 <p> This function has to be called when the library is not longer used.</p>
+<p></p>
 </dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
-<a id="getDataItemCount"> </a><h3>getDataItemCount</h3>
-<tt>FUNCTION <b>getDataItemCount</b>(id SMALLINT) RETURNS INTEGER</tt><dl>
+<h3><a id="getDataItemCount">getDataItemCount</a></h3>
+<tt>public FUNCTION <b>getDataItemCount</b>(id SMALLINT) RETURNS INTEGER</tt><dl>
 <dd><p> Returns the current number of data items in the chart.</p></dd>
 <dd><dl>
 <dt><b>Parameters:</b></dt>
@@ -450,13 +488,13 @@
 <code>id</code> - The chart id<br>
 </dd>
 <dt><b>Returns:</b></dt>
-<dd>The number of data items.<br>
+<dd>The number of data items.<br>The number of data items.<br>
 </dd>
 </dl></dd>
 </dl>
 <hr>
-<a id="getDataItemPosition"> </a><h3>getDataItemPosition</h3>
-<tt>FUNCTION <b>getDataItemPosition</b>(id SMALLINT, itemidx SMALLINT) RETURNS DECIMAL</tt><dl>
+<h3><a id="getDataItemPosition">getDataItemPosition</a></h3>
+<tt>public FUNCTION <b>getDataItemPosition</b>(id SMALLINT, itemidx SMALLINT) RETURNS DECIMAL</tt><dl>
 <dd>
 <p> Get the data item position.</p>
 <p>
@@ -469,13 +507,13 @@
 <code>id</code> - The chart id<br><code>itemidx</code> - The index of the item.<br>
 </dd>
 <dt><b>Returns:</b></dt>
-<dd>The position of the item.<br>
+<dd>The position of the item.<br>The position of the item.<br>
 </dd>
 </dl></dd>
 </dl>
 <hr>
-<a id="getDataItemValue"> </a><h3>getDataItemValue</h3>
-<tt>FUNCTION <b>getDataItemValue</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL</tt><dl>
+<h3><a id="getDataItemValue">getDataItemValue</a></h3>
+<tt>public FUNCTION <b>getDataItemValue</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL</tt><dl>
 <dd>
 <p> Get the main value from an existing data item.</p>
 <p>
@@ -488,13 +526,13 @@
 <code>id</code> - The chart id<br><code>itemidx</code> - The index of the item.<br><code>dataidx</code> - The index of the data set.<br>
 </dd>
 <dt><b>Returns:</b></dt>
-<dd>The primary value of the item.<br>
+<dd>The primary value of the item.<br>The primary value of the item.<br>
 </dd>
 </dl></dd>
 </dl>
 <hr>
-<a id="getDataItemValue2"> </a><h3>getDataItemValue2</h3>
-<tt>FUNCTION <b>getDataItemValue2</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL</tt><dl>
+<h3><a id="getDataItemValue2">getDataItemValue2</a></h3>
+<tt>public FUNCTION <b>getDataItemValue2</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT) RETURNS DECIMAL</tt><dl>
 <dd>
 <p> Get the secondary value from an existing data item.</p>
 <p>
@@ -507,13 +545,13 @@
 <code>id</code> - The chart id<br><code>itemidx</code> - The index of the item.<br><code>dataidx</code> - The index of the data set.<br>
 </dd>
 <dt><b>Returns:</b></dt>
-<dd>The secondary value of the item.<br>
+<dd>The secondary value of the item.<br>The secondary value of the item.<br>
 </dd>
 </dl></dd>
 </dl>
 <hr>
-<a id="getDataSetCount"> </a><h3>getDataSetCount</h3>
-<tt>FUNCTION <b>getDataSetCount</b>(id SMALLINT) RETURNS INTEGER</tt><dl>
+<h3><a id="getDataSetCount">getDataSetCount</a></h3>
+<tt>public FUNCTION <b>getDataSetCount</b>(id SMALLINT) RETURNS INTEGER</tt><dl>
 <dd><p> Returns the current number of datasets in the chart.</p></dd>
 <dd><dl>
 <dt><b>Parameters:</b></dt>
@@ -521,22 +559,23 @@
 <code>id</code> - The chart id<br>
 </dd>
 <dt><b>Returns:</b></dt>
-<dd>The number of datasets.<br>
+<dd>The number of datasets.<br>The number of datasets.<br>
 </dd>
 </dl></dd>
 </dl>
 <hr>
-<a id="initialize"> </a><h3>initialize</h3>
-<tt>FUNCTION <b>initialize</b>()</tt><dl>
+<h3><a id="initialize">initialize</a></h3>
+<tt>public FUNCTION <b>initialize</b>()</tt><dl>
 <dd>
 <p> Library initialization function.</p>
 <p> This function has to be called before using other functions of this module.</p>
+<p></p>
 </dd>
 <dd><dl></dl></dd>
 </dl>
 <hr>
-<a id="render"> </a><h3>render</h3>
-<tt>FUNCTION <b>render</b>(id SMALLINT, type SMALLINT, parent om.DomNode, x STRING, y STRING, width STRING, height STRING)</tt><dl>
+<h3><a id="render">render</a></h3>
+<tt>public FUNCTION <b>render</b>(id SMALLINT, type SMALLINT, parent om.DomNode, x STRING, y STRING, width STRING, height STRING)</tt><dl>
 <dd>
 <p> Render the chart in your web component.</p>
 <p>
@@ -551,8 +590,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="reset"> </a><h3>reset</h3>
-<tt>FUNCTION <b>reset</b>(id SMALLINT)</tt><dl>
+<h3><a id="reset">reset</a></h3>
+<tt>public FUNCTION <b>reset</b>(id SMALLINT)</tt><dl>
 <dd>
 <p> Reset chart datasets.</p>
 <p> Call this function to reset the chart by deleting all datasets.</p>
@@ -568,8 +607,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setBoundaries"> </a><h3>setBoundaries</h3>
-<tt>FUNCTION <b>setBoundaries</b>(id SMALLINT, minpos DECIMAL, maxpos DECIMAL, minval DECIMAL, maxval DECIMAL)</tt><dl>
+<h3><a id="setBoundaries">setBoundaries</a></h3>
+<tt>public FUNCTION <b>setBoundaries</b>(id SMALLINT, minpos DECIMAL, maxpos DECIMAL, minval DECIMAL, maxval DECIMAL)</tt><dl>
 <dd>
 <p> Defines the coordinate limits of the chart</p>
 <p> Sets the lower and upper limits of the chart coordinate system.</p>
@@ -585,8 +624,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setDataItemValue"> </a><h3>setDataItemValue</h3>
-<tt>FUNCTION <b>setDataItemValue</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, value DECIMAL, label STRING)</tt><dl>
+<h3><a id="setDataItemValue">setDataItemValue</a></h3>
+<tt>public FUNCTION <b>setDataItemValue</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, value DECIMAL, label STRING)</tt><dl>
 <dd>
 <p> Set the main value and label of an existing data item.</p>
 <p> The data item must have been created with the defineDataItem() function.</p>
@@ -608,8 +647,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setDataItemValue2"> </a><h3>setDataItemValue2</h3>
-<tt>FUNCTION <b>setDataItemValue2</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, value DECIMAL, label STRING)</tt><dl>
+<h3><a id="setDataItemValue2">setDataItemValue2</a></h3>
+<tt>public FUNCTION <b>setDataItemValue2</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, value DECIMAL, label STRING)</tt><dl>
 <dd>
 <p> Set the secondary value and label of an existing data item.</p>
 <p> The data item must have been created with the defineDataItem() function.</p>
@@ -631,8 +670,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setGridLabelX"> </a><h3>setGridLabelX</h3>
-<tt>FUNCTION <b>setGridLabelX</b>(id SMALLINT, index SMALLINT, label STRING)</tt><dl>
+<h3><a id="setGridLabelX">setGridLabelX</a></h3>
+<tt>public FUNCTION <b>setGridLabelX</b>(id SMALLINT, index SMALLINT, label STRING)</tt><dl>
 <dd>
 <p> Set grid labels for X axis.</p>
 <p>
@@ -647,8 +686,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setGridLabelY"> </a><h3>setGridLabelY</h3>
-<tt>FUNCTION <b>setGridLabelY</b>(id SMALLINT, index SMALLINT, label STRING)</tt><dl>
+<h3><a id="setGridLabelY">setGridLabelY</a></h3>
+<tt>public FUNCTION <b>setGridLabelY</b>(id SMALLINT, index SMALLINT, label STRING)</tt><dl>
 <dd>
 <p> Set grid labels for Y axis.</p>
 <p>
@@ -663,8 +702,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setGridLabelsFromStepsX"> </a><h3>setGridLabelsFromStepsX</h3>
-<tt>FUNCTION <b>setGridLabelsFromStepsX</b>(id SMALLINT, skip SMALLINT, format STRING)</tt><dl>
+<h3><a id="setGridLabelsFromStepsX">setGridLabelsFromStepsX</a></h3>
+<tt>public FUNCTION <b>setGridLabelsFromStepsX</b>(id SMALLINT, skip SMALLINT, format STRING)</tt><dl>
 <dd>
 <p> Set grid labels for X axis from grid steps.</p>
 <p>
@@ -679,8 +718,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setGridLabelsFromStepsY"> </a><h3>setGridLabelsFromStepsY</h3>
-<tt>FUNCTION <b>setGridLabelsFromStepsY</b>(id SMALLINT, skip SMALLINT, format STRING)</tt><dl>
+<h3><a id="setGridLabelsFromStepsY">setGridLabelsFromStepsY</a></h3>
+<tt>public FUNCTION <b>setGridLabelsFromStepsY</b>(id SMALLINT, skip SMALLINT, format STRING)</tt><dl>
 <dd>
 <p> Set grid labels for Y axis from grid steps.</p>
 <p>
@@ -695,8 +734,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setRectangularRatio"> </a><h3>setRectangularRatio</h3>
-<tt>FUNCTION <b>setRectangularRatio</b>(id SMALLINT, ratio DECIMAL)</tt><dl>
+<h3><a id="setRectangularRatio">setRectangularRatio</a></h3>
+<tt>public FUNCTION <b>setRectangularRatio</b>(id SMALLINT, ratio DECIMAL)</tt><dl>
 <dd>
 <p> Defines the rectangular ratio of the chart</p>
 <p> When the positions and values ranges differe too much, use this
@@ -718,8 +757,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="setTitle"> </a><h3>setTitle</h3>
-<tt>FUNCTION <b>setTitle</b>(id SMALLINT, title STRING)</tt><dl>
+<h3><a id="setTitle">setTitle</a></h3>
+<tt>public FUNCTION <b>setTitle</b>(id SMALLINT, title STRING)</tt><dl>
 <dd>
 <p> Defines the chart main title</p>
 <p>
@@ -734,8 +773,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="showDataItemPoint"> </a><h3>showDataItemPoint</h3>
-<tt>FUNCTION <b>showDataItemPoint</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, enable BOOLEAN)</tt><dl>
+<h3><a id="showDataItemPoint">showDataItemPoint</a></h3>
+<tt>public FUNCTION <b>showDataItemPoint</b>(id SMALLINT, itemidx SMALLINT, dataidx SMALLINT, enable BOOLEAN)</tt><dl>
 <dd>
 <p> Defines if a point must be displayed for this data item.</p>
 <p> By default, when the global setting for points display is true,
@@ -753,8 +792,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="showDataSet"> </a><h3>showDataSet</h3>
-<tt>FUNCTION <b>showDataSet</b>(id SMALLINT, index SMALLINT, enable STRING)</tt><dl>
+<h3><a id="showDataSet">showDataSet</a></h3>
+<tt>public FUNCTION <b>showDataSet</b>(id SMALLINT, index SMALLINT, enable STRING)</tt><dl>
 <dd><p> Display dataset</p></dd>
 <dd><dl>
 <dt><b>Parameters:</b></dt>
@@ -764,8 +803,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="showDataSetLegend"> </a><h3>showDataSetLegend</h3>
-<tt>FUNCTION <b>showDataSetLegend</b>(id SMALLINT, position SMALLINT)</tt><dl>
+<h3><a id="showDataSetLegend">showDataSetLegend</a></h3>
+<tt>public FUNCTION <b>showDataSetLegend</b>(id SMALLINT, position SMALLINT)</tt><dl>
 <dd>
 <p> Display dataset legend</p>
 <p> Defines the position of the legend box.</p>
@@ -778,8 +817,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="showGridPositionLabels"> </a><h3>showGridPositionLabels</h3>
-<tt>FUNCTION <b>showGridPositionLabels</b>(id SMALLINT, enable BOOLEAN)</tt><dl>
+<h3><a id="showGridPositionLabels">showGridPositionLabels</a></h3>
+<tt>public FUNCTION <b>showGridPositionLabels</b>(id SMALLINT, enable BOOLEAN)</tt><dl>
 <dd><p> Display position-axis labels</p></dd>
 <dd><dl>
 <dt><b>Parameters:</b></dt>
@@ -789,8 +828,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="showGridValueLabels"> </a><h3>showGridValueLabels</h3>
-<tt>FUNCTION <b>showGridValueLabels</b>(id SMALLINT, enable BOOLEAN)</tt><dl>
+<h3><a id="showGridValueLabels">showGridValueLabels</a></h3>
+<tt>public FUNCTION <b>showGridValueLabels</b>(id SMALLINT, enable BOOLEAN)</tt><dl>
 <dd><p> Display value-axis labels</p></dd>
 <dd><dl>
 <dt><b>Parameters:</b></dt>
@@ -800,8 +839,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="showOrigin"> </a><h3>showOrigin</h3>
-<tt>FUNCTION <b>showOrigin</b>(id SMALLINT, enable BOOLEAN)</tt><dl>
+<h3><a id="showOrigin">showOrigin</a></h3>
+<tt>public FUNCTION <b>showOrigin</b>(id SMALLINT, enable BOOLEAN)</tt><dl>
 <dd><p> Display X/Y axis</p></dd>
 <dd><dl>
 <dt><b>Parameters:</b></dt>
@@ -811,8 +850,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="showPoints"> </a><h3>showPoints</h3>
-<tt>FUNCTION <b>showPoints</b>(id SMALLINT, enable BOOLEAN, style STRING)</tt><dl>
+<h3><a id="showPoints">showPoints</a></h3>
+<tt>public FUNCTION <b>showPoints</b>(id SMALLINT, enable BOOLEAN, style STRING)</tt><dl>
 <dd><p> Display points</p></dd>
 <dd><dl>
 <dt><b>Parameters:</b></dt>
@@ -822,8 +861,8 @@
 </dl></dd>
 </dl>
 <hr>
-<a id="showValueLabels"> </a><h3>showValueLabels</h3>
-<tt>FUNCTION <b>showValueLabels</b>(id SMALLINT, enable BOOLEAN)</tt><dl>
+<h3><a id="showValueLabels">showValueLabels</a></h3>
+<tt>public FUNCTION <b>showValueLabels</b>(id SMALLINT, enable BOOLEAN)</tt><dl>
 <dd><p> Display value labels</p></dd>
 <dd><dl>
 <dt><b>Parameters:</b></dt>
@@ -832,7 +871,6 @@
 </dd>
 </dl></dd>
 </dl>
-<hr>
 <table BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY=""><tr>
 <td><a href="../overview-summary.html">Overview</a></td>
 <td><a href="package-summary.html">Package</a></td>
