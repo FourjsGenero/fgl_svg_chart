@@ -1151,9 +1151,9 @@ PRIVATE FUNCTION _define_clickable_element(n,id)
     DEFINE n om.DomNode,
            id STRING
     CALL n.setAttribute("id",id)
-    CALL n.setAttribute("onclick",     "elem_clicked(this)")
-    CALL n.setAttribute("onmouseover", "elem_mouse_over(this)")
-    CALL n.setAttribute("onmouseout",  "elem_mouse_out(this)")
+    CALL n.setAttribute(SVGATT_ONCLICK,SVGVAL_ELEM_CLICKED)
+    CALL n.setAttribute(SVGATT_ONMOUSEOVER,SVGVAL_ELEM_MOUSE_OVER)
+    CALL n.setAttribute(SVGATT_ONMOUSEOUT,SVGVAL_ELEM_MOUSE_OUT)
 END FUNCTION
 
 PRIVATE FUNCTION _render_bars(id, sheet)
