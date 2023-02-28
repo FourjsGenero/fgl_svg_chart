@@ -806,7 +806,7 @@ PRIVATE FUNCTION _create_legend_box(id, pw, ph, tdy)
         CALL g.appendChild(n)
         LET r = fglsvgcanvas.rect(20,20,60,60,NULL,NULL)
         CALL r.setAttribute(fglsvgcanvas.SVGATT_CLASS,charts[id].datasets[l].style)
-        CALL r.setAttribute(fglsvgcanvas.SVGATT_STYLE, SFMT("%1:%2",fglsvgcanvas.SVGATT_FILL_OPACITY,0.8))
+        CALL r.setAttribute(fglsvgcanvas.SVGATT_STYLE, SFMT("%1:%2",fglsvgcanvas.SVGATT_FILL_OPACITY,"0.8"))
         CALL n.appendChild(r)
         LET t = fglsvgcanvas.text(90, (ch*0.60),
                                   charts[id].datasets[l].label, "legend_label")
@@ -852,7 +852,7 @@ PRIVATE FUNCTION _create_legend_box(id, pw, ph, tdy)
         LET ldxr = (pw * 0.12)
     END CASE
 
-    LET vb = SFMT("0 0 %1 %2", tw, th)
+    LET vb = SFMT("0 0 %1 %2", isodec(tw), isodec(th))
     LET b = fglsvgcanvas.svg(SFMT("legend_%1",id),
                              isodec(x), isodec(y), w, h,
                              vb, "xMidYMid meet")
@@ -983,7 +983,7 @@ PRIVATE FUNCTION _create_sheet_1(id, base, x,y,width,height)
     LET y1 = charts[id].minval - bdyt
     LET w1 = charts[id].width  + (bdxl+bdxr)
     LET h1 = charts[id].height + (bdyt+bdyb)
-    LET vb = SFMT("%1 %2 %3 %4", isodec(x1), _get_y(id,y1), isodec(w1), _get_y(id,h1) )
+    LET vb = SFMT("%1 %2 %3 %4", isodec(x1), isodec(_get_y(id,y1)), isodec(w1), isodec(_get_y(id,h1)) )
 
     LET s = fglsvgcanvas.svg(SFMT("sheet_%1",id),
                              isodec(x), isodec(y), isodec(width), isodec(height),
@@ -1041,7 +1041,7 @@ PRIVATE FUNCTION _create_grid_1(id, base)
     CALL g.setAttribute(fglsvgcanvas.SVGATT_CLASS,"grid")
     CALL base.appendChild(g)
 
-    LET fs = (5.5 * _font_size_ratio(id)) || "%"
+    LET fs = isodec(5.5 * _font_size_ratio(id)) || "%"
 
     IF charts[id].grid_np > 0 THEN
        LET dx = charts[id].width / charts[id].grid_np
@@ -1385,7 +1385,7 @@ PRIVATE FUNCTION _create_data_points(id, g, l, r, s)
            CALL n.setAttribute(fglsvgcanvas.SVGATT_CLASS, s)
         END IF
         IF NOT r THEN
-           CALL n.setAttribute(fglsvgcanvas.SVGATT_STYLE, SFMT("%1:%2",fglsvgcanvas.SVGATT_FILL_OPACITY,1.0))
+           CALL n.setAttribute(fglsvgcanvas.SVGATT_STYLE, SFMT("%1:%2",fglsvgcanvas.SVGATT_FILL_OPACITY,"1.0"))
         END IF
         CALL gi.appendChild(n)
     END FOR
@@ -1409,7 +1409,7 @@ PRIVATE FUNCTION _create_data_label(id, g, l, i, tx, ty, dx, dy)
     END IF
 
     LET fsr = (5.0 * _font_size_ratio(id))
-    LET fs = fsr || "%"
+    LET fs = isodec(fsr) || "%"
 
     IF tx IS NULL THEN
        LET tx = (charts[id].items[i].position + NVL(dx,0))

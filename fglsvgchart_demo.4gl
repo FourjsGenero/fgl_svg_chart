@@ -612,6 +612,11 @@ FUNCTION trigo_chart_data(cid,minpos,maxpos,minval,maxval)
 
 END FUNCTION
 
+PRIVATE FUNCTION isodec(v)
+    DEFINE v DECIMAL(32,10) -- Warning: must not produce exponent notation!
+    -- FIXME: Need a utility function (FGL-4196)
+    RETURN util.JSON.stringify(v)
+END FUNCTION
 
 FUNCTION compute_font_size_ratio()
     DEFINE br, tpos, tval DECIMAL
@@ -693,7 +698,7 @@ FUNCTION create_styles(cid, root_svg)
 
     -- Dataset colors
     CALL attr.clear()
-    CALL attr.addAttribute(SVGATT_FILL_OPACITY,   (params.fill_opacity/100) )
+    CALL attr.addAttribute(SVGATT_FILL_OPACITY,   isodec(params.fill_opacity/100) )
     CALL attr.addAttribute(SVGATT_STROKE_WIDTH,   "0.1%" )
 
     CALL attr.addAttribute(SVGATT_FILL,   "cyan" )
