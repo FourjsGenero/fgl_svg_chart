@@ -9,7 +9,7 @@ This Genero BDL library implements functions to draw charts in SVG.
 
 ## License
 
-This library is under [MIT license](./LICENSE)
+This source code is under [MIT license](./LICENSE)
 
 ## Prerequisites
 
